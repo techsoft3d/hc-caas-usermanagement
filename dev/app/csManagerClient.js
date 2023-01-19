@@ -8,7 +8,7 @@ class CsManagerClient {
         let myDropzone;
         if (!myAdmin.useDirectFetch) {
 
-            myDropzone = new Dropzone("div#dropzonearea", { url: serveraddress + "/api/upload", timeout: 180000 });
+            myDropzone = new Dropzone("div#dropzonearea", { url: serveraddress + "/api/caas_ac_api", timeout: 180000 });
             myDropzone.on("success", async function (file, response) {
                 myDropzone.removeFile(file);
             });       

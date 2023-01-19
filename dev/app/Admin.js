@@ -36,7 +36,7 @@ class Admin {
 
     async getConfiguration()
     {
-        var res = await fetch(serveraddress + '/caas_ac_api/configuration');
+        var res = await fetch(serveraddress + '/api/configuration');
         var data = await res.json();
         this.useDirectFetch = data.useDirectFetch;     
         this.useStreaming = data.useStreaming; 
@@ -46,7 +46,7 @@ class Admin {
     async checkLogin()
     {
         await this.getConfiguration();
-        var res = await fetch(serveraddress + '/caas_ac_api/checklogin');
+        var res = await fetch(serveraddress + '/api/checklogin');
         var data = await res.json();
         if (data.succeeded)
         {
@@ -88,7 +88,7 @@ class Admin {
 
     async handleLogout()
     {
-        var res = await fetch(serveraddress + '/caas_ac_api/logout/', { method: 'PUT' });
+        var res = await fetch(serveraddress + '/api/logout/', { method: 'PUT' });
         window.location.reload(true); 
 
     }
