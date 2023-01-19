@@ -49,8 +49,7 @@ export class CaasAcc {
         var res = await fetch(this.serveraddress + '/caas_ac_api/logout/', { method: 'PUT' });        
 
     }
-
-
+    
     register(info) {
 
         var fd = new FormData();
@@ -77,7 +76,6 @@ export class CaasAcc {
             });
         });
     }
-
 
     login(email, password) {
 
@@ -107,8 +105,6 @@ export class CaasAcc {
             });
         });
     }
-
-
 
     async leaveHub() {
         await fetch(this.serveraddress + '/caas_ac_api/hub/none', { method: 'PUT' });
@@ -267,5 +263,29 @@ export class CaasAcc {
         await fetch(this.serveraddress + '/caas_ac_api/deleteModel/' + itemid, { method: 'PUT'});
     }
 
+    async initializeWebviewer(container) {
+
+        let viewer;
+        if (!myAdmin.useStreaming) {
+            viewer = new Communicator.WebViewer({
+                containerId: container,
+                empty: true,
+                streamingMode: 1
+              });
+        }
+        else {
+
+            let res = await fetch(serveraddress + '/caas_ac_api/streamingSession');
+            var data = await res.json();
+
+            viewer = new Communicator.WebViewer({
+                containerId: container,
+                endpointUri: 'ws://' + data.serverurl + ":" + data.port + '?token=' + data.sessionid,
+                model: "_empty",
+                rendererType: Communicator.RendererType.Client
+            });
+        }
+        return viewer;
+    }
 }
 
