@@ -15,33 +15,7 @@ const csFilesSchema = new Schema({
     type: Boolean,
     required: true
   },
-
-  hasSTEP: {
-    type: String,
-    required: false
-  },
-
-  hasFBX: {
-    type: String,
-    required: false
-  },
-
-  hasHSF: {
-    type: String,
-    required: false
-  },
-
-  hasGLB: {
-    type: String,
-    required: false
-  },
-
-
-  hasXML: {
-    type: String,
-    required: false
-  },
-  
+ 
   filesize: { 
     type:Number,
     required: false

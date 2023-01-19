@@ -13,14 +13,6 @@ router.put('/processToken/:itemid', apiController.processFromToken);
 router.get('/models', apiController.getModels);
 router.get('/scs/:itemid', apiController.getSCS);
 router.get('/png/:itemid', apiController.getPNG);
-router.get('/step/:itemid', apiController.getSTEP);
-router.get('/fbx/:itemid', apiController.getFBX);
-router.put('/generateStep/:itemid', apiController.generateSTEP);
-router.get('/glb/:itemid', apiController.getGLB);
-router.get('/hsf/:itemid', apiController.getHSF);
-router.put('/generateFBX/:itemid', apiController.generateFBX);
-router.put('/generateGLB/:itemid', apiController.generateGLB);
-router.put('/generateHSF/:itemid', apiController.generateHSF);
 router.put('/customImage/:itemid', apiController.generateCustomImage);
 
 router.get('/xml/:itemid', apiController.getXML);

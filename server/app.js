@@ -28,6 +28,9 @@ process.on('uncaughtException', function (err) {
 //const conversionservice = require('ts3d-hc-conversionservice');
 
 
+exports.getFiles = function () {
+  return require('./models/csFiles'); 
+};
 
 
 exports.start = async function (app,mongoose_in) {

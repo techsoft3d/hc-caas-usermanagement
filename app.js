@@ -9,7 +9,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/public/viewer.html');
 });
-caasAc.start(app);
+
+(async () => {
+await caasAc.start(app);
+let files = caasAc.getFiles();
+let notConverted = await files.find({ "converted": true });
+let i=0;
+})();
 app.listen(3000);
 
 
