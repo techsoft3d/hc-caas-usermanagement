@@ -15,9 +15,6 @@ router.get('/scs/:itemid', apiController.getSCS);
 router.get('/png/:itemid', apiController.getPNG);
 router.put('/customImage/:itemid', apiController.generateCustomImage);
 
-router.get('/xml/:itemid', apiController.getXML);
-router.put('/generateXML/:itemid', apiController.generateXML);
-
 router.put('/deleteModel/:itemid', apiController.deleteModel);
 
 router.put('/newproject/:projectname', loginController.putNewProject);
@@ -40,7 +37,6 @@ router.put('/deleteHub/:hubid', loginController.putDeleteHub);
 router.put('/newhub/:hubname', loginController.putNewHub);
 router.put('/acceptHub/:hubid/:userid', loginController.acceptHub);
 router.put('/renameHub/:hubid/:newname', loginController.putRenameHub);
-
 
 router.get('/users', loginController.getUsers);
 

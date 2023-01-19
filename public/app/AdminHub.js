@@ -68,10 +68,6 @@ class AdminHub {
 
     }
 
-   
-
-
-
 
     async _acceptEdit(event) {
         let id = event.currentTarget.id.split("-")[1];

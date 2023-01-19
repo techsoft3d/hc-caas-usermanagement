@@ -116,38 +116,15 @@ exports.generateCustomImage = async (itemid, project, startpath) => {
 };
 
 
-exports.generateXML = async (itemid, project, startpath) => {
-    
-    let item = await CsFiles.findOne({ "_id": itemid, project:project});
-    if (!item.hasXML || item.hasXML == "false")
-    {
-        item.hasXML = "pending";
-        await item.save();
-        console.log("processing XML:" + item.name);
-        let api_arg  = {conversionCommandLine:["--output_xml_assemblytree","","--sc_export_attributes","1"] };            
-        res = await fetch(conversionServiceURI + '/api/reconvert/' + item.storageID, { method: 'put',headers: { 'CS-API-Arg': JSON.stringify(api_arg) } });
-         _updated();
-
-    }
-
-};
-
 exports.getModels = async (project) => {
     let models = await CsFiles.find({project:project});
     let res = [];
     for (let i = 0; i < models.length; i++) {
-        res.push({ name: models[i].name, id: models[i]._id.toString(), pending: !models[i].converted, category:models[i].category,uploaded:models[i].uploaded, filesize:models[i].filesize, hasStep:models[i].hasSTEP,
-            hasXML:models[i].hasXML,hasGLB:models[i].hasGLB,hasHSF:models[i].hasHSF,hasFBX:models[i].hasFBX});
+        res.push({ name: models[i].name, id: models[i]._id.toString(), pending: !models[i].converted, category:models[i].category,uploaded:models[i].uploaded, filesize:models[i].filesize});
     }
     return {"updated":_updatedTime.toString(), "modelarray":res};
 };
 
-
-exports.getXML = async (itemid,project) => {
-    let item = await CsFiles.findOne({ "_id": itemid, project:project});
-    let res = await fetch(conversionServiceURI + '/api/file/' + item.storageID + "/xml");
-    return await res.arrayBuffer();
-};
 
 
 exports.getSCS = async (itemid,project) => {
@@ -172,18 +149,6 @@ exports.getPNG = async (itemid, project) => {
 exports.updateConversionStatus =  async (storageId, files) => {
     let item = await CsFiles.findOne({ "storageID": storageId});
 
-    if (files && (item.hasSTEP == "pending" || item.hasXML == "pending" || item.hasGLB == "pending" || item.hasHSF == "pending" || item.hasFBX == "pending"))
-    {
-        for (let i=0;i<files.length;i++)
-        {           
-            if (files[i].indexOf(".xml") !=-1)
-            {
-                item.hasXML = "true";
-                await item.save();
-                _updated();
-            }           
-        }
-    }
     _checkPendingConversions();
 };
 
