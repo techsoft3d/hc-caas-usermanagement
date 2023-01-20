@@ -1,7 +1,7 @@
 const path = require('path');
 const express = require('express');
-const apiController = require('../server/controllers/api');
-const loginController = require('../server/controllers/login');
+const apiController = require('../controllers/api');
+const loginController = require('../controllers/login');
 const router = express.Router();
 
 module.exports = router;

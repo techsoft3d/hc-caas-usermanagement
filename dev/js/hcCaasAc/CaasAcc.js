@@ -39,7 +39,7 @@ export class CaasAcc {
             }
             else {
                 this.currentHub = data.hub;
-                this.adminProject.loadProject(data.project);
+                this.currentProject = data.project;
             }
         }
     }
