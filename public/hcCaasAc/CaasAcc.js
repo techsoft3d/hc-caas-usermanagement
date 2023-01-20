@@ -27,8 +27,17 @@ export class CaasAcc {
         return this.useDirectFetch;
     }
 
+    
+    getUseStreaming() {
+        return this.useStreaming;
+    }
+
     getDemoMode() {
         return this.demoMode;
+    }
+
+    getUploadURL() {
+        return this.serveraddress + '/caas_ac_api/upload';
     }
 
     async getConfiguration()

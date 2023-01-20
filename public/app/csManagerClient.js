@@ -8,7 +8,7 @@ class CsManagerClient {
         let myDropzone;
         if (!myCaaSAC.getUseDirectFetch()) {
 
-            myDropzone = new Dropzone("div#dropzonearea", { url: serveraddress + "/api/caas_ac_api", timeout: 180000 });
+            myDropzone = new Dropzone("div#dropzonearea", { url: myCaaSAC.getUploadURL(), timeout: 180000 });
             myDropzone.on("success", async function (file, response) {
                 myDropzone.removeFile(file);
             });       
@@ -28,10 +28,8 @@ class CsManagerClient {
                         fileType: file.type,
                     };
 
-                    let data = await fetch(serveraddress + '/caas_ac_api/uploadToken/' + file.name + "/" + file.size);
+                    let json = await myCaaSAC.getUploadToken(file.name,file.size);
                     
-                    let json = await data.json();
-
                     file.itemid = json.itemid;
                     file.signedRequest = json.token;
                     cb();
@@ -52,8 +50,7 @@ class CsManagerClient {
             });
 
             myDropzone.on("success", async function (file, response) {
-                fetch(serveraddress + '/caas_ac_api/processToken/' + file.itemid, { method: 'PUT',headers: {'startpath': $("#modelpath").val()} });
-
+                myCaaSAC.processUploadFromToken(file.itemid,$("#modelpath").val());
                 myDropzone.removeFile(file);
             });
 
@@ -71,8 +68,6 @@ class CsManagerClient {
         setInterval(async function () {
             await _this._checkForNewModels();
         }, 3000);
-
-
     }
 
     showUploadWindow() {
@@ -84,10 +79,7 @@ class CsManagerClient {
     }
 
     async _checkForNewModels() {
-        var _this = this;
-
-        var res = await fetch(serveraddress + '/caas_ac_api/models');
-        var data = await res.json();
+        let data = await myCaaSAC.getModels();
 
         var newtime = Date.parse(data.updated);
         if (this._updatedTime == undefined || this._updatedTime != newtime)
@@ -104,17 +96,14 @@ class CsManagerClient {
             var file = data[i].name.split(".")[0];
             if (!data[i].pending) {
                 let image = null;
-                if (myAdmin.useDirectFetch) {
-                    let res = await fetch(serveraddress + '/caas_ac_api/downloadToken/' + data[i].id + "/" + "png");
-                    let json = await res.json();
+                if (myCaaSAC.getUseDirectFetch()) {
+                    let json = myCaaSAC.getDownloadToken(data[i].id, "png");
                     if (!json.error) {
-
                         image = await fetch(json.token);
                     }
                 }
                 else {
-
-                    image = await fetch(serveraddress + '/caas_ac_api/png/' + data[i].id);
+                    image = await myCaaSAC.getPNG(data[i].id);
                 }
 
                 if (image && image.status == 200) {
@@ -282,7 +271,7 @@ class CsManagerClient {
                         csManagerClient._modelHash[modelid].nodeid = null;
                     }
                     delete csManagerClient._modelHash[modelid];
-                    await fetch(serveraddress + '/caas_ac_api/deleteModel/' + modelid, { method: 'PUT'});
+                    await myCaaSAC.deleteModel(modelid);
 
                 }
             },
@@ -400,17 +389,17 @@ class CsManagerClient {
                 }
 
                 let res;
-                if (!myAdmin.useStreaming) {
-                    if (myAdmin.useDirectFetch) {
-                        res = await fetch(serveraddress + '/caas_ac_api/downloadToken/' + modelid + "/" + "scs");
-                        let json = await res.json();
+                if (!myCaaSAC.getUseStreaming()) {
+                    let byteArray;
+                    if (myCaaSAC.getUseDirectFetch()) {
+                        let json = myCaaSAC.getDownloadToken(modelid, "scs");
                         res = await fetch(json.token);
+                        let ab = await res.arrayBuffer();
+                        byteArray = new Uint8Array(ab);
                     }
                     else {
-                        res = await fetch(serveraddress + '/caas_ac_api/scs/' + modelid);
+                        byteArray = await myCaaSAC.getSCS(modelid);
                     }
-                    let ab = await res.arrayBuffer();
-                    let byteArray = new Uint8Array(ab);
 
                     if (this._modelHash[modelid].name.indexOf(".dwg") != -1 && numberchecked == 0) {
                         hwv.view.setAmbientOcclusionEnabled(false);
@@ -426,7 +415,7 @@ class CsManagerClient {
                 }
                 else
                 {
-                    res = await fetch(serveraddress + '/caas_ac_api/enableStreamAccess/' + modelid,{ method: 'PUT' });
+                    await myCaaSAC.enableStreamAccess(modelid);
                     let modelnode = hwv.model.createNode(modelid);
                     await hwv.model.loadSubtreeFromModel(modelnode,this._modelHash[modelid].name);
                     this._modelHash[modelid].nodeid = modelnode;

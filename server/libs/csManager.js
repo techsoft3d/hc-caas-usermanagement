@@ -33,8 +33,8 @@ exports.process = async (tempid, filename, project,startpath) => {
     let form = new FormData();
     form.append('file', fs.createReadStream("./csmodelupload/" + tempid + "/" + filename));
 
-//    let api_arg  = {webhook:"http://localhost:3000" + '/api/webhook',conversionCommandLine:["--output_scs","","--output_png","","background_color","0,0,0","--output_step",""] };
-    let api_arg  = {webhook:"http://localhost:3000" + '/api/webhook', startPath:startpath};
+//    let api_arg  = {webhook:"http://localhost:3000" + '/caas_ac_api/webhook',conversionCommandLine:["--output_scs","","--output_png","","background_color","0,0,0","--output_step",""] };
+    let api_arg  = {webhook:"http://localhost:3000" + '/caas_ac_api/webhook', startPath:startpath};
         
     res = await fetch(conversionServiceURI + '/api/upload', { method: 'POST', body: form,headers: {'CS-API-Arg': JSON.stringify(api_arg)}});
     const data = await res.json();
@@ -49,7 +49,7 @@ exports.process = async (tempid, filename, project,startpath) => {
 };
 
 exports.getUploadToken = async (name, size, project) => {
-    let api_arg = { webhook: "http://localhost:3000" + '/api/webhook' };
+    let api_arg = { webhook: "http://localhost:3000" + '/caas_ac_api/webhook' };
 
     let res;
     try {
