@@ -8,8 +8,6 @@ class MainUI {
         this.sideBars = [];
 
     }
-
-
     setupMenu() {
 
         var viewermenu = [

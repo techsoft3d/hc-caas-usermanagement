@@ -55,7 +55,6 @@ class CsManagerClient {
             });
 
         }
-
     }
 
     constructor() {
@@ -120,11 +119,6 @@ class CsManagerClient {
                     this._modelHash[data[i].id] = { nodeid: null, name: data[i].name,image: part, filesize: data[i].filesize, uploaded: data[i].uploaded};
                 }
                 this._modelHash[data[i].id].image = part;
-                this._modelHash[data[i].id].hasStep  = data[i].hasStep;
-                this._modelHash[data[i].id].hasFBX  = data[i].hasFBX;
-                this._modelHash[data[i].id].hasHSF  = data[i].hasHSF;
-                this._modelHash[data[i].id].hasGLB  = data[i].hasGLB;
-                this._modelHash[data[i].id].hasXML  = data[i].hasXML;
             }
         }
         this._drawModelList("sidebar_modellist");
@@ -176,90 +170,7 @@ class CsManagerClient {
 
         $("#" + targetdiv).append(html);
 
-        var viewermenu = [
-            {
-                name: 'Generate STEP',
-                fun: async function (item) {
-                    let modelid = item.trigger[0].id.split("_")[1];
-                   
-                    await fetch(serveraddress + '/caas_ac_api/generateStep/' + modelid, { method: 'PUT'});
-                }
-            },
-            {
-                name: 'Generate XML',
-                fun: async function (item) {
-                    let modelid = item.trigger[0].id.split("_")[1];
-                   
-                    await fetch(serveraddress + '/caas_ac_api/generateXML/' + modelid, { method: 'PUT'});
-                }
-            },
-            {
-                name: 'Generate GLB',
-                fun: async function (item) {
-                    let modelid = item.trigger[0].id.split("_")[1];
-                   
-                    await fetch(serveraddress + '/caas_ac_api/generateGLB/' + modelid, { method: 'PUT'});
-                }
-            },
-            {
-                name: 'Download STEP',
-                fun: async function (item) {
-                    let modelid = item.trigger[0].id.split("_")[1];
-
-                    let res = await fetch(serveraddress + '/caas_ac_api/step/' + modelid);
-                    let ab = await res.arrayBuffer();
-                    let byteArray = new Uint8Array(ab);
-
-                    csManagerClient._exportToFile(byteArray, csManagerClient._modelHash[modelid].name + ".step");
-                   
-
-                }
-            },
-            {
-                name: 'Download XML',
-                fun: async function (item) {
-                    let modelid = item.trigger[0].id.split("_")[1];
-
-                    let res = await fetch(serveraddress + '/caas_ac_api/xml/' + modelid);
-                    let ab = await res.arrayBuffer();
-                    let byteArray = new Uint8Array(ab);
-                    csManagerClient._exportToFile(byteArray, csManagerClient._modelHash[modelid].name + ".xml");                   
-                }
-            },
-            {
-                name: 'Download GLB',
-                fun: async function (item) {
-                    let modelid = item.trigger[0].id.split("_")[1];
-
-                    let res = await fetch(serveraddress + '/caas_ac_api/glb/' + modelid);
-                    let ab = await res.arrayBuffer();
-                    let byteArray = new Uint8Array(ab);
-                    csManagerClient._exportToFile(byteArray, csManagerClient._modelHash[modelid].name + ".glb");                   
-                }
-            },
-            {
-                name: 'Download SCS',
-                fun: async function (item) {
-                    let modelid = item.trigger[0].id.split("_")[1];
-
-                    let res = await fetch(serveraddress + '/caas_ac_api/scs/' + modelid);
-                    let ab = await res.arrayBuffer();
-                    let byteArray = new Uint8Array(ab);
-
-                    csManagerClient._exportToFile(byteArray, csManagerClient._modelHash[modelid].name + ".scs");
-                   
-
-                }
-            },
-            {
-                name: 'Generate Custom Image',
-                fun: async function (item) {
-                    let modelid = item.trigger[0].id.split("_")[1];
-
-                    let res = await fetch(serveraddress + '/caas_ac_api/customImage/' + modelid, { method: 'PUT'});
-                                     
-                }
-            },
+        let viewermenu = [                    
             {
                 name: 'Delete',
                 fun: async function (item) {
@@ -274,97 +185,15 @@ class CsManagerClient {
                     await myCaaSAC.deleteModel(modelid);
 
                 }
-            },
-            {
-                name: 'Generate HSF',
-                fun: async function (item) {
-                    let modelid = item.trigger[0].id.split("_")[1];
-                   
-                    await fetch(serveraddress + '/caas_ac_api/generateHSF/' + modelid, { method: 'PUT'});
-                }
-            },
-            {
-                name: 'Download HSF',
-                fun: async function (item) {
-                    let modelid = item.trigger[0].id.split("_")[1];
-
-                    let res = await fetch(serveraddress + '/caas_ac_api/hsf/' + modelid);
-                    let ab = await res.arrayBuffer();
-                    let byteArray = new Uint8Array(ab);
-                    csManagerClient._exportToFile(byteArray, csManagerClient._modelHash[modelid].name + ".hsf");                   
-                }
-            },
-            {
-                name: 'Generate FBX',
-                fun: async function (item) {
-                    let modelid = item.trigger[0].id.split("_")[1];
-                   
-                    await fetch(serveraddress + '/caas_ac_api/generateFBX/' + modelid, { method: 'PUT'});
-                }
-            },
-            {
-                name: 'Download FBX',
-                fun: async function (item) {
-                    let modelid = item.trigger[0].id.split("_")[1];
-
-                    let res = await fetch(serveraddress + '/caas_ac_api/fbx/' + modelid);
-                    let ab = await res.arrayBuffer();
-                    let byteArray = new Uint8Array(ab);
-                    csManagerClient._exportToFile(byteArray, csManagerClient._modelHash[modelid].name + ".fbx");                   
-                }
-            },
+            }          
         ];
 
         $("[id^=modelmenubutton]").each(function (index) {
             let modelid = this.id.split("_")[1];
             let item = csManagerClient._modelHash[modelid];
-            let newViewerMenu = [viewermenu[6],viewermenu[7],viewermenu[8]];
-            if (item.hasStep == "true")
-            {
-                newViewerMenu.unshift(viewermenu[3]);
-            }        
-            else if (!item.hasStep || item.hasStep == "false")
-            {
-                newViewerMenu.unshift(viewermenu[0]);
-            }
+          
 
-            if (item.hasXML && item.hasXML == "true")
-            {
-                newViewerMenu.unshift(viewermenu[4]);
-            }        
-            else if (!item.hasXML || item.hasXML == "false")
-            {
-                newViewerMenu.unshift(viewermenu[1]);
-            }
-
-            
-            if (item.hasGLB && item.hasGLB == "true")
-            {
-                newViewerMenu.unshift(viewermenu[5]);
-            }        
-            else if (!item.hasGLB || item.hasGLB == "false")
-            {
-                newViewerMenu.unshift(viewermenu[2]);
-            }
-
-            if (item.hasHSF && item.hasHSF == "true")
-            {
-                newViewerMenu.unshift(viewermenu[10]);
-            }        
-            else if (!item.hasHSF || item.hasHSF == "false")
-            {
-                newViewerMenu.unshift(viewermenu[9]);
-            }
-            if (item.hasFBX && item.hasFBX == "true")
-            {
-                newViewerMenu.unshift(viewermenu[12]);
-            }        
-            else if (!item.hasFBX || item.hasFBX == "false")
-            {
-                newViewerMenu.unshift(viewermenu[11]);
-            }
-
-            $(this).contextMenu("menu", newViewerMenu, {
+            $(this).contextMenu("menu", viewermenu, {
                 'displayAround': 'trigger',
                 'position': 'bottom',
                 verAdjust: 0,
