@@ -45,7 +45,7 @@ class MainUI {
             }
 
         ];
-        if (!myAdmin.demoMode)
+        if (!myCaaSAC.getDemoMode())
         {
           $('#viewermenu1button').contextMenu("menu", viewermenu, {
             'displayAround': 'trigger',
@@ -105,7 +105,7 @@ class MainUI {
 
     updateMenu() {
         
-        if (!myAdmin.currentUser) {
+        if (!myCaaSAC.getCurrentUser()) {
             $("li:contains(Logout)").css("opacity", "0.2");
             $("li:contains(Logout)").css("pointer-events", "none");
 
@@ -124,7 +124,7 @@ class MainUI {
 
 
         }
-        if (myAdmin.currentUser) {
+        if (myCaaSAC.getCurrentUser()) {
 
             $("li:contains(Logout)").css("opacity", "1.0");
             $("li:contains(Logout)").css("pointer-events", "all");
@@ -144,7 +144,7 @@ class MainUI {
 
         }
 
-        if (myAdmin.currentProject) {
+        if (myCaaSAC.getCurrentProject()) {
             $("#content").css("display", "block");
             $("body").css("background", "");
             $(".sidenav").css("pointer-events", "");

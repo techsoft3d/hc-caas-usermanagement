@@ -1,7 +1,7 @@
 const path = require('path');
 
 module.exports = {
-  entry: './dev/js/hcCaasAc/CaasAcc.js',
+  entry: './public/hcCaasAc/CaasAcc.js',
   mode: "production",
   output: {
     path: path.resolve(__dirname, 'dist'),

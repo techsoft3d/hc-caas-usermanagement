@@ -45,8 +45,8 @@ exports.start = async function (app,mongoose_in) {
   }
 
 
-    const apiRoutes = require('../routes/api');
-    const loginRoutes = require('../routes/login');
+    const apiRoutes = require('./routes/api');
+    const loginRoutes = require('./routes/login');
 
     let csmanager = require('./libs/csManager');
     app.use(cors());

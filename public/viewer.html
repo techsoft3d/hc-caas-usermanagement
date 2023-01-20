@@ -79,13 +79,17 @@
   <link href='https://unpkg.com/boxicons@2.0.8/css/boxicons.min.css' rel='stylesheet'>
   
 
-  <script type="text/javascript" id="viewerStartup">
+  <script type="module" id="viewerStartup">
 
+
+
+    import {CaasAcc}  from './hcCaasAc/CaasAcc.js';
+    window.CaasAcc = CaasAcc;
     Dropzone.autoDiscover = false;
 
-    var hwv = null;
-    var ui = null;
-    var md = new MobileDetect(window.navigator.userAgent);
+    window.hwv = null;
+    window.ui = null;
+    window.md = new MobileDetect(window.navigator.userAgent);
 
     window.onload = async function () {
       setupApp();           

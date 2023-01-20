@@ -22,8 +22,7 @@ class AdminHub {
       
         let myModal = new bootstrap.Modal(document.getElementById('choosehubModal'));
         myModal.toggle();
-        var response = await fetch(serveraddress + '/caas_ac_api/hubs');
-        var models = await response.json();
+        let models = await myCaaSAC.getHubs();
 
         $("#hubselect").empty();
         var html = "";
@@ -56,18 +55,13 @@ class AdminHub {
     
     async loadHub(hubid) {
        
-        let res = await fetch(serveraddress + '/caas_ac_api/hub/' + hubid, { method: 'PUT' });
-        let data = await res.json();
-        myAdmin.currentHub = data;  
+        await myCaaSAC.loadHub(hubid);
         
-        $(".loggedinuser").html(myAdmin.currentUser.email + " - Hub:" + data.name);
+        $(".loggedinuser").html(myCaaSAC.getCurrentUser().email + " - Hub:" + myCaaSAC.getCurrentHub().name);
            
         myAdmin._updateUI();
         myAdmin.adminProject.handleProjectSelection();
-  
-
     }
-
 
     async _acceptEdit(event) {
         let id = event.currentTarget.id.split("-")[1];

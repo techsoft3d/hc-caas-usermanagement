@@ -6,7 +6,7 @@ class CsManagerClient {
 
         csManagerClient = new CsManagerClient();
         let myDropzone;
-        if (!myAdmin.useDirectFetch) {
+        if (!myCaaSAC.getUseDirectFetch()) {
 
             myDropzone = new Dropzone("div#dropzonearea", { url: serveraddress + "/api/caas_ac_api", timeout: 180000 });
             myDropzone.on("success", async function (file, response) {

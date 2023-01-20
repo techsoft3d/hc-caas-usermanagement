@@ -1,9 +1,11 @@
 const serveraddress = "http://" + window.location.host;
 var myAdmin;
+var myCaaSAC;
 
 
 async function setupApp() {
 
+  myCaaSAC = new CaasAcc(serveraddress); 
   $.notify.addStyle('notifyerror', {
     html: "<div><span data-notify-text/></div>",
     classes: {
@@ -35,8 +37,9 @@ async function setupApp() {
 
 
 
-function loadProjectCallback() {
-  initializeViewer();
+async function loadProjectCallback() {
+
+  await initializeViewer();
   CsManagerClient.msready();
 }
 
@@ -69,24 +72,8 @@ function msready() {
 async function initializeViewer()
 {
   
-  let viewer;
-  if (!myAdmin.useStreaming) {
-    viewer = await Sample.createViewer();
-  }
-  else {
-
-    let res = await fetch(serveraddress + '/caas_ac_api/streamingSession');
-    var data = await res.json();
-
-    viewer = new Communicator.WebViewer({
-      containerId: "content",
-      endpointUri: 'ws://' + data.serverurl + ":" + data.port + '?token=' + data.sessionid,
-      model: "_empty",
-      rendererType:  Communicator.RendererType.Client
-    });
-  }
-
-  hwv = viewer;
+  hwv = await myCaaSAC.initializeWebviewer("content");
+  
   var screenConfiguration =
     md.mobile() !== null
       ? Communicator.ScreenConfiguration.Mobile
@@ -99,7 +86,6 @@ async function initializeViewer()
   };
 
   ui = new Communicator.Ui.Desktop.DesktopUi(hwv, uiConfig);
-
 
   hwv.setCallbacks({
     modelStructureReady: msready,

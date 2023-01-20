@@ -10,6 +10,27 @@ export class CaasAcc {
         this.serveraddress = serveraddress;
     }
 
+
+    getCurrentUser() {
+        return this.currentUser;
+    }
+
+    getCurrentHub() {
+        return this.currentHub;
+    }
+
+    getCurrentProject() {
+        return this.currentProject;
+    }
+
+    getUseDirectFetch() {
+        return this.useDirectFetch;
+    }
+
+    getDemoMode() {
+        return this.demoMode;
+    }
+
     async getConfiguration()
     {
         var res = await fetch(this.serveraddress + '/caas_ac_api/configuration');
@@ -21,7 +42,6 @@ export class CaasAcc {
 
     async checkLogin()
     {
-        await this.getConfiguration();
         var res = await fetch(this.serveraddress + '/caas_ac_api/checklogin');
         var data = await res.json();
         if (data.succeeded)
@@ -41,7 +61,9 @@ export class CaasAcc {
                 this.currentHub = data.hub;
                 this.currentProject = data.project;
             }
+            return true;
         }
+        return false;
     }
 
     async logout()
@@ -60,7 +82,7 @@ export class CaasAcc {
 
         return new Promise(function (resolve, reject) {
             $.ajax({
-                url: this.serveraddress + "/api/register",
+                url: _this.serveraddress + "/caas_ac_api/register",
                 type: 'post',
                 data: fd,
                 contentType: false,
@@ -86,7 +108,7 @@ export class CaasAcc {
         var _this = this;
         return new Promise(function (resolve, reject) {
             $.ajax({
-                url: this.serveraddress + "/api/login",
+                url: _this.serveraddress + "/caas_ac_api/login",
                 type: 'post',
                 data: fd,
                 contentType: false,
@@ -94,8 +116,7 @@ export class CaasAcc {
                 success: function (response) {
                     if (response.ERROR) {
 
-                        resolve(response.ERROR);
-
+                        resolve(response);
                     }
                     else {
                         _this.currentUser = response.user;
@@ -192,6 +213,7 @@ export class CaasAcc {
 
     async loadProject(projectid) {
         var res = await fetch(this.serveraddress + '/caas_ac_api/project/' + projectid, { method: 'PUT' });
+        let data = await res.json();
         this.currentProject = data.projectname;
     }
 
@@ -266,7 +288,7 @@ export class CaasAcc {
     async initializeWebviewer(container) {
 
         let viewer;
-        if (!myAdmin.useStreaming) {
+        if (!this.useStreaming) {
             viewer = new Communicator.WebViewer({
                 containerId: container,
                 empty: true,
@@ -275,7 +297,7 @@ export class CaasAcc {
         }
         else {
 
-            let res = await fetch(serveraddress + '/caas_ac_api/streamingSession');
+            let res = await fetch(this.serveraddress + '/caas_ac_api/streamingSession');
             var data = await res.json();
 
             viewer = new Communicator.WebViewer({

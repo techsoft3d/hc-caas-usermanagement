@@ -48,12 +48,11 @@ class AdminProject {
 
     async loadProject(projectid) {
        
-        var res = await fetch(serveraddress + '/caas_ac_api/project/' + projectid, { method: 'PUT' });
-        $(".projectname").empty();
-        var data = await res.json();
-        $(".projectname").append(data.projectname);  
+        await myCaaSAC.loadProject(projectid);
 
-        myAdmin.currentProject = data.projectname;              
+        $(".projectname").empty();
+        $(".projectname").append(myCaaSAC.getCurrentProject());  
+
         myAdmin._updateUI();
         $(".modal-backdrop").remove();
         if (this._loadProjectCallback) {
@@ -69,8 +68,7 @@ class AdminProject {
       
         let myModal = new bootstrap.Modal(document.getElementById('chooseprojectModal'));
         myModal.toggle();
-        var response = await fetch(serveraddress + '/caas_ac_api/projects');
-        var models = await response.json();
+        let models =  await myCaaSAC.getProjects();
 
         $("#projectselect").empty();
         var html = "";
@@ -97,9 +95,6 @@ class AdminProject {
         this._projectusertable.redraw();
 
     }
-
-
-
 
     async _acceptEdit(event) {
         let id = event.currentTarget.id.split("-")[1];
