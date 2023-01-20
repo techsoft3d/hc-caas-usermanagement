@@ -1,8 +1,6 @@
 var mainUI;
 
 class MainUI {
-
-
     constructor() {
 
         this.sideBars = [];
@@ -41,7 +39,6 @@ class MainUI {
                     myAdmin.handleRegistration();
                 }
             }
-
         ];
         if (!myCaaSAC.getDemoMode())
         {
@@ -55,8 +52,7 @@ class MainUI {
         {
           $('#viewermenu1button').css("display", "none");
           $('.fileUploadButton').css("display", "none");
-        }
-       
+        }       
     }
 
     registerSideBars(div, width, callback) {
@@ -71,7 +67,6 @@ class MainUI {
         }
         $("#content").css("margin-left", "40px");
         $("#content").css({ "width": "" });
-
     }
 
     toggleExpansion(div) {
@@ -90,7 +85,6 @@ class MainUI {
             $("#content").css({ "width": newwidth + "px" });
             sidebar.expanded = true;
             $("#" + div + "_button").css("color", "white");
-
         }
         else {
             this.collapseAll();
@@ -119,8 +113,6 @@ class MainUI {
 
             $("li:contains(Switch Hub)").css("opacity", "0.2");
             $("li:contains(Switch Hub)").css("pointer-events", "none");
-
-
         }
         if (myCaaSAC.getCurrentUser()) {
 
@@ -138,8 +130,6 @@ class MainUI {
 
             $("li:contains(Register)").css("opacity", "0.2");
             $("li:contains(Register)").css("pointer-events", "none");
-
-
         }
 
         if (myCaaSAC.getCurrentProject()) {

@@ -1,18 +1,14 @@
 class AdminHub {
 
     constructor() {
-   
-        this._hubusertable = null;
-       
-
+        this._hubusertable = null;    
     }
+
     async handleHubSwitch()
     {
         myCaaSAC.leaveHub();
         window.location.reload(true); 
-
     }
-
 
     async loadHubFromDialog() {
         await this.loadHub($("#hubselect").val());
@@ -31,26 +27,21 @@ class AdminHub {
             html += '<option value="' + cm.id + '">' + cm.name + '</option>';
         }
         $("#hubselect").append(html);
-
     }
-
     
     async renameHub() {
         myCaaSAC.renameHub(this.editHub.id, $("#editHubName").val());
     }
-
     
     handleNewHubDialog() {
         let myModal = new bootstrap.Modal(document.getElementById('newhubModal'));
         myModal.toggle();
     }
 
-    
     async newHub() {
-        let data = myCaaSAC.createHub($("#newHubName").val());
+        let data = await myCaaSAC.createHub($("#newHubName").val());
         this.loadHub(data.hubid);
     }
-
     
     async loadHub(hubid) {
        
@@ -94,7 +85,6 @@ class AdminHub {
         return data.edit;
     }
 
-
     addUserToHub()
     {
         let prop = {id:this._hubusertable.getData().length,email:"", role:"User", edit:true};
@@ -117,7 +107,7 @@ class AdminHub {
     async _deleteUserFromHub(event) {
         let id = event.currentTarget.id.split("-")[1];
         let email = this._hubusertable.getRow(id).getCell("email").getValue();
-        await myCaaSAC.deleteUserFromHub(this.editHub.id, email);
+        await myCaaSAC.deleteHubUser(this.editHub.id, email);
         this.refreshHubTable();
     }
 
@@ -126,7 +116,6 @@ class AdminHub {
         await myCaaSAC.deleteHub($("#hubselect").val());
         this.handleHubSelection();
     }
-
 
     async _acceptHubParticipation(event) {
         let id = event.currentTarget.id.split("-")[1];
@@ -165,7 +154,7 @@ class AdminHub {
 
         let hasAcceptButton = false;
         if (!accepted && rowdata.email != "") {
-            if (rowdata.email == myAdmin.currentUser.email)
+            if (rowdata.email == myCaaSAC.getCurrentUser().email)
             {
                 content += '<button id="ehc_accept2-' + cell.getData().id + '" type="button" class="edithubbuttons2" style="position:relative;top:-5px;border-style:none;height:20px"><span style="font-size:12px;top:-2px;position:relative;">Accept</span></button>';
                 hasAcceptButton = true;
@@ -191,9 +180,7 @@ class AdminHub {
         let users = await myCaaSAC.getHubUsers(this.editHub.id);
 
         for (let i = 0; i < users.length; i++) {
-
             let prop = { id: i, email: users[i].email, role: users[i].role, edit:false, accepted:users[i].accepted};
-
             this._hubusertable.addData([prop], false);
         }
 
@@ -237,10 +224,7 @@ class AdminHub {
         this._hubusertable.on("tableBuilt", function (e, row) {
             _this.refreshHubTable();
         });
-
-
         myModal.toggle();
     }
-
 }
 

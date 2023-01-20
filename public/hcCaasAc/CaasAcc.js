@@ -164,7 +164,9 @@ export class CaasAcc {
     async loadHub(hubid) {
        
         let res = await fetch(this.serveraddress + '/caas_ac_api/hub/' + hubid, { method: 'PUT' });
-        return await res.json();
+
+        let hubinfo  = await res.json();
+        this.currentHub = hubinfo;
     }
 
     async getHubUsers(hubid) {
@@ -245,7 +247,7 @@ export class CaasAcc {
         let res = await fetch(this.serveraddress + '/caas_ac_api/updateProjectUser/' + projectid + "/" + email + "/" + role, { method: 'PUT' });
     }
 
-    async deleteUserFromProject(projectid,email) {
+    async deleteProjectUser(projectid,email) {
         await fetch(this.serveraddress + '/caas_ac_api/deleteProjectUser/' + projectid + "/" + email, { method: 'PUT' });        
     }
 

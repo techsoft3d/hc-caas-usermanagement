@@ -14,7 +14,7 @@ class AdminProject {
 
     async handleProjectSwitch()
     {
-        await fetch(serveraddress + '/caas_ac_api/project/none', { method: 'PUT' });
+        await myCaaSAC.leaveProject();
         window.location.reload(true); 
 
     }
@@ -27,20 +27,18 @@ class AdminProject {
 
 
     async renameProject() {
-        var res = await fetch(serveraddress + '/caas_ac_api/renameproject/' + this.editProject.id + "/" +  $("#editProjectName").val(), { method: 'PUT' });
+        await myCaaSAC.renameProject(this.editProject.id, $("#editProjectName").val());
     }
 
     async newProject() {
-        var res = await fetch(serveraddress + '/caas_ac_api/newproject/' + $("#newProjectName").val(), { method: 'PUT' });
-        var data = await res.json();
+        let data = await myCaaSAC.createProject($("#newProjectName").val());
         this.loadProject(data.projectid);
     }
 
 
     async deleteProject() {
          $('#chooseprojectModal').modal('hide');
-
-        var res = await fetch(serveraddress + '/caas_ac_api/deleteproject/' + $("#projectselect").val(), { method: 'PUT' });
+        await myCaaSAC.deleteProject($("#projectselect").val());
         this.handleProjectSelection();
     }
 
@@ -83,8 +81,9 @@ class AdminProject {
 
     async refreshProjectTable() {
         this._projectusertable.clearData();
-        var response = await fetch(serveraddress + '/caas_ac_api/projectusers/' + this.editProject.id);
-        var users = await response.json();
+
+        let users = await myCaaSAC.getProjectUsers(this.editProject.id);
+
         for (let i = 0; i < users.length; i++) {
 
             let prop = { id: i, email: users[i].email, role: users[i].role, edit:false};
@@ -102,8 +101,7 @@ class AdminProject {
         let role = this._projectusertable.getRow(id).getCell("role").getValue();
 
 
-        let response = await fetch(serveraddress + '/caas_ac_api/projectusers/' + this.editProject.id);
-        let projectusers = await response.json();
+        let projectusers = await myCaaSAC.getProjectUsers(this.editProject.id);
 
         let isUser = false;
         for (let i = 0; i < projectusers.length; i++) {
@@ -113,23 +111,21 @@ class AdminProject {
             }
         }
         if (!isUser) {
-            let res = await fetch(serveraddress + '/caas_ac_api/addProjectUser/' + this.editProject.id + "/" + email + "/" + role, { method: 'PUT' });
+            await myCaaSAC.addProjectUser(this.editProject.id, email, role);
         }
         else
         {
-            let res = await fetch(serveraddress + '/caas_ac_api/updateProjectUser/' + this.editProject.id + "/" + email + "/" + role, { method: 'PUT' });
+            await myCaaSAC.updateProjectUser(this.editProject.id, email, role);
         }
 
         this._projectusertable.getRow(id).getCell("edit").setValue(false);
         this.refreshProjectTable();
     }
-
-
     
     async _deleteUserFromProject(event) {
         let id = event.currentTarget.id.split("-")[1];
         let email = this._projectusertable.getRow(id).getCell("email").getValue();
-        await fetch(serveraddress + '/caas_ac_api/deleteProjectUser/' + this.editProject.id + "/" + email, { method: 'PUT' });        
+        await myCaaSAC.deleteProjectUser(this.editProject.id, email);
         this.refreshProjectTable();
     }
 
@@ -160,8 +156,8 @@ class AdminProject {
         $("#editProjectName").val(this.editProject.name);
         let myModal = new bootstrap.Modal(document.getElementById('editProjectModal'));
 
-        var response = await fetch(serveraddress + '/caas_ac_api/hubusers/' + myAdmin.currentHub.id);
-        var hubusers = await response.json();
+
+        let hubusers = await myCaaSAC.getHubUsers(myCaaSAC.getCurrentHub().id);
         this._userhash = [];
         let emaillist  = [];
         for (let i=0; i<hubusers.length; i++) {
@@ -197,9 +193,7 @@ class AdminProject {
         this._projectusertable.on("tableBuilt", function (e, row) {
             _this.refreshProjectTable();
         });
-
-       
-
+    
         myModal.toggle();
     }
 

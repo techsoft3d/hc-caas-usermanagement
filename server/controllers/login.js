@@ -635,18 +635,24 @@ exports.putNewHub = async(req, res, next) => {
 };
 
 
-exports.putHub = async(req, res, next) => {    
-    if (config.get('caas-ac.demoMode')) {
-        res.json({ERROR:"Not authorized."});
-        return;
-    }
-    if (req.params.hubid != "none") {
-        var item = await Hubs.findOne({ "_id": req.params.hubid });
-        req.session.hub = item;
-        res.json({id: req.params.hubid,name:item.name});
+exports.putHub = async (req, res, next) => {
+
+    if (req.params.hubid == "none" || await checkHubAuthorized(req.session.user.email, req.params.hubid, 0)) {
+        if (config.get('caas-ac.demoMode')) {
+            res.json({ ERROR: "Not authorized." });
+            return;
+        }
+        if (req.params.hubid != "none") {
+            var item = await Hubs.findOne({ "_id": req.params.hubid });
+            req.session.hub = item;
+            res.json({ id: req.params.hubid, name: item.name });
+        }
+        else {
+            req.session.hub = null;
+            res.sendStatus(200);
+        }
     }
     else {
-        req.session.hub = null;
-        res.sendStatus(200);
+        res.json({ ERROR: "Not authorized." });
     }
 };

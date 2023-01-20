@@ -2,7 +2,6 @@ const serveraddress = "http://" + window.location.host;
 var myAdmin;
 var myCaaSAC;
 
-
 async function setupApp() {
 
   myCaaSAC = new CaasAcc(serveraddress); 
@@ -24,25 +23,19 @@ async function setupApp() {
   mainUI = new MainUI();
   mainUI.registerSideBars("sidebar_models", 450);
 
-
-
   myAdmin = new Admin();
   myAdmin.setUpdateUICallback(mainUI.updateMenu);
   myAdmin.adminProject.setLoadProjectCallback(loadProjectCallback);
 
   await myAdmin.checkLogin();
   mainUI.setupMenu();
-
 }
-
-
 
 async function loadProjectCallback() {
 
   await initializeViewer();
   CsManagerClient.msready();
 }
-
 
 function msready() {
 
@@ -67,7 +60,6 @@ function msready() {
 
   }, 10);
 }
-
 
 async function initializeViewer()
 {
@@ -94,9 +86,7 @@ async function initializeViewer()
   hwv.start();
 }
 
-
 function resizeCanvas() {
-
   let offset = $("#content").offset();
   let width = $(window).width() - offset.left;
   let height = $(window).height() - offset.top;

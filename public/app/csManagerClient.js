@@ -200,7 +200,6 @@ class CsManagerClient {
                 horAdjust: 0
             });
         });
-
     }
 
     async addModel(o, modelid) {
@@ -272,7 +271,6 @@ class CsManagerClient {
         
             return file;
           }
-
       
         let link = document.createElement('a');
         link.setAttribute('download', filename);
