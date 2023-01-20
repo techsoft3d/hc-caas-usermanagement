@@ -637,7 +637,7 @@ exports.putNewHub = async(req, res, next) => {
 
 exports.putHub = async (req, res, next) => {
 
-    if (req.params.hubid == "none" || await checkHubAuthorized(req.session.user.email, req.params.hubid, 0)) {
+    if (req.params.hubid == "none" || await checkHubAuthorized(req.session.user.email, req.params.hubid, 2)) {
         if (config.get('caas-ac.demoMode')) {
             res.json({ ERROR: "Not authorized." });
             return;

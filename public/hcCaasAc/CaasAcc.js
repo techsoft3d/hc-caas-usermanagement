@@ -88,7 +88,7 @@ export class CaasAcc {
         fd.append('lastName', info.lastName);
         fd.append('email', info.email);
         fd.append('password', info.password);
-
+        let _this = this;
         return new Promise(function (resolve, reject) {
             $.ajax({
                 url: _this.serveraddress + "/caas_ac_api/register",
