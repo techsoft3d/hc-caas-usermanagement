@@ -155,7 +155,7 @@ export class CaasAcc {
         let res = await fetch(this.serveraddress + '/caas_ac_api/renameHub/' + hubid + "/" + name, { method: 'PUT' });
     }
 
-    async createHUB(name) {
+    async createHub(name) {
         let res = await fetch(this.serveraddress + '/caas_ac_api/newhub/' + name, { method: 'PUT' });
         let data = await res.json();
         return data;
@@ -164,37 +164,35 @@ export class CaasAcc {
     async loadHub(hubid) {
        
         let res = await fetch(this.serveraddress + '/caas_ac_api/hub/' + hubid, { method: 'PUT' });
-        let data = await res.json();
-        this.currentHub = data;    
+        return await res.json();
     }
 
-    async getHUBUsers(hubid) {
+    async getHubUsers(hubid) {
         let response = await fetch(this.serveraddress + '/caas_ac_api/hubusers/' + hubid);
-        let hubusers = await response.json();
-        return hubusers;
+        return await response.json();
     }
 
-    async addHUBUser(hubid,email, role) {
+    async addHubUser(hubid,email, role) {
   
         let res = await fetch(this.serveraddress + '/caas_ac_api/addHubUser/' + hubid + "/" + email + "/" + role, { method: 'PUT' });
     }
 
-    async updateHUBUser(hubid,email, role) {
+    async updateHubUser(hubid,email, role) {
   
         let res = await fetch(this.serveraddress + '/caas_ac_api/updateHubUser/' + hubid + "/" + email + "/" + role, { method: 'PUT' });
     }
 
-    async deleteUserFromHUB(hubid,email) {
+    async deleteHubUser(hubid,email) {
   
         await fetch(this.serveraddress + '/caas_ac_api/deleteHubUser/' + hubid + "/" + email, { method: 'PUT' });        
     }
 
-    async deleteHUB(hubid) {
+    async deleteHub(hubid) {
   
         var res = await fetch(this.serveraddress + '/caas_ac_api/deleteHub/' + hubid, { method: 'PUT' });
     }
     
-    async acceptHUB(hubid, email) {
+    async acceptHub(hubid, email) {
         await fetch(this.serveraddress + '/caas_ac_api/acceptHub/' + hubid + "/" + email, { method: 'PUT' });        
         this.refreshHubTable();
     }

@@ -8,7 +8,7 @@ class AdminHub {
     }
     async handleHubSwitch()
     {
-        await fetch(serveraddress + '/caas_ac_api/hub/none', { method: 'PUT' });
+        myCaaSAC.leaveHub();
         window.location.reload(true); 
 
     }
@@ -36,7 +36,7 @@ class AdminHub {
 
     
     async renameHub() {
-        var res = await fetch(serveraddress + '/caas_ac_api/renameHub/' + this.editHub.id + "/" +  $("#editHubName").val(), { method: 'PUT' });
+        myCaaSAC.renameHub(this.editHub.id, $("#editHubName").val());
     }
 
     
@@ -47,8 +47,7 @@ class AdminHub {
 
     
     async newHub() {
-        var res = await fetch(serveraddress + '/caas_ac_api/newhub/' + $("#newHubName").val(), { method: 'PUT' });
-        var data = await res.json();
+        let data = myCaaSAC.createHub($("#newHubName").val());
         this.loadHub(data.hubid);
     }
 
@@ -68,9 +67,7 @@ class AdminHub {
         let email = this._hubusertable.getRow(id).getCell("email").getValue();
         let role = this._hubusertable.getRow(id).getCell("role").getValue();
 
-
-        let response = await fetch(serveraddress + '/caas_ac_api/hubusers/' + this.editHub.id);
-        let hubusers = await response.json();
+        let hubusers = await myCaaSAC.getHubUsers(this.editHub.id);
 
         let isUser = false;
         for (let i = 0; i < hubusers.length; i++) {
@@ -80,11 +77,11 @@ class AdminHub {
             }
         }
         if (!isUser) {
-            let res = await fetch(serveraddress + '/caas_ac_api/addHubUser/' + this.editHub.id + "/" + email + "/" + role, { method: 'PUT' });
+            await myCaaSAC.addHubUser(this.editHub.id, email, role);
         }
         else
         {
-            let res = await fetch(serveraddress + '/caas_ac_api/updateHubUser/' + this.editHub.id + "/" + email + "/" + role, { method: 'PUT' });
+            await myCaaSAC.updateHubUser(this.editHub.id, email, role);
         }
 
         this._hubusertable.getRow(id).getCell("edit").setValue(false);
@@ -120,22 +117,21 @@ class AdminHub {
     async _deleteUserFromHub(event) {
         let id = event.currentTarget.id.split("-")[1];
         let email = this._hubusertable.getRow(id).getCell("email").getValue();
-        await fetch(serveraddress + '/caas_ac_api/deleteHubUser/' + this.editHub.id + "/" + email, { method: 'PUT' });        
+        await myCaaSAC.deleteUserFromHub(this.editHub.id, email);
         this.refreshHubTable();
     }
 
     async deleteHub() {
         $('#choosehubModal').modal('hide');
-
-       var res = await fetch(serveraddress + '/caas_ac_api/deleteHub/' + $("#hubselect").val(), { method: 'PUT' });
-       this.handleHubSelection();
-   }
+        await myCaaSAC.deleteHub($("#hubselect").val());
+        this.handleHubSelection();
+    }
 
 
     async _acceptHubParticipation(event) {
         let id = event.currentTarget.id.split("-")[1];
         let email = this._hubusertable.getRow(id).getCell("email").getValue();
-        await fetch(serveraddress + '/caas_ac_api/acceptHub/' + this.editHub.id + "/" + email, { method: 'PUT' });        
+        await myCaaSAC.acceptHub(this.editHub.id, email);
         this.refreshHubTable();
     }
     
@@ -192,8 +188,8 @@ class AdminHub {
 
     async refreshHubTable() {
         this._hubusertable.clearData();
-        var response = await fetch(serveraddress + '/caas_ac_api/hubusers/' + this.editHub.id);
-        var users = await response.json();
+        let users = await myCaaSAC.getHubUsers(this.editHub.id);
+
         for (let i = 0; i < users.length; i++) {
 
             let prop = { id: i, email: users[i].email, role: users[i].role, edit:false, accepted:users[i].accepted};
