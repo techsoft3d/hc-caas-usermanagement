@@ -1,7 +1,7 @@
 const Users = require('../../models/Users');
 const Projects = require('../../models/Projects');
 const Hubs = require('../../models/Hubs');
-const CsFiles = require('../../models/csFiles');
+const files = require('../../models/files');
 const bcrypt = require('bcrypt');
 const csmanager = require('../libs/csManager');
 let mongoose = require('mongoose'); 
@@ -27,9 +27,9 @@ async function copyStarterProject(user,hub)
         await newproject.save();
         await addOneProjectUser(newproject.id,user.email,0);
       
-        let files = await CsFiles.find({ "project": project });
+        let files = await files.find({ "project": project });
         for (let i = 0; i < files.length; i++) {
-            let newfile = new CsFiles({
+            let newfile = new files({
                 project: newproject,
                 name: files[i].name,
                 converted: true,
@@ -196,7 +196,7 @@ async function deleteOneProject(projectid, req) {
     let project = await Projects.findOne({ "_id": projectid, "users": { $elemMatch: { "email": req.session.user.email, "role": { $lte: 1 } } } });
 
     if (project) {
-        let models = await CsFiles.find({ project: projectid });
+        let models = await files.find({ project: projectid });
         for (let i = 0; i < models.length; i++) {
             await csmanager.deleteModel(models[i]._id.toString());
         }

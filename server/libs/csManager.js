@@ -1,7 +1,7 @@
 const fsp = require('fs').promises;
 const fs = require('fs');
 const del = require('del');
-const CsFiles = require('../models/csFiles');
+const files = require('../models/Files');
 
 const FormData = require('form-data');
 const fetch = require('node-fetch');
@@ -18,7 +18,7 @@ exports.init = (uri) =>
 exports.process = async (tempid, filename, project,startpath) => {
 
     let stats = fs.statSync("./csmodelupload/" + tempid + "/" + filename);
-    const item = new CsFiles({
+    const item = new files({
         name: filename,
         converted: false,
         storageID: "NONE",
@@ -59,7 +59,7 @@ exports.getUploadToken = async (name, size, project) => {
         return { error: "Conversion Service can't be reached" };
     }
         let json = await res.json();
-        const item = new CsFiles({
+        const item = new files({
             name: name,
             converted: false,
             storageID: json.itemid,
@@ -75,7 +75,7 @@ exports.getUploadToken = async (name, size, project) => {
 };
 
 exports.getDownloadToken = async (itemid,type, project) => {
-    let item = await CsFiles.findOne({ "_id": itemid, project:project});
+    let item = await files.findOne({ "_id": itemid, project:project});
     let json;
     try {
         let res = await fetch(conversionServiceURI + '/api/downloadToken' + "/" +  item.storageID + "/" + type);     
@@ -96,7 +96,7 @@ exports.getDownloadToken = async (itemid,type, project) => {
 };
 
 exports.processFromToken = async (itemid, project, startpath) => {
-    let item = await CsFiles.findOne({ "_id": itemid, project:project});
+    let item = await files.findOne({ "_id": itemid, project:project});
     console.log("processing:" + item.name);
     let api_arg  = {startPath:startpath};
 
@@ -106,7 +106,7 @@ exports.processFromToken = async (itemid, project, startpath) => {
 
 exports.generateCustomImage = async (itemid, project, startpath) => {
 
-    let item = await CsFiles.findOne({ "_id": itemid, project: project });
+    let item = await files.findOne({ "_id": itemid, project: project });
 
     await item.save();
     console.log("processing custom image:" + item.name);
@@ -117,7 +117,7 @@ exports.generateCustomImage = async (itemid, project, startpath) => {
 
 
 exports.getModels = async (project) => {
-    let models = await CsFiles.find({project:project});
+    let models = await files.find({project:project});
     let res = [];
     for (let i = 0; i < models.length; i++) {
         res.push({ name: models[i].name, id: models[i]._id.toString(), pending: !models[i].converted, category:models[i].category,uploaded:models[i].uploaded, filesize:models[i].filesize});
@@ -128,26 +128,26 @@ exports.getModels = async (project) => {
 
 
 exports.getSCS = async (itemid,project) => {
-    let item = await CsFiles.findOne({ "_id": itemid, project:project});
+    let item = await files.findOne({ "_id": itemid, project:project});
     let res = await fetch(conversionServiceURI + '/api/file/' + item.storageID + "/scs");
     return await res.arrayBuffer();
 };
 
 exports.deleteModel = async (itemid, project) => {
-    let item = await CsFiles.findOne({ "_id": itemid, project:project });
+    let item = await files.findOne({ "_id": itemid, project:project });
     res = await fetch(conversionServiceURI + '/api/delete/' + item.storageID, { method: 'put'});
-    await CsFiles.deleteOne({ "_id": itemid });
+    await files.deleteOne({ "_id": itemid });
     _updated();
 };
 
 exports.getPNG = async (itemid, project) => {
-    let item = await CsFiles.findOne({ "_id": itemid, project:project});
+    let item = await files.findOne({ "_id": itemid, project:project});
     let res = await fetch(conversionServiceURI + '/api/file/' + item.storageID + "/png");
     return await res.arrayBuffer();
 };
 
 exports.updateConversionStatus =  async (storageId, files) => {
-    let item = await CsFiles.findOne({ "storageID": storageId});
+    let item = await files.findOne({ "storageID": storageId});
 
     _checkPendingConversions();
 };
@@ -162,19 +162,19 @@ exports.getStreamingSession =  async () => {
 
 
 exports.enableStreamAccess =  async (itemid, project, streamingSessionId) => {
-    let item = await CsFiles.findOne({ "_id": itemid, project:project});
+    let item = await files.findOne({ "_id": itemid, project:project});
     await fetch(conversionServiceURI + '/api/enableStreamAccess/' + streamingSessionId,{ method: 'put',headers:{'items':JSON.stringify([item.storageID])}});
 };
 
 var ONE_HOUR = 60 * 60 * 1000;
 
 async function _checkPendingConversions() {
-    let notConverted = await CsFiles.find({ "converted": false });
+    let notConverted = await files.find({ "converted": false });
 
     for (let i = 0; i < notConverted.length; i++) {
         if (((new Date()) - notConverted[i].uploaded) > ONE_HOUR) {
             console.log("old");
-            await CsFiles.deleteOne(notConverted[i]);
+            await files.deleteOne(notConverted[i]);
         }
         else {
             if (notConverted[i].storageID != "NONE") {
@@ -192,7 +192,7 @@ async function _checkPendingConversions() {
                     }
                     else if (data.conversionState.indexOf("ERROR") != -1) {
                         console.log(notConverted[i]._id);
-                        await CsFiles.deleteOne(notConverted[i]);
+                        await files.deleteOne(notConverted[i]);
                         _updated();
                     }
                 }

@@ -20,8 +20,8 @@ process.on('uncaughtException', function (err) {
 });
 
 
-exports.getFiles = function () {
-  return require('./models/csFiles');
+exports.getDatabaseObjects = function () {
+  return {files: require('./models/Files'), hubs: require('./models/Hubs'), projects: require('./models/Projects'),  users: require('./models/Users')};
 };
 
 

@@ -12,7 +12,7 @@ app.get('/', function(req, res){
 
 (async () => {
 await caasAc.start(app);
-let files = caasAc.getFiles();
+let files = caasAc.getDatabaseObjects().files;
 let converted = await files.find({ "converted": true });
 console.log("filesconverted:", converted.length);
 let i=0;
