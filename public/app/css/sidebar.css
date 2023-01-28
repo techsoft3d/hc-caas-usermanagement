@@ -1,4 +1,11 @@
 /* The switch - the box around the slider */
+.wbootstrap *, ::after, ::before { 
+  box-sizing:content-box;
+  line-height:initial;
+ }
+
+
+/* The switch - the box around the slider */
 .switch {
     position: absolute;
     display: inline-block;
