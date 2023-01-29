@@ -15,12 +15,12 @@ app.get('/', function(req, res){
 
   // const session = require("express-session");
 
-  // let store; 
+  // let store;
 
-  //   let MemoryStore = require('memorystore')(session);
-  //   store = new MemoryStore({
-  //     checkPeriod: 86400000 // prune expired entries every 24h
-  //   });
+  // let MemoryStore = require('memorystore')(session);
+  // store = new MemoryStore({
+  //   checkPeriod: 86400000 // prune expired entries every 24h
+  // });
 
   // // Catch errors
   // store.on('error', function (error) {
@@ -35,17 +35,26 @@ app.get('/', function(req, res){
   // }));
 
 
-app.use('/caas_ac_api',function(req,res,next) {  
-  if (req.session && req.session.caasUser)  {
-    console.log("User:" + req.session.caasUser.lastName);
+  // app.put('/test', async function (req, res, next) {
+  //   let users = caasAc.getDatabaseObjects().users;
+  //   let users2 = await users.find();
+  //   req.session.caasUser = users2[0];
+  //   console.log("Numusers "+ users2.length);
+  //   res.json({ succeeded: true });
+    
+  // });
 
-  }
-         //do additional authorization on caas rest api here  
-    return next();
-});
+
+// app.use('/caas_ac_api',function(req,res,next) {  
+//   if (req.session && req.session.caasUser)  {
+//     console.log("User:" + req.session.caasUser.lastName);
+
+//   }        
+//     return next();
+// });
 
 
-await caasAc.start(app, null,{createSession:true,sessionSecret:"12345"});
+await caasAc.start(app, null,{createSession:true, sessionSecret:"12345"});
 
 
 let files = caasAc.getDatabaseObjects().files;

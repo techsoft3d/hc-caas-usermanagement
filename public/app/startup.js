@@ -4,6 +4,8 @@ var myCaaSAC;
 
 async function setupApp() {
 
+ // await fetch(serveraddress + '/test', { method: 'PUT' });        
+
   myCaaSAC = new CaasAcc.CaasAcc(serveraddress); 
   $.notify.addStyle('notifyerror', {
     html: "<div><span data-notify-text/></div>",
