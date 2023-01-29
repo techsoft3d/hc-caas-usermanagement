@@ -42,8 +42,8 @@ export class CaasAcc {
 
     async getConfiguration()
     {
-        var res = await fetch(this.serveraddress + '/caas_ac_api/configuration');
-        var data = await res.json();
+        let res = await fetch(this.serveraddress + '/caas_ac_api/configuration');
+        let data = await res.json();
         this.useDirectFetch = data.useDirectFetch;     
         this.useStreaming = data.useStreaming; 
         this.demoMode = data.demoMode;                 
@@ -51,8 +51,8 @@ export class CaasAcc {
 
     async checkLogin()
     {
-        var res = await fetch(this.serveraddress + '/caas_ac_api/checklogin');
-        var data = await res.json();
+        let res = await fetch(this.serveraddress + '/caas_ac_api/checklogin');
+        let data = await res.json();
         if (data.succeeded)
         {
             this.currentUser = data.user;            
@@ -77,13 +77,13 @@ export class CaasAcc {
 
     async logout()
     {
-        var res = await fetch(this.serveraddress + '/caas_ac_api/logout/', { method: 'PUT' });        
+        await fetch(this.serveraddress + '/caas_ac_api/logout/', { method: 'PUT' });        
 
     }
     
     register(info) {
 
-        var fd = new FormData();
+        let fd = new FormData();
         fd.append('firstName', info.firstName);
         fd.append('lastName', info.lastName);
         fd.append('email', info.email);
@@ -108,32 +108,19 @@ export class CaasAcc {
         });
     }
 
-    login(email, password) {
+    async login(email, password) {
 
-        var fd = new FormData();
-        fd.append('email', email);
-        fd.append('password', password);
 
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            $.ajax({
-                url: _this.serveraddress + "/caas_ac_api/login",
-                type: 'post',
-                data: fd,
-                contentType: false,
-                processData: false,
-                success: function (response) {
-                    if (response.ERROR) {
+        let response = await fetch(this.serveraddress + '/caas_ac_api/login/' + email + '/' + password, { method: 'PUT' });
+        response = await response.json();
+        if (response.ERROR) {
 
-                        resolve(response);
-                    }
-                    else {
-                        _this.currentUser = response.user;
-                        resolve(response);
-                    }
-                },
-            });
-        });
+            return response;
+        }
+        else {
+            this.currentUser = response.user;
+            return response;
+        }
     }
 
     async leaveHub() {
@@ -145,9 +132,8 @@ export class CaasAcc {
 
     async getHubs() {
 
-        var response = await fetch(this.serveraddress + '/caas_ac_api/hubs');
-        var hubs = await response.json();
-
+        let response = await fetch(this.serveraddress + '/caas_ac_api/hubs');
+        let hubs = await response.json();
         return hubs;
     }
 
@@ -191,7 +177,7 @@ export class CaasAcc {
 
     async deleteHub(hubid) {
   
-        var res = await fetch(this.serveraddress + '/caas_ac_api/deleteHub/' + hubid, { method: 'PUT' });
+        await fetch(this.serveraddress + '/caas_ac_api/deleteHub/' + hubid, { method: 'PUT' });
     }
     
     async acceptHub(hubid, email) {
@@ -221,7 +207,7 @@ export class CaasAcc {
    }
 
     async loadProject(projectid) {
-        var res = await fetch(this.serveraddress + '/caas_ac_api/project/' + projectid, { method: 'PUT' });
+        let res = await fetch(this.serveraddress + '/caas_ac_api/project/' + projectid, { method: 'PUT' });
         let data = await res.json();
         this.currentProject = data.projectname;
     }
@@ -307,7 +293,7 @@ export class CaasAcc {
         else {
 
             let res = await fetch(this.serveraddress + '/caas_ac_api/streamingSession');
-            var data = await res.json();
+            let data = await res.json();
 
             viewer = new Communicator.WebViewer({
                 containerId: container,

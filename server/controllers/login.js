@@ -82,22 +82,21 @@ exports.postRegister = async(req, res, next) => {
 
 
 
-exports.postLogin = async(req, res, next) => {    
+exports.putLogin = async(req, res, next) => {    
     console.log("login");
     if (config.get('caas-ac.demoMode')) {
         res.json({ERROR:"Demo mode. No manual login allowed."});
         return;
     }
 
-    let item = await Users.findOne({ "email":  req.body.email });
+    let item = await Users.findOne({ "email":  req.params.email });
     if (!item) 
     {        
         res.json({ERROR:"User not found"});
     }
     else 
     {
-        data = req.body;
-        let result = await bcrypt.compare(req.body.password, item.password);
+        let result = await bcrypt.compare(req.params.password, item.password);
         if (result)
         {       
             req.session.caasUser = item; 
