@@ -4,7 +4,7 @@ var myCaaSAC;
 
 async function setupApp() {
 
-  myCaaSAC = new CaasAcc(serveraddress); 
+  myCaaSAC = new CaasAcc.CaasAcc(serveraddress); 
   $.notify.addStyle('notifyerror', {
     html: "<div><span data-notify-text/></div>",
     classes: {

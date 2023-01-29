@@ -268,8 +268,7 @@ export class CaasAcc {
         let res = await fetch(this.serveraddress + '/caas_ac_api/scs/' + itemid);
         let ab = await res.arrayBuffer();
         let byteArray = new Uint8Array(ab);
-        return byteArray;
-        
+        return byteArray;        
     }
 
     async enableStreamAccess(itemid) {
