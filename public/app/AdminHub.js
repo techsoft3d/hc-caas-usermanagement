@@ -1,13 +1,12 @@
 class AdminHub {
 
     constructor() {
-        this._hubusertable = null;    
+        this._hubusertable = null;
     }
 
-    async handleHubSwitch()
-    {
+    async handleHubSwitch() {
         myCaaSAC.leaveHub();
-        window.location.reload(true); 
+        window.location.reload(true);
     }
 
     async loadHubFromDialog() {
@@ -15,7 +14,6 @@ class AdminHub {
     }
 
     async handleHubSelection() {
-      
         let myModal = new bootstrap.Modal(document.getElementById('choosehubModal'));
         myModal.toggle();
         let models = await myCaaSAC.getHubs();
@@ -28,11 +26,11 @@ class AdminHub {
         }
         $("#hubselect").append(html);
     }
-    
+
     async renameHub() {
         myCaaSAC.renameHub(this.editHub.id, $("#editHubName").val());
     }
-    
+
     handleNewHubDialog() {
         let myModal = new bootstrap.Modal(document.getElementById('newhubModal'));
         myModal.toggle();
@@ -42,13 +40,11 @@ class AdminHub {
         let data = await myCaaSAC.createHub($("#newHubName").val());
         this.loadHub(data.hubid);
     }
-    
+
     async loadHub(hubid) {
-       
         await myCaaSAC.loadHub(hubid);
-        
         $(".loggedinuser").html(myCaaSAC.getCurrentUser().email + " - Hub:" + myCaaSAC.getCurrentHub().name);
-           
+
         myAdmin._updateUI();
         myAdmin.adminProject.handleProjectSelection();
     }
@@ -70,8 +66,7 @@ class AdminHub {
         if (!isUser) {
             await myCaaSAC.addHubUser(this.editHub.id, email, role);
         }
-        else
-        {
+        else {
             await myCaaSAC.updateHubUser(this.editHub.id, email, role);
         }
 
@@ -85,9 +80,8 @@ class AdminHub {
         return data.edit;
     }
 
-    addUserToHub()
-    {
-        let prop = {id:this._hubusertable.getData().length,email:"", role:"User", edit:true};
+    addUserToHub() {
+        let prop = { id: this._hubusertable.getData().length, email: "", role: "User", edit: true };
 
         this._hubusertable.addData([prop], false);
         this._hubusertable.redraw();
@@ -123,13 +117,12 @@ class AdminHub {
         await myCaaSAC.acceptHub(this.editHub.id, email);
         this.refreshHubTable();
     }
-    
+
     _renderEditCell(cell) {
         let _this = this;
-        
+
         let content = "";
         let editable = cell.getValue();
-
         let rowdata = cell.getRow().getData();
 
         if (rowdata.role == "Owner") {
@@ -139,14 +132,12 @@ class AdminHub {
         let accepted = rowdata.accepted;
 
         content += '<div style="height:20px">';
-        
-        if (editable)
-        {
+
+        if (editable) {
             content += '<button id="ehc_accept-' + cell.getData().id + '" type="button" class="edithubbuttons" ><i style="pointer-events:none" class="bx bx-check"></i></button>';
             content += '<button id="ehc_cancel-' + cell.getData().id + '" type="button" class="edithubbuttons" ><i style="pointer-events:none" class="bx bx-x"></i></button>';
         }
-        else
-        {
+        else {
             content += '<button id="ehc_edit-' + cell.getData().id + '" type="button" class="edithubbuttons" ><i style="pointer-events:none" class="bx bx-edit"></i></button>';
             content += '<button id="ehc_delete-' + cell.getData().id + '" type="button" class="edithubbuttons" ><i style="pointer-events:none" class="bx bx-trash"></i></button>';
 
@@ -154,14 +145,12 @@ class AdminHub {
 
         let hasAcceptButton = false;
         if (!accepted && rowdata.email != "") {
-            if (rowdata.email == myCaaSAC.getCurrentUser().email)
-            {
+            if (rowdata.email == myCaaSAC.getCurrentUser().email) {
                 content += '<button id="ehc_accept2-' + cell.getData().id + '" type="button" class="edithubbuttons2" style="position:relative;top:-5px;border-style:none;height:20px"><span style="font-size:12px;top:-2px;position:relative;">Accept</span></button>';
                 hasAcceptButton = true;
             }
-            else
-            {
-                content+='<span style="position:relative;top:-7px;left:5px">...Pending</span>';
+            else {
+                content += '<span style="position:relative;top:-7px;left:5px">...Pending</span>';
             }
         }
 
@@ -169,10 +158,9 @@ class AdminHub {
         $(cell.getElement()).append(content);
         $("#ehc_accept-" + cell.getData().id).on("click", function (event) { _this._acceptEdit(event); });
         $("#ehc_edit-" + cell.getData().id).on("click", function (event) { _this._enableEdit(event); });
-         $("#ehc_cancel-" + cell.getData().id).on("click", function (event) { _this._discardEdit(event); });
-         $("#ehc_delete-" + cell.getData().id).on("click", function (event) { _this._deleteUserFromHub(event); });
-         $("#ehc_accept2-" + cell.getData().id).on("click", function (event) { _this._acceptHubParticipation(event); });
-        // this._updateCellStyle(cell.getData().id);        
+        $("#ehc_cancel-" + cell.getData().id).on("click", function (event) { _this._discardEdit(event); });
+        $("#ehc_delete-" + cell.getData().id).on("click", function (event) { _this._deleteUserFromHub(event); });
+        $("#ehc_accept2-" + cell.getData().id).on("click", function (event) { _this._acceptHubParticipation(event); });
     }
 
     async refreshHubTable() {
@@ -180,7 +168,7 @@ class AdminHub {
         let users = await myCaaSAC.getHubUsers(this.editHub.id);
 
         for (let i = 0; i < users.length; i++) {
-            let prop = { id: i, email: users[i].email, role: users[i].role, edit:false, accepted:users[i].accepted};
+            let prop = { id: i, email: users[i].email, role: users[i].role, edit: false, accepted: users[i].accepted };
             this._hubusertable.addData([prop], false);
         }
 
@@ -190,11 +178,11 @@ class AdminHub {
 
     async handleEditHubDialog() {
 
-        this.editHub = {id:$("#hubselect").val(), name:$("#hubselect option:selected").text()};
+        this.editHub = { id: $("#hubselect").val(), name: $("#hubselect option:selected").text() };
 
         $("#editHubName").val(this.editHub.name);
         let myModal = new bootstrap.Modal(document.getElementById('edithubModal'));
-    
+
         let _this = this;
         this._hubusertable = new Tabulator("#hubuserstab", {
             layout: "fitColumns",
@@ -204,7 +192,7 @@ class AdminHub {
                     title: "ID", field: "id", width: 60
                 },
                 {
-                    title: "accepted", field: "accepted", width: 60,visible:false
+                    title: "accepted", field: "accepted", width: 60, visible: false
                 },
                 {
                     title: "", width: 150, field: "edit", formatter: function (cell, formatterParams, onRendered) {
@@ -212,10 +200,10 @@ class AdminHub {
                             _this._renderEditCell(cell);
                         });
                     },
-                },              
-                { title: "User", field: "email", editor: "input", editable:this._editCheck, validator:"regex:[a-z0-9]+@[a-z]+\.[a-z]{2,3}", editorParams: { }},
+                },
+                { title: "User", field: "email", editor: "input", editable: this._editCheck, validator: "regex:[a-z0-9]+@[a-z]+\.[a-z]{2,3}", editorParams: {} },
                 {
-                    title: "Role", field: "role", width: 90, editor: "select", editable:this._editCheck, editorParams: { values: ["Admin", "User"] }
+                    title: "Role", field: "role", width: 90, editor: "select", editable: this._editCheck, editorParams: { values: ["Admin", "User"] }
                 },
 
             ],

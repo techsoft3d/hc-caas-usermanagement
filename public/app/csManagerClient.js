@@ -3,7 +3,6 @@ var csManagerClient = null;
 class CsManagerClient {
 
     static msready() {
-
         csManagerClient = new CsManagerClient();
         let myDropzone;
         if (!myCaaSAC.getUseDirectFetch()) {
@@ -14,7 +13,6 @@ class CsManagerClient {
             });       
 
             myDropzone.on("sending", async function (file, response, request) {
-
                 response.setRequestHeader('startpath', $("#modelpath").val());
             });
         }
@@ -22,12 +20,6 @@ class CsManagerClient {
             myDropzone = new Dropzone("div#dropzonearea", {
                 url: "#", timeout: 180000, method: "PUT",
                 accept: async function (file, cb) {
-
-                    var params = {
-                        fileName: file.name,
-                        fileType: file.type,
-                    };
-
                     let json = await myCaaSAC.getUploadToken(file.name,file.size);
                     
                     file.itemid = json.itemid;
@@ -53,12 +45,11 @@ class CsManagerClient {
                 myCaaSAC.processUploadFromToken(file.itemid,$("#modelpath").val());
                 myDropzone.removeFile(file);
             });
-
         }
     }
 
     constructor() {
-        var _this = this;
+        let _this = this;
         this._updatedTime = undefined;
         this._modelHash = [];
 
@@ -80,9 +71,8 @@ class CsManagerClient {
     async _checkForNewModels() {
         let data = await myCaaSAC.getModels();
 
-        var newtime = Date.parse(data.updated);
-        if (this._updatedTime == undefined || this._updatedTime != newtime)
-        {
+        let newtime = Date.parse(data.updated);
+        if (this._updatedTime == undefined || this._updatedTime != newtime) {
             await this._updateModelList(data.modelarray);
             this._updatedTime = newtime;
         }
@@ -136,7 +126,6 @@ class CsManagerClient {
         html += '<div style="top:40px;position:relative;">';
 
         for (var i in this._modelHash) {
-
             html += '<div id="' + i + '" class = "modelcard">';
             if (this._modelHash[i].image.indexOf("spinner.gif") != -1)
                 html += '<img src="' + this._modelHash[i].image + '" class="modelcard_imagespinner"></img>';
@@ -144,30 +133,30 @@ class CsManagerClient {
                 html += '<img src="' + this._modelHash[i].image + '" class="modelcard_image"></img>';
             html += '<div class="modelcard_info">';
             html += '<span class="modelcard_title">' + this._modelHash[i].name + '</span><br>';
-            if (this._modelHash[i].filesize)
+            if (this._modelHash[i].filesize) {
                 html += '<span class="modelcard_size">Size:' + (this._modelHash[i].filesize / (1024 * 1024)).toFixed(2) + 'MB</span><br>';
-            else
+            }
+            else {
                 html += '<span class="modelcard_size">Size:n/a</span><br>';
-            if (this._modelHash[i].uploaded)
+            }
+            if (this._modelHash[i].uploaded) {
                 html += '<span class="modelcard_size">Uploaded:' + moment(this._modelHash[i].uploaded).format("MM/DD/YYYY h:mm:ss a") + '</span>';
-            else
+            }
+            else {
                 html += '<span class="modelcard_size">Uploaded:n/a</span>';
+            }
             html += "</div>";
             html += '<label class="switch">';
-            if (this._modelHash[i].nodeid)
-            {
+            if (this._modelHash[i].nodeid) {
                 html += '<input type="checkbox" checked onclick=\'csManagerClient.addModel(this,"' + i + '")\'><span class="slider round"></span></label>';
             }
-            else
-            {
+            else {
                 html += '<input type="checkbox" onclick=\'csManagerClient.addModel(this,"' + i + '")\'><span class="slider round"></span></label>';
             }
             html += '<button id="modelmenubutton_' + i + '" class="modelmenubutton"><i style="pointer-events:none" class="bx bx-dots-vertical"></i></button>';
-
             html += "</div>";
         }
         html += "</div>";
-
         $("#" + targetdiv).append(html);
 
         let viewermenu = [                    
@@ -185,14 +174,13 @@ class CsManagerClient {
                     await myCaaSAC.deleteModel(modelid);
 
                 }
-            }          
+            }  
         ];
 
         $("[id^=modelmenubutton]").each(function (index) {
             let modelid = this.id.split("_")[1];
             let item = csManagerClient._modelHash[modelid];
           
-
             $(this).contextMenu("menu", viewermenu, {
                 'displayAround': 'trigger',
                 'position': 'bottom',
@@ -211,11 +199,9 @@ class CsManagerClient {
                         numberchecked++;
                     }
                 }
-                if (numberchecked == 0)
-                {
+                if (numberchecked == 0) {
                     hwv.model.clear();
                 }
-
                 let res;
                 if (!myCaaSAC.getUseStreaming()) {
                     let byteArray;
@@ -241,47 +227,22 @@ class CsManagerClient {
                         this._modelHash[modelid].nodeid = modelnode;
                     }
                 }
-                else
-                {
+                else {
                     await myCaaSAC.enableStreamAccess(modelid);
                     let modelnode = hwv.model.createNode(modelid);
                     await hwv.model.loadSubtreeFromModel(modelnode,this._modelHash[modelid].name);
                     this._modelHash[modelid].nodeid = modelnode;
                 }
             }
-
         }
         else {           
             if (this._modelHash[modelid].nodeid != hwv.model.getRootNode()) {            
                 hwv.model.deleteNode(this._modelHash[modelid].nodeid);
             }
-            else
-            {
+            else {
                 hwv.model.clear();
             }
             this._modelHash[modelid].nodeid = null;
         }
     }
-
-    _exportToFile(data, filename) {
-
-        function _makeBinaryFile(text) {
-            let data = new Blob([text],  {type: "application/octet-stream"});           
-            let file = window.URL.createObjectURL(data);
-        
-            return file;
-          }
-      
-        let link = document.createElement('a');
-        link.setAttribute('download', filename);
-        link.href = _makeBinaryFile(data);
-        document.body.appendChild(link);
-
-        window.requestAnimationFrame(function () {
-            let event = new MouseEvent('click');
-            link.dispatchEvent(event);
-            document.body.removeChild(link);
-        });
-    }              
-
 }

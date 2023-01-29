@@ -1,30 +1,26 @@
 class AdminProject {
 
     constructor() {
-   
+
         this._userhash = [];
         this._projectusertable = null;
         this._loadProjectCallback = null;
     }
 
-    setLoadProjectCallback(loadprojectcallback)
-    {
+    setLoadProjectCallback(loadprojectcallback) {
         this._loadProjectCallback = loadprojectcallback;
     }
 
-    async handleProjectSwitch()
-    {
+    async handleProjectSwitch() {
         await myCaaSAC.leaveProject();
-        window.location.reload(true); 
+        window.location.reload(true);
 
     }
 
-    
     handleNewProjectDialog() {
         let myModal = new bootstrap.Modal(document.getElementById('newprojectModal'));
         myModal.toggle();
     }
-
 
     async renameProject() {
         await myCaaSAC.renameProject(this.editProject.id, $("#editProjectName").val());
@@ -35,21 +31,18 @@ class AdminProject {
         this.loadProject(data.projectid);
     }
 
-
     async deleteProject() {
-         $('#chooseprojectModal').modal('hide');
+        $('#chooseprojectModal').modal('hide');
         await myCaaSAC.deleteProject($("#projectselect").val());
         this.handleProjectSelection();
     }
 
-    
-
     async loadProject(projectid) {
-       
+
         await myCaaSAC.loadProject(projectid);
 
         $(".projectname").empty();
-        $(".projectname").append(myCaaSAC.getCurrentProject());  
+        $(".projectname").append(myCaaSAC.getCurrentProject());
 
         myAdmin._updateUI();
         $(".modal-backdrop").remove();
@@ -63,10 +56,10 @@ class AdminProject {
     }
 
     async handleProjectSelection() {
-      
+
         let myModal = new bootstrap.Modal(document.getElementById('chooseprojectModal'));
         myModal.toggle();
-        let models =  await myCaaSAC.getProjects();
+        let models = await myCaaSAC.getProjects();
 
         $("#projectselect").empty();
         var html = "";
@@ -85,9 +78,7 @@ class AdminProject {
         let users = await myCaaSAC.getProjectUsers(this.editProject.id);
 
         for (let i = 0; i < users.length; i++) {
-
-            let prop = { id: i, email: users[i].email, role: users[i].role, edit:false};
-
+            let prop = { id: i, email: users[i].email, role: users[i].role, edit: false };
             this._projectusertable.addData([prop], false);
         }
 
@@ -99,8 +90,6 @@ class AdminProject {
         let id = event.currentTarget.id.split("-")[1];
         let email = this._projectusertable.getRow(id).getCell("email").getValue();
         let role = this._projectusertable.getRow(id).getCell("role").getValue();
-
-
         let projectusers = await myCaaSAC.getProjectUsers(this.editProject.id);
 
         let isUser = false;
@@ -110,18 +99,18 @@ class AdminProject {
                 break;
             }
         }
+
         if (!isUser) {
             await myCaaSAC.addProjectUser(this.editProject.id, email, role);
         }
-        else
-        {
+        else {
             await myCaaSAC.updateProjectUser(this.editProject.id, email, role);
         }
 
         this._projectusertable.getRow(id).getCell("edit").setValue(false);
         this.refreshProjectTable();
     }
-    
+
     async _deleteUserFromProject(event) {
         let id = event.currentTarget.id.split("-")[1];
         let email = this._projectusertable.getRow(id).getCell("email").getValue();
@@ -129,10 +118,8 @@ class AdminProject {
         this.refreshProjectTable();
     }
 
-    addUserToProject()
-    {
-        let prop = {id:this._projectusertable.getData().length,email:"", role:"Viewer", edit:true};
-
+    addUserToProject() {
+        let prop = { id: this._projectusertable.getData().length, email: "", role: "Viewer", edit: true };
         this._projectusertable.addData([prop], false);
         this._projectusertable.redraw();
     }
@@ -151,7 +138,7 @@ class AdminProject {
 
     async handleEditProjectDialog() {
 
-        this.editProject = {id:$("#projectselect").val(), name:$("#projectselect option:selected").text()};
+        this.editProject = { id: $("#projectselect").val(), name: $("#projectselect option:selected").text() };
 
         $("#editProjectName").val(this.editProject.name);
         let myModal = new bootstrap.Modal(document.getElementById('editProjectModal'));
@@ -159,8 +146,8 @@ class AdminProject {
 
         let hubusers = await myCaaSAC.getHubUsers(myCaaSAC.getCurrentHub().id);
         this._userhash = [];
-        let emaillist  = [];
-        for (let i=0; i<hubusers.length; i++) {
+        let emaillist = [];
+        for (let i = 0; i < hubusers.length; i++) {
             this._userhash[hubusers[i].email] = hubusers[i];
             emaillist.push(hubusers[i].email);
         }
@@ -172,19 +159,19 @@ class AdminProject {
             columns: [
                 {
                     title: "ID", field: "id", width: 60
-                },              
+                },
                 {
                     title: "", width: 150, field: "edit", formatter: function (cell, formatterParams, onRendered) {
                         onRendered(function () {
                             _this._renderEditCell(cell);
                         });
                     },
-                },              
-                {  
-                    title: "User", field: "email", editor: "select", editable:this._editCheck, editorParams: { values: emaillist }
                 },
                 {
-                    title: "Role", field: "role", width: 90, editor: "select", editable:this._editCheck, editorParams: { values: ["Editor", "Viewer"] }
+                    title: "User", field: "email", editor: "select", editable: this._editCheck, editorParams: { values: emaillist }
+                },
+                {
+                    title: "Role", field: "role", width: 90, editor: "select", editable: this._editCheck, editorParams: { values: ["Editor", "Viewer"] }
                 },
 
             ],
@@ -193,44 +180,38 @@ class AdminProject {
         this._projectusertable.on("tableBuilt", function (e, row) {
             _this.refreshProjectTable();
         });
-    
+
         myModal.toggle();
     }
 
     _renderEditCell(cell) {
         let _this = this;
-        
+
         let content = "";
         let editable = cell.getValue();
-
         let rowdata = cell.getRow().getData();
 
         if (rowdata.role == "Owner") {
             return;
         }
-     
 
         content += '<div style="height:20px">';
-        
-        if (editable)
-        {
+
+        if (editable) {
             content += '<button id="epc_accept-' + cell.getData().id + '" type="button" class="edithubbuttons" ><i style="pointer-events:none" class="bx bx-check"></i></button>';
             content += '<button id="epc_cancel-' + cell.getData().id + '" type="button" class="edithubbuttons" ><i style="pointer-events:none" class="bx bx-x"></i></button>';
         }
-        else
-        {
+        else {
             content += '<button id="epc_edit-' + cell.getData().id + '" type="button" class="edithubbuttons" ><i style="pointer-events:none" class="bx bx-edit"></i></button>';
             content += '<button id="epc_delete-' + cell.getData().id + '" type="button" class="edithubbuttons" ><i style="pointer-events:none" class="bx bx-trash"></i></button>';
-
         }
 
         content += '</div>';
         $(cell.getElement()).append(content);
         $("#epc_accept-" + cell.getData().id).on("click", function (event) { _this._acceptEdit(event); });
         $("#epc_edit-" + cell.getData().id).on("click", function (event) { _this._enableEdit(event); });
-         $("#epc_cancel-" + cell.getData().id).on("click", function (event) { _this._discardEdit(event); });
-         $("#epc_delete-" + cell.getData().id).on("click", function (event) { _this._deleteUserFromProject(event); });
-        // this._updateCellStyle(cell.getData().id);        
+        $("#epc_cancel-" + cell.getData().id).on("click", function (event) { _this._discardEdit(event); });
+        $("#epc_delete-" + cell.getData().id).on("click", function (event) { _this._deleteUserFromProject(event); });
     }
 
     _editCheck(cell) {
@@ -238,5 +219,4 @@ class AdminProject {
         let data = row.getData();
         return data.edit;
     }
-
 }

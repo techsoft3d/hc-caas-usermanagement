@@ -7,20 +7,15 @@ class Admin {
      
         this.adminHub = new AdminHub();
         this.adminProject = new AdminProject();
-
     }
 
- 
-    setUpdateUICallback(updateuicallback)
-    {
+    setUpdateUICallback(updateuicallback) {
         this._updateUICallback = updateuicallback;
     }
 
-    setLoggedInCallback(loggedincallback)
-    {
+    setLoggedInCallback(loggedincallback) {
         this._loggedInCallback = loggedincallback;
     }
-
 
     _updateUI() {
         if (this._updateUICallback) {
@@ -28,35 +23,29 @@ class Admin {
         }
     }
    
-
-    async checkLogin()
-    {
+    async checkLogin() {
         await myCaaSAC.getConfiguration();
         let success = await myCaaSAC.checkLogin();
         if (success) {
 
             let user = myCaaSAC.getCurrentUser();
-            if (user && this._loggedInCallback)
-            {
+            if (user && this._loggedInCallback) {
                 this._loggedInCallback();
             }
   
             $(".loggedinuser").html(user.email);
 
-            if (myCaaSAC.getCurrentHub())
-            {
+            if (myCaaSAC.getCurrentHub()) {
                 $(".loggedinuser").html(user.email + " - Hub:" + myCaaSAC.getCurrentHub().name);
             }
-            else
-            {
+            else {
                 $(".loggedinuser").html(user.email);
             }
                
             if (!myCaaSAC.getCurrentHub()) {            
                 this.adminHub.handleHubSelection();
             }
-            else if (!myCaaSAC.getCurrentProject()) {
-              
+            else if (!myCaaSAC.getCurrentProject()) {              
                 this.adminProject.handleProjectSelection();
             }
             else {              
@@ -74,11 +63,9 @@ class Admin {
     }
 
   
-    handleRegistration()
-    {
+    handleRegistration() {
         let myModal = new bootstrap.Modal(document.getElementById('registerusermodal'));
         myModal.toggle();
-
     }
 
     async _submitRegistration() {
@@ -93,9 +80,7 @@ class Admin {
         }   
     }
 
-    handleLogin()
-    {
-      
+    handleLogin() {      
         let myModal = new bootstrap.Modal(document.getElementById('loginusermodal'));
         myModal.show();
 
@@ -109,15 +94,12 @@ class Admin {
               document.getElementById("loginbutton").click();
             }
           });
-
     }
 
     async _submitLogin() {
         let response = await myCaaSAC.login( $("#login_email").val(), $("#login_password").val());
 
-
         if (response.ERROR) {
-
             myAdmin.handleLogin();
             $.notify("Error: " + response.ERROR, { style:"notifyerror",autoHideDelay: 3000, position: "bottom center" });
         }
@@ -127,12 +109,10 @@ class Admin {
             this.adminHub.handleHubSelection();
             this._updateUI();
 
-            if (myCaaSAC.getCurrentUser() && this._loggedInCallback)
-            {
+            if (myCaaSAC.getCurrentUser() && this._loggedInCallback) {
                 this._loggedInCallback();
             }
         }
     }
-
 }
 

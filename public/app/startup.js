@@ -5,7 +5,6 @@ var myCaaSAC;
 async function setupApp() {
 
  // await fetch(serveraddress + '/test', { method: 'PUT' });        
-
   myCaaSAC = new CaasAcc.CaasAcc(serveraddress); 
   $.notify.addStyle('notifyerror', {
     html: "<div><span data-notify-text/></div>",
@@ -34,7 +33,6 @@ async function setupApp() {
 }
 
 async function loadProjectCallback() {
-
   await initializeViewer();
   CsManagerClient.msready();
 }
@@ -63,16 +61,15 @@ function msready() {
   }, 10);
 }
 
-async function initializeViewer()
-{
+async function initializeViewer() {
   
   hwv = await myCaaSAC.initializeWebviewer("content");
   
-  var screenConfiguration =
+  let screenConfiguration =
     md.mobile() !== null
       ? Communicator.ScreenConfiguration.Mobile
       : Sample.screenConfiguration;
-  var uiConfig = {
+  let uiConfig = {
     containerId: "viewerContainer",
     screenConfiguration: screenConfiguration,
     showModelBrowser: true,
@@ -97,5 +94,4 @@ function resizeCanvas() {
   hwv.resizeCanvas();
   $("#toolBar").css("left", (width / 2 - 250) + "px");
   $("#toolBar").css("top", (height - 50) + "px");
-
 }
