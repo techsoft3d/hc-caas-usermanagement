@@ -10,7 +10,6 @@ export class CaasAcc {
         this.serveraddress = serveraddress;
     }
 
-
     getCurrentUser() {
         return this.currentUser;
     }
