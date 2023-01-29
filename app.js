@@ -14,15 +14,15 @@ app.get('/', function(req, res){
 
 
 app.use('/caas_ac_api',function(req,res,next) {  
-  if (req.session && req.session.user)  {
-    console.log("User:" + req.session.user.lastName);
+  if (req.session && req.session.caasUser)  {
+    console.log("User:" + req.session.caasUser.lastName);
 
   }
          //do additional authorization on caas rest api here  
     return next();
 });
 
-await caasAc.start(app);
+await caasAc.start(app, null,{createSession:true,sessionSecret:"12345"});
 
 
 let files = caasAc.getDatabaseObjects().files;

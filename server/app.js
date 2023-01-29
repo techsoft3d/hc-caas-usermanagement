@@ -25,7 +25,7 @@ exports.getDatabaseObjects = function () {
 };
 
 
-exports.start = async function (app, mongoose_in = null, createSession = true) {
+exports.start = async function (app, mongoose_in, options = {createSession:true,sessionSecret:"caasSession83736"}) {
   if (mongoose_in == undefined || !mongoose_in) {
     let mongoose = require('mongoose');
     global.tm_con = await mongoose.connect(config.get('caas-ac.mongodbURI'));
@@ -72,7 +72,7 @@ exports.start = async function (app, mongoose_in = null, createSession = true) {
 
   app.use(express.static(path.join(__dirname, 'public')));
 
-  if (createSession) {
+  if (options.createSession) {
 
     const session = require("express-session");
 
@@ -98,7 +98,7 @@ exports.start = async function (app, mongoose_in = null, createSession = true) {
     });
 
     app.use(session({
-      secret: "mysecret",
+      secret: options.sessionSecret,
       resave: false,
       saveUninitialized: true,
       store: store
