@@ -27,18 +27,18 @@ async function copyStarterProject(user,hub)
         await newproject.save();
         await addOneProjectUser(newproject.id,user.email,0);
       
-        let files = await files.find({ "project": project });
-        for (let i = 0; i < files.length; i++) {
+        let allFiles = await files.find({ "project": project });
+        for (let i = 0; i < allFiles.length; i++) {
             let newfile = new files({
                 project: newproject,
-                name: files[i].name,
+                name: allFiles[i].name,
                 converted: true,
-                storageid: files[i].storageid,
-                filesize: files[i].filesize,
-                hasStep: files[i].hasStep,
-                hasFBX: files[i].hasFBX,
-                hasHSF: files[i].hasHSF,
-                uploaded: files[i].uploaded,              
+                storageid: allFiles[i].storageid,
+                filesize: allFiles[i].filesize,
+                hasStep: allFiles[i].hasStep,
+                hasFBX: allFiles[i].hasFBX,
+                hasHSF: allFiles[i].hasHSF,
+                uploaded: allFiles[i].uploaded,              
             });
             await newfile.save();            
         }

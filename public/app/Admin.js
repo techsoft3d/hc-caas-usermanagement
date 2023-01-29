@@ -127,7 +127,7 @@ class Admin {
             this.adminHub.handleHubSelection();
             this._updateUI();
 
-            if (myCaaSAC.getCurrentUser() && _this._loggedInCallback)
+            if (myCaaSAC.getCurrentUser() && this._loggedInCallback)
             {
                 this._loggedInCallback();
             }

@@ -7,7 +7,8 @@ const UserSchema = new Schema({
   lastName: { type: String, required: true},
   email: { type: String, required: true, unique:true},
   password: { type: String, required: true},
-  status: { type: String, required: false, default:"active"}
+  status: { type: String, required: false, default:"active"},
+  customData: { type: Object, required: false }
 }, {timestamps:true});
 
 module.exports = global.tm_con.model('Users', UserSchema);

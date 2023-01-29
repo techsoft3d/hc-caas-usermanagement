@@ -1,4 +1,8 @@
 /* The switch - the box around the slider */
+
+#modelBrowserTabs {
+  top:-5px;
+}
 .wbootstrap *, ::after, ::before { 
   box-sizing:content-box;
   line-height:initial;
