@@ -1,7 +1,7 @@
 const path = require('path');
 
 module.exports = {
-  entry: './dev/client/public/js/twinManager/hctm.js',
+  entry: './public/hcCaasU/CaasUserManagement.js',
   mode: "production",
   experiments: {
     outputModule: true
@@ -9,6 +9,6 @@ module.exports = {
   output: {
     libraryTarget: 'module',
     path: path.resolve(__dirname, 'dist'),
-    filename: 'hcTwinManager.module.min.js',
+    filename: 'caasu.module.min.js',
   },  
 };
