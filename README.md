@@ -20,7 +20,7 @@ To integrate CaaS User Management into your own server application as a node mod
 3. If you want to override any of the default settings, create a config directory and an empty file called local.json and specifiy any setting you want to override. Here are the default settings:
 ```json
 {
-  "caas-ac": {
+  "hc-caas-um": {
     "mongodbURI": "mongodb://127.0.0.1:27017/caas_demo_app",
     "conversionServiceURI": "http://localhost:3001",
     "serverURI": "http://localhost:3000",
@@ -54,7 +54,7 @@ app.listen(3000);
 `<script type="text/javascript" src="js/caasu.min.js"></script>`
 2. Create a new CaasUserManagementClient object, specifying the server address.  
 ` myUserManagmentClient = new CaasU.CaasUserManagementClient(serveraddress); `
-3. See the various demos and Reference Manual for further API usage.
+3. See the various demos and Reference Manual for further API usage. Alternatively, feel free to copy the content of the public folder from this project to your own project and use the provided demos as a starting point for your own application.
 
 ## More details on the Server
 By default the CaaS User Management server will add its own end-points to your express app, which are all prefixed with `/caas_um_api`. It will also create its own mongodb session store as well as a user-session. If you are already using mongodb you can provide it as the second parameter to the start function. In addition, the User Management Server can create its own session store for cookie based session management but you can choose to do provide your own. In this case the user management module will expect a session object to be present on the request object for all its REST api calls. If you allow the account handling server to create its own session store, you should provide a secret for the session store as the third parameter to the start function, which will be used to sign the session cookies. 

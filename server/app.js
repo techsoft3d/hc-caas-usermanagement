@@ -13,6 +13,11 @@ const bodyParser = require('body-parser');
 
 const middleware = require('./middleware');
 
+process.env.ALLOW_CONFIG_MUTATIONS = "true";
+process.env.SUPPRESS_NO_CONFIG_WARNING = 'y';
+
+
+const config = require('config');
 
 process.on('uncaughtException', function (err) {
   console.log(err);
@@ -26,13 +31,11 @@ exports.getDatabaseObjects = function () {
 
 exports.start = async function (app, mongoose_in, options = { createSession: true, sessionSecret: "caasSession83736" }) {
 
-  process.env["NODE_CONFIG_DIR"] = __dirname + "./../config" + ";" + process.cwd() + "/config";
-
-  const config = require('config');
+  handleInitialConfiguration();
 
   if (mongoose_in == undefined || !mongoose_in) {
     let mongoose = require('mongoose');
-    global.tm_con = await mongoose.connect(config.get('caas-ac.mongodbURI'));
+    global.tm_con = await mongoose.connect(config.get('hc-caas-um.mongodbURI'));
   }
   else {
     global.tm_con = mongoose_in;
@@ -70,7 +73,7 @@ exports.start = async function (app, mongoose_in, options = { createSession: tru
     }
   });
 
-  if (!config.get('caas-ac.demoMode')) {
+  if (!config.get('hc-caas-um.demoMode')) {
     app.use(multer({ storage: fileStorage }).single('file'));
   }
 
@@ -85,7 +88,7 @@ exports.start = async function (app, mongoose_in, options = { createSession: tru
     if (!mongoose_in) {
       let MongoDBStore = require('connect-mongodb-session')(session);
       store = new MongoDBStore({
-        uri: config.get('caas-ac.mongodbURI'),
+        uri: config.get('hc-caas-um.mongodbURI'),
         collection: 'mySessions'
       });
     }
@@ -114,6 +117,25 @@ exports.start = async function (app, mongoose_in, options = { createSession: tru
   app.use("/caas_um_api", apiRoutes);
 
 
-  csmanager.init(config.get('caas-ac.conversionServiceURI'));
+  csmanager.init(config.get('hc-caas-um.conversionServiceURI'));
   return global.tm_con;
 };
+
+
+
+
+function handleInitialConfiguration() {
+  let configs = {
+        "mongodbURI": "mongodb://127.0.0.1:27017/caas_demo_app",
+        "conversionServiceURI": "http://localhost:3001",
+        "serverURI": "http://localhost:3000",
+        "useDirectFetch": false,
+        "useStreaming": false,
+        "demoMode": false,
+        "assignDemoHub": false,
+        "demoProject": ""    
+  };
+
+  config.util.setModuleDefaults('hc-caas-um', configs);
+
+}

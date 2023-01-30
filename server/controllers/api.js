@@ -3,7 +3,7 @@ const config = require('config');
 let csmanager = require('../libs/csManager');
 
 exports.postUpload = async(req, res, next) => {
-    if (config.get('caas-ac.demoMode')) {
+    if (config.get('hc-caas-um.demoMode')) {
         res.json({ERROR:"Not authorized."});
         return;
     }
@@ -16,7 +16,7 @@ exports.postUpload = async(req, res, next) => {
 
 exports.getUploadToken = async(req, res, next) => {    
 
-    if (config.get('caas-ac.demoMode')) {
+    if (config.get('hc-caas-um.demoMode')) {
         res.json({ERROR:"Not authorized."});
         return;
     }
@@ -56,7 +56,7 @@ exports.getModels = async (req, res, next) => {
 
 exports.deleteModel = async (req, res, next) => {
 
-    if (config.get('caas-ac.demoMode')) {
+    if (config.get('hc-caas-um.demoMode')) {
         res.json({ERROR:"Not authorized."});
         return;
     }
@@ -72,7 +72,7 @@ exports.processWebhook = async (req, res, next) => {
 
 exports.generateCustomImage = async (req, res, next) => {
     
-    if (config.get('caas-ac.demoMode')) {
+    if (config.get('hc-caas-um.demoMode')) {
         res.json({ERROR:"Not authorized."});
         return;
     }
