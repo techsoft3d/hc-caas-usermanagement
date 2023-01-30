@@ -12,7 +12,7 @@ class AdminProject {
     }
 
     async handleProjectSwitch() {
-        await myCaaSAC.leaveProject();
+        await myUserManagmentClient.leaveProject();
         window.location.reload(true);
 
     }
@@ -23,26 +23,26 @@ class AdminProject {
     }
 
     async renameProject() {
-        await myCaaSAC.renameProject(this.editProject.id, $("#editProjectName").val());
+        await myUserManagmentClient.renameProject(this.editProject.id, $("#editProjectName").val());
     }
 
     async newProject() {
-        let data = await myCaaSAC.createProject($("#newProjectName").val());
+        let data = await myUserManagmentClient.createProject($("#newProjectName").val());
         this.loadProject(data.projectid);
     }
 
     async deleteProject() {
         $('#chooseprojectModal').modal('hide');
-        await myCaaSAC.deleteProject($("#projectselect").val());
+        await myUserManagmentClient.deleteProject($("#projectselect").val());
         this.handleProjectSelection();
     }
 
     async loadProject(projectid) {
 
-        await myCaaSAC.loadProject(projectid);
+        await myUserManagmentClient.loadProject(projectid);
 
         $(".projectname").empty();
-        $(".projectname").append(myCaaSAC.getCurrentProject());
+        $(".projectname").append(myUserManagmentClient.getCurrentProject());
 
         myAdmin._updateUI();
         $(".modal-backdrop").remove();
@@ -59,7 +59,7 @@ class AdminProject {
 
         let myModal = new bootstrap.Modal(document.getElementById('chooseprojectModal'));
         myModal.toggle();
-        let models = await myCaaSAC.getProjects();
+        let models = await myUserManagmentClient.getProjects();
 
         $("#projectselect").empty();
         var html = "";
@@ -75,7 +75,7 @@ class AdminProject {
     async refreshProjectTable() {
         this._projectusertable.clearData();
 
-        let users = await myCaaSAC.getProjectUsers(this.editProject.id);
+        let users = await myUserManagmentClient.getProjectUsers(this.editProject.id);
 
         for (let i = 0; i < users.length; i++) {
             let prop = { id: i, email: users[i].email, role: users[i].role, edit: false };
@@ -90,7 +90,7 @@ class AdminProject {
         let id = event.currentTarget.id.split("-")[1];
         let email = this._projectusertable.getRow(id).getCell("email").getValue();
         let role = this._projectusertable.getRow(id).getCell("role").getValue();
-        let projectusers = await myCaaSAC.getProjectUsers(this.editProject.id);
+        let projectusers = await myUserManagmentClient.getProjectUsers(this.editProject.id);
 
         let isUser = false;
         for (let i = 0; i < projectusers.length; i++) {
@@ -101,10 +101,10 @@ class AdminProject {
         }
 
         if (!isUser) {
-            await myCaaSAC.addProjectUser(this.editProject.id, email, role);
+            await myUserManagmentClient.addProjectUser(this.editProject.id, email, role);
         }
         else {
-            await myCaaSAC.updateProjectUser(this.editProject.id, email, role);
+            await myUserManagmentClient.updateProjectUser(this.editProject.id, email, role);
         }
 
         this._projectusertable.getRow(id).getCell("edit").setValue(false);
@@ -114,7 +114,7 @@ class AdminProject {
     async _deleteUserFromProject(event) {
         let id = event.currentTarget.id.split("-")[1];
         let email = this._projectusertable.getRow(id).getCell("email").getValue();
-        await myCaaSAC.deleteProjectUser(this.editProject.id, email);
+        await myUserManagmentClient.deleteProjectUser(this.editProject.id, email);
         this.refreshProjectTable();
     }
 
@@ -144,7 +144,7 @@ class AdminProject {
         let myModal = new bootstrap.Modal(document.getElementById('editProjectModal'));
 
 
-        let hubusers = await myCaaSAC.getHubUsers(myCaaSAC.getCurrentHub().id);
+        let hubusers = await myUserManagmentClient.getHubUsers(myUserManagmentClient.getCurrentHub().id);
         this._userhash = [];
         let emaillist = [];
         for (let i = 0; i < hubusers.length; i++) {

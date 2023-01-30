@@ -24,32 +24,32 @@ class Admin {
     }
    
     async checkLogin() {
-        await myCaaSAC.getConfiguration();
-        let success = await myCaaSAC.checkLogin();
+        await myUserManagmentClient.getConfiguration();
+        let success = await myUserManagmentClient.checkLogin();
         if (success) {
 
-            let user = myCaaSAC.getCurrentUser();
+            let user = myUserManagmentClient.getCurrentUser();
             if (user && this._loggedInCallback) {
                 this._loggedInCallback();
             }
   
             $(".loggedinuser").html(user.email);
 
-            if (myCaaSAC.getCurrentHub()) {
-                $(".loggedinuser").html(user.email + " - Hub:" + myCaaSAC.getCurrentHub().name);
+            if (myUserManagmentClient.getCurrentHub()) {
+                $(".loggedinuser").html(user.email + " - Hub:" + myUserManagmentClient.getCurrentHub().name);
             }
             else {
                 $(".loggedinuser").html(user.email);
             }
                
-            if (!myCaaSAC.getCurrentHub()) {            
+            if (!myUserManagmentClient.getCurrentHub()) {            
                 this.adminHub.handleHubSelection();
             }
-            else if (!myCaaSAC.getCurrentProject()) {              
+            else if (!myUserManagmentClient.getCurrentProject()) {              
                 this.adminProject.handleProjectSelection();
             }
             else {              
-                this.adminProject.loadProject(myCaaSAC.getCurrentProject());
+                this.adminProject.loadProject(myUserManagmentClient.getCurrentProject());
             }
         }
         this._updateUI();
@@ -57,7 +57,7 @@ class Admin {
 
     async handleLogout()
     {
-        await myCaaSAC.logout();
+        await myUserManagmentClient.logout();
         window.location.reload(true); 
 
     }
@@ -70,7 +70,7 @@ class Admin {
 
     async _submitRegistration() {
 
-        let res = await myCaaSAC.register({firstName: $("#register_firstname").val(), lastName: $("#register_lastname").val(), email: $("#register_email").val(), password: $("#register_password").val()});
+        let res = await myUserManagmentClient.register({firstName: $("#register_firstname").val(), lastName: $("#register_lastname").val(), email: $("#register_email").val(), password: $("#register_password").val()});
         if (res == "SUCCESS") {
             CsManagerClient.msready();
         }
@@ -97,7 +97,7 @@ class Admin {
     }
 
     async _submitLogin() {
-        let response = await myCaaSAC.login( $("#login_email").val(), $("#login_password").val());
+        let response = await myUserManagmentClient.login( $("#login_email").val(), $("#login_password").val());
 
         if (response.ERROR) {
             myAdmin.handleLogin();
@@ -109,7 +109,7 @@ class Admin {
             this.adminHub.handleHubSelection();
             this._updateUI();
 
-            if (myCaaSAC.getCurrentUser() && this._loggedInCallback) {
+            if (myUserManagmentClient.getCurrentUser() && this._loggedInCallback) {
                 this._loggedInCallback();
             }
         }

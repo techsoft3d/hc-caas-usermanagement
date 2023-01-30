@@ -22,8 +22,8 @@ To quickly test out CaaS User Management with the provided demo, follow the step
 
 ### Server Side
 To integrate CaaS User Management into your own server application as a node module, follow the steps below.
-1. Install the module with `npm install hc-caas-user-management`
-2. Import the module with `const caasUserManagement = require('hc-caas-user-management');`
+1. Install the module with `npm install ts3d.hc.caas.usermanagement`
+2. Import the module with `const caasUserManagement = require('ts3d.hc.caas.usermanagement');`
 3. Start the CaasAccountHandlingServer with caasUserManagement.start(), providing your express app as a parameter as well as other configuration settings. See below for a minimal example:
 
 ```
@@ -34,16 +34,18 @@ const app = express();
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-const caasUserManagement = require('hc-caas-user-management');
-caasAc.start(app, null,{createSession:true, sessionSecret:"12345"});
+const caasUserManagement = require('ts3d.hc.caas.usermanagement');
+caasUserManagement.start(app, null,{createSession:true, sessionSecret:"12345"});
 
 app.listen(3000);
 
 ```
 
 ### Client Side
-1. Add 'caasu.min.js' to your client-side project. The client-side library is included in the dist folder of this repository.
-2. Create a new CaasUserManagementClient object with `const caasac = new CaasUserManagementClient(serverip);`
+1. Add 'caasu.min.js' to your client-side project. The client-side library is included in the dist folder of this repository.  
+`<script type="text/javascript" src="js/caasu.min.js"></script>`
+2. Create a new CaasUserManagementClient object, specifying the server address.  
+` myUserManagmentClient = new CaasU.CaasUserManagementClient(serveraddress); `
 3. See the various demos and Reference Manual for further API usage.
 
 ## More details on the Server

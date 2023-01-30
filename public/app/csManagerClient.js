@@ -5,9 +5,9 @@ class CsManagerClient {
     static msready() {
         csManagerClient = new CsManagerClient();
         let myDropzone;
-        if (!myCaaSAC.getUseDirectFetch()) {
+        if (!myUserManagmentClient.getUseDirectFetch()) {
 
-            myDropzone = new Dropzone("div#dropzonearea", { url: myCaaSAC.getUploadURL(), timeout: 180000 });
+            myDropzone = new Dropzone("div#dropzonearea", { url: myUserManagmentClient.getUploadURL(), timeout: 180000 });
             myDropzone.on("success", async function (file, response) {
                 myDropzone.removeFile(file);
             });       
@@ -20,7 +20,7 @@ class CsManagerClient {
             myDropzone = new Dropzone("div#dropzonearea", {
                 url: "#", timeout: 180000, method: "PUT",
                 accept: async function (file, cb) {
-                    let json = await myCaaSAC.getUploadToken(file.name,file.size);
+                    let json = await myUserManagmentClient.getUploadToken(file.name,file.size);
                     
                     file.itemid = json.itemid;
                     file.signedRequest = json.token;
@@ -42,7 +42,7 @@ class CsManagerClient {
             });
 
             myDropzone.on("success", async function (file, response) {
-                myCaaSAC.processUploadFromToken(file.itemid,$("#modelpath").val());
+                myUserManagmentClient.processUploadFromToken(file.itemid,$("#modelpath").val());
                 myDropzone.removeFile(file);
             });
         }
@@ -69,7 +69,7 @@ class CsManagerClient {
     }
 
     async _checkForNewModels() {
-        let data = await myCaaSAC.getModels();
+        let data = await myUserManagmentClient.getModels();
 
         let newtime = Date.parse(data.updated);
         if (this._updatedTime == undefined || this._updatedTime != newtime) {
@@ -85,14 +85,14 @@ class CsManagerClient {
             var file = data[i].name.split(".")[0];
             if (!data[i].pending) {
                 let image = null;
-                if (myCaaSAC.getUseDirectFetch()) {
-                    let json = myCaaSAC.getDownloadToken(data[i].id, "png");
+                if (myUserManagmentClient.getUseDirectFetch()) {
+                    let json = myUserManagmentClient.getDownloadToken(data[i].id, "png");
                     if (!json.error) {
                         image = await fetch(json.token);
                     }
                 }
                 else {
-                    image = await myCaaSAC.getPNG(data[i].id);
+                    image = await myUserManagmentClient.getPNG(data[i].id);
                 }
 
                 if (image && image.status == 200) {
@@ -171,7 +171,7 @@ class CsManagerClient {
                         csManagerClient._modelHash[modelid].nodeid = null;
                     }
                     delete csManagerClient._modelHash[modelid];
-                    await myCaaSAC.deleteModel(modelid);
+                    await myUserManagmentClient.deleteModel(modelid);
 
                 }
             }  
@@ -203,16 +203,16 @@ class CsManagerClient {
                     hwv.model.clear();
                 }
                 let res;
-                if (!myCaaSAC.getUseStreaming()) {
+                if (!myUserManagmentClient.getUseStreaming()) {
                     let byteArray;
-                    if (myCaaSAC.getUseDirectFetch()) {
-                        let json = myCaaSAC.getDownloadToken(modelid, "scs");
+                    if (myUserManagmentClient.getUseDirectFetch()) {
+                        let json = myUserManagmentClient.getDownloadToken(modelid, "scs");
                         res = await fetch(json.token);
                         let ab = await res.arrayBuffer();
                         byteArray = new Uint8Array(ab);
                     }
                     else {
-                        byteArray = await myCaaSAC.getSCS(modelid);
+                        byteArray = await myUserManagmentClient.getSCS(modelid);
                     }
 
                     if (this._modelHash[modelid].name.indexOf(".dwg") != -1 && numberchecked == 0) {
@@ -228,7 +228,7 @@ class CsManagerClient {
                     }
                 }
                 else {
-                    await myCaaSAC.enableStreamAccess(modelid);
+                    await myUserManagmentClient.enableStreamAccess(modelid);
                     let modelnode = hwv.model.createNode(modelid);
                     await hwv.model.loadSubtreeFromModel(modelnode,this._modelHash[modelid].name);
                     this._modelHash[modelid].nodeid = modelnode;

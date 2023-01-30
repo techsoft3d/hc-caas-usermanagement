@@ -1,11 +1,11 @@
 const serveraddress = "http://" + window.location.host;
 var myAdmin;
-var myCaaSAC;
+var myUserManagmentClient;
 
 async function setupApp() {
 
  // await fetch(serveraddress + '/test', { method: 'PUT' });        
-  myCaaSAC = new CaasU.CaasUserManagementClient(serveraddress); 
+  myUserManagmentClient = new CaasU.CaasUserManagementClient(serveraddress); 
   $.notify.addStyle('notifyerror', {
     html: "<div><span data-notify-text/></div>",
     classes: {
@@ -63,7 +63,7 @@ function msready() {
 
 async function initializeViewer() {
   
-  hwv = await myCaaSAC.initializeWebviewer("content");
+  hwv = await myUserManagmentClient.initializeWebviewer("content");
   
   let screenConfiguration =
     md.mobile() !== null

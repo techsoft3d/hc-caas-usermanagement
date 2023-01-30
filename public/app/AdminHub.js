@@ -5,7 +5,7 @@ class AdminHub {
     }
 
     async handleHubSwitch() {
-        myCaaSAC.leaveHub();
+        myUserManagmentClient.leaveHub();
         window.location.reload(true);
     }
 
@@ -16,7 +16,7 @@ class AdminHub {
     async handleHubSelection() {
         let myModal = new bootstrap.Modal(document.getElementById('choosehubModal'));
         myModal.toggle();
-        let models = await myCaaSAC.getHubs();
+        let models = await myUserManagmentClient.getHubs();
 
         $("#hubselect").empty();
         var html = "";
@@ -28,7 +28,7 @@ class AdminHub {
     }
 
     async renameHub() {
-        myCaaSAC.renameHub(this.editHub.id, $("#editHubName").val());
+        myUserManagmentClient.renameHub(this.editHub.id, $("#editHubName").val());
     }
 
     handleNewHubDialog() {
@@ -37,13 +37,13 @@ class AdminHub {
     }
 
     async newHub() {
-        let data = await myCaaSAC.createHub($("#newHubName").val());
+        let data = await myUserManagmentClient.createHub($("#newHubName").val());
         this.loadHub(data.hubid);
     }
 
     async loadHub(hubid) {
-        await myCaaSAC.loadHub(hubid);
-        $(".loggedinuser").html(myCaaSAC.getCurrentUser().email + " - Hub:" + myCaaSAC.getCurrentHub().name);
+        await myUserManagmentClient.loadHub(hubid);
+        $(".loggedinuser").html(myUserManagmentClient.getCurrentUser().email + " - Hub:" + myUserManagmentClient.getCurrentHub().name);
 
         myAdmin._updateUI();
         myAdmin.adminProject.handleProjectSelection();
@@ -54,7 +54,7 @@ class AdminHub {
         let email = this._hubusertable.getRow(id).getCell("email").getValue();
         let role = this._hubusertable.getRow(id).getCell("role").getValue();
 
-        let hubusers = await myCaaSAC.getHubUsers(this.editHub.id);
+        let hubusers = await myUserManagmentClient.getHubUsers(this.editHub.id);
 
         let isUser = false;
         for (let i = 0; i < hubusers.length; i++) {
@@ -64,10 +64,10 @@ class AdminHub {
             }
         }
         if (!isUser) {
-            await myCaaSAC.addHubUser(this.editHub.id, email, role);
+            await myUserManagmentClient.addHubUser(this.editHub.id, email, role);
         }
         else {
-            await myCaaSAC.updateHubUser(this.editHub.id, email, role);
+            await myUserManagmentClient.updateHubUser(this.editHub.id, email, role);
         }
 
         this._hubusertable.getRow(id).getCell("edit").setValue(false);
@@ -101,20 +101,20 @@ class AdminHub {
     async _deleteUserFromHub(event) {
         let id = event.currentTarget.id.split("-")[1];
         let email = this._hubusertable.getRow(id).getCell("email").getValue();
-        await myCaaSAC.deleteHubUser(this.editHub.id, email);
+        await myUserManagmentClient.deleteHubUser(this.editHub.id, email);
         this.refreshHubTable();
     }
 
     async deleteHub() {
         $('#choosehubModal').modal('hide');
-        await myCaaSAC.deleteHub($("#hubselect").val());
+        await myUserManagmentClient.deleteHub($("#hubselect").val());
         this.handleHubSelection();
     }
 
     async _acceptHubParticipation(event) {
         let id = event.currentTarget.id.split("-")[1];
         let email = this._hubusertable.getRow(id).getCell("email").getValue();
-        await myCaaSAC.acceptHub(this.editHub.id, email);
+        await myUserManagmentClient.acceptHub(this.editHub.id, email);
         this.refreshHubTable();
     }
 
@@ -145,7 +145,7 @@ class AdminHub {
 
         let hasAcceptButton = false;
         if (!accepted && rowdata.email != "") {
-            if (rowdata.email == myCaaSAC.getCurrentUser().email) {
+            if (rowdata.email == myUserManagmentClient.getCurrentUser().email) {
                 content += '<button id="ehc_accept2-' + cell.getData().id + '" type="button" class="edithubbuttons2" style="position:relative;top:-5px;border-style:none;height:20px"><span style="font-size:12px;top:-2px;position:relative;">Accept</span></button>';
                 hasAcceptButton = true;
             }
@@ -165,7 +165,7 @@ class AdminHub {
 
     async refreshHubTable() {
         this._hubusertable.clearData();
-        let users = await myCaaSAC.getHubUsers(this.editHub.id);
+        let users = await myUserManagmentClient.getHubUsers(this.editHub.id);
 
         for (let i = 0; i < users.length; i++) {
             let prop = { id: i, email: users[i].email, role: users[i].role, edit: false, accepted: users[i].accepted };

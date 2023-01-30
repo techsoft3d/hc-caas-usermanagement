@@ -40,7 +40,7 @@ class MainUI {
                 }
             }
         ];
-        if (!myCaaSAC.getDemoMode())
+        if (!myUserManagmentClient.getDemoMode())
         {
           $('#viewermenu1button').contextMenu("menu", viewermenu, {
             'displayAround': 'trigger',
@@ -97,7 +97,7 @@ class MainUI {
 
     updateMenu() {
         
-        if (!myCaaSAC.getCurrentUser()) {
+        if (!myUserManagmentClient.getCurrentUser()) {
             $("li:contains(Logout)").css("opacity", "0.2");
             $("li:contains(Logout)").css("pointer-events", "none");
 
@@ -114,7 +114,7 @@ class MainUI {
             $("li:contains(Switch Hub)").css("opacity", "0.2");
             $("li:contains(Switch Hub)").css("pointer-events", "none");
         }
-        if (myCaaSAC.getCurrentUser()) {
+        if (myUserManagmentClient.getCurrentUser()) {
 
             $("li:contains(Logout)").css("opacity", "1.0");
             $("li:contains(Logout)").css("pointer-events", "all");
@@ -132,7 +132,7 @@ class MainUI {
             $("li:contains(Register)").css("pointer-events", "none");
         }
 
-        if (myCaaSAC.getCurrentProject()) {
+        if (myUserManagmentClient.getCurrentProject()) {
             $("#content").css("display", "block");
             $("body").css("background", "");
             $(".sidenav").css("pointer-events", "");
