@@ -43,7 +43,46 @@
 
 
     <section>
-        <article><h1>Caas Account Handling</h1></article>
+        <article><h1>CaaS Account Handling : Account Managenment for CAAS</h1>
+<h2>Introduction</h2>
+<p>This library implements account management on top of the <a href="https://github.com/techsoft3d/hc-caas">CaaS</a> library, which is a conversion and streaming backend for HOOPS Communicator. It provides an easy to use REST api for managing user accounts and their associated data, including Hubs and Projects with different access levels per user. By connecting this library to CaaS, you essentially get a CAD oriented SaaS application &quot;out of the box&quot;, with a few lines of server-side code, ideal for prototyping and testing or as the starting point for your own  application.</p>
+<p>The library consists of two components,  the server-side node.js library you can add to your project via npm as well as a client-side library for communicating with the server.  It also comes with a framework-agnostic  front-end, written with bootstrap that demonstrates the use of the client-side library and can be used as a starting point for your own application.</p>
+<h2>Quick Start</h2>
+<p>To quickly test out CaaS Account Handling with the provided demo, follow the steps below.</p>
+<ol>
+<li>Clone the repository</li>
+<li>Install the dependencies with <code>npm install</code></li>
+<li>Ensure CaaS is running on port 3001. If not, follow the instructions <a href="https://github.com/techsoft3d/hc-caas">here</a></li>
+<li>Start the server with <code>npm start</code></li>
+<li>Open a browser and navigate to <code>http://localhost:3000/viewer.html</code></li>
+<li>Register at least one user account, create a hub, project. You can then upload a file, etc.</li>
+</ol>
+<h2>Integrate with your own Node-Based Server Application</h2>
+<h3>Server Side</h3>
+<p>To integrate CaaS Account Handling into your own server application as a node module, follow the steps below.</p>
+<ol>
+<li>Install the module with <code>npm install hc-caas-account-handling</code></li>
+<li>Import the module with <code>const caasAccountHandling = require('hc-caas-account-handling');</code></li>
+<li>Start the CaasAccountHandlingServer with caasAccountHandling.start(), providing your express app as a parameter as well as other configuration settings. See below for a minimal example:</li>
+</ol>
+<pre class="prettyprint source"><code>
+const express = require('express');
+const path = require('path');
+const app = express();
+
+app.use(express.static(path.join(__dirname, 'public')));
+
+const caasAccountHandling = require('hc-caas-account-handling');
+caasAc.start(app, null,{createSession:true, sessionSecret:&quot;12345&quot;});
+
+app.listen(3000);
+
+</code></pre>
+<h3>Client Side</h3>
+<ol>
+<li>Add 'caasac.min.js' to your client-side project. The client-side library is included in the dist folder of this repository.</li>
+<li>Create a new CaasAccountHandlingClient object with <code>const caasac = new CaasAccountHandlingClient(serverip);</code></li>
+</ol></article>
     </section>
 
 
@@ -54,7 +93,7 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="CaasManager.html">CaasManager</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="CaasAccountHandlingClient.html">CaasAccountHandlingClient</a></li></ul>
 </nav>
 
 <br class="clear">

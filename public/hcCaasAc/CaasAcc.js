@@ -1,5 +1,5 @@
 /** This class provides a wrapper for the CaaS Account Management Server REST API*/
-export class CaasManager {
+export class CaasAccountHandlingClient {
 /**
      * Creates a CaaS Manager Object
      * @param  {string} serveraddress - Address of CaaS Account Management Server
@@ -230,7 +230,6 @@ getCurrentProject() {
         let hubinfo  = await res.json();
         this.currentHub = hubinfo;
     }
-
 
  /**
          * Retrieve all users associated with a Hub      
