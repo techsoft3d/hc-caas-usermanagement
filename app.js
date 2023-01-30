@@ -3,7 +3,7 @@ const path = require('path');
 
 const app = express();
 
-const caasAc = require('./server/app');
+const caasUserManagementServer = require('./server/app');
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.get('/', function(req, res){
@@ -36,7 +36,7 @@ app.get('/', function(req, res){
 
 
   // app.put('/test', async function (req, res, next) {
-  //   let users = caasAc.getDatabaseObjects().users;
+  //   let users = caasUserManagementServer.getDatabaseObjects().users;
   //   let users2 = await users.find();
   //   req.session.caasUser = users2[0];
   //   console.log("Numusers "+ users2.length);
@@ -54,10 +54,10 @@ app.get('/', function(req, res){
 // });
 
 
-await caasAc.start(app, null,{createSession:true, sessionSecret:"12345"});
+await caasUserManagementServer.start(app, null,{createSession:true, sessionSecret:"12345"});
 
 
-let files = caasAc.getDatabaseObjects().files;
+let files = caasUserManagementServer.getDatabaseObjects().files;
 let converted = await files.find({ "converted": true });
 console.log("filesconverted:", converted.length);
 let i=0;

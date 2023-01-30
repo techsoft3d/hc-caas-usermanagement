@@ -7,15 +7,11 @@ This library implements user management on top of the [CaaS](https://github.com/
 The library consists of two components, the server-side node.js library you can add to your project via npm as well as a client-side library for communicating with the server. It also comes with a bootstrap based front-end that demonstrates the use of the client-side library and can be used as a starting point for your own application.
 
 
-## Quick Start 
-To quickly test out CaaS User Management with the provided demo, follow the steps below.
-1. Clone the repository
-2. Install all dependencies with `npm install`
-3. Ensure CaaS is running on port 3001. If not, follow the instructions [here](https://github.com/techsoft3d/hc-caas)
-4. Start the server with `npm start`
-5. Open a browser and navigate to `http://localhost:3000/viewer.html`
-6. Register at least one user account, create a hub, project. You can then upload a file, etc.
+## ToDo
+ToDo
 
+## Feedback
+For questions/feedback please send an email to guido@techsoft3d.com or post in our [forum](https://forum.techsoft3d.com/). For a 60 day trial of the HOOPS Web Platform go to https://www.techsoft3d.com/products/hoops/web-platform.
 
 
 ## Integrate with your own Node-Based Server Application
@@ -23,8 +19,8 @@ To quickly test out CaaS User Management with the provided demo, follow the step
 ### Server Side
 To integrate CaaS User Management into your own server application as a node module, follow the steps below.
 1. Install the module with `npm install ts3d.hc.caas.usermanagement`
-2. Import the module with `const caasUserManagement = require('ts3d.hc.caas.usermanagement');`
-3. Start the CaasAccountHandlingServer with caasUserManagement.start(), providing your express app as a parameter as well as other configuration settings. See below for a minimal example:
+2. Import the module with `const caasUserManagementServer = require('ts3d.hc.caas.usermanagement');`
+3. Start the CaasUserManagementServer with caasUserManagementServer.start(), providing your express app as a parameter as well as other configuration settings. See below for a minimal example:
 
 ```
 
@@ -34,8 +30,8 @@ const app = express();
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-const caasUserManagement = require('ts3d.hc.caas.usermanagement');
-caasUserManagement.start(app, null,{createSession:true, sessionSecret:"12345"});
+const caasUserManagementServer = require('ts3d.hc.caas.usermanagement');
+caasUserManagementServer.start(app, null,{createSession:true, sessionSecret:"12345"});
 
 app.listen(3000);
 
@@ -52,11 +48,29 @@ app.listen(3000);
 By default the CaaS User Management server will add its own end-points to your express app, which are all prefixed with '/caas_um_api'. It will also create its own mongodb session store as well as a user-session. If you are already using mongodb you can provide it as the second parameter to the start function. In addition, the User Management Server can create its own session store, for cookie based session management but you can choose to do your own session management. In this case the user management server will expect a session object to be present on the request object for all its REST api calls. If you allow the account handling server to create its own session store, you should provide a secret for the session store as the third parameter to the start function, which will be used to sign the session cookies. 
 
 ## Security and User Accounts
-Account management is provided out of the box, with a simple registration and login process, utilizing a straightforward encrypted password scheme. However it is straightforwards to use the library with your own account management. To make this approach practical, the server-side module provides an easy way to retrieve all user account data, which gives you the ability to create accounts directly server-side, bypassing the REST api. This approach allows you to handle all account creation while still leveraging the library for managing the connection CaaS as well as Hubs and Project.
+Account management is provided out of the box, with a simple registration and login process, utilizing a straightforward encrypted password scheme. However it is straightforwards to use the library with your own account management. To make this approach practical, the server-side module provides an easy way to retrieve all user account data, which gives you the ability to create accounts directly server-side, bypassing the REST api. This approach allows you to handle all account creation while still leveraging the library for managing the connection CaaS as well as Hubs and Project. See below for an example on how to retrieve all user account data and add the user to the session object:
+
+```
+app.put('/myLogin', async function (req, res, next) {
+    //perform custom login procedure
+    //...    
+
+    let usersDB = caasUserManagementServer.getDatabaseObjects().users;
+    let user = await usersDB.findOne({email:loggedinuser});
+    req.session.caasUser = users2;
+});
+
+```
+
+If you use this approach, it is advisable to do additional authentication on the REST api calls to the User Management server, to prevent unauthorized access to the user data and login calls.
+
+
 
 ## Using the User Management node module on a separate server
 If you want to use the User Management node module on a separate server, you can do so by simply proxying its REST api calls to this server from your web-server. In this scenario you might want to add an extra layer to the User Management server to handle authentication and authorization if desired.
-```
+
+
+
 
 
 
