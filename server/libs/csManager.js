@@ -1,4 +1,3 @@
-const fsp = require('fs').promises;
 const fs = require('fs');
 const del = require('del');
 const files = require('../models/Files');
@@ -8,6 +7,9 @@ const fetch = require('node-fetch');
 
 let conversionServiceURI = "";
 let _updatedTime = new Date();
+
+const config = require('config');
+
 
 exports.init = (uri) =>
 {
@@ -33,8 +35,7 @@ exports.process = async (tempid, filename, project,startpath) => {
     let form = new FormData();
     form.append('file', fs.createReadStream("./csmodelupload/" + tempid + "/" + filename));
 
-//    let api_arg  = {webhook:"http://localhost:3000" + '/caas_um_api/webhook',conversionCommandLine:["--output_scs","","--output_png","","background_color","0,0,0","--output_step",""] };
-    let api_arg  = {webhook:"http://localhost:3000" + '/caas_um_api/webhook', startPath:startpath};
+    let api_arg  = {webhook:config.get('caas-ac.serverURI') + '/caas_um_api/webhook', startPath:startpath};
         
     res = await fetch(conversionServiceURI + '/api/upload', { method: 'POST', body: form,headers: {'CS-API-Arg': JSON.stringify(api_arg)}});
     const data = await res.json();
@@ -49,7 +50,7 @@ exports.process = async (tempid, filename, project,startpath) => {
 };
 
 exports.getUploadToken = async (name, size, project) => {
-    let api_arg = { webhook: "http://localhost:3000" + '/caas_um_api/webhook' };
+    let api_arg = { webhook: config.get('caas-ac.serverURI') + '/caas_um_api/webhook' };
 
     let res;
     try {
@@ -146,7 +147,7 @@ exports.getPNG = async (itemid, project) => {
     return await res.arrayBuffer();
 };
 
-exports.updateConversionStatus =  async (storageId, files) => {
+exports.updateConversionStatus =  async (storageId, convertedFiles) => {
     let item = await files.findOne({ "storageID": storageId});
 
     _checkPendingConversions();

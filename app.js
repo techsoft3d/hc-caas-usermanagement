@@ -57,10 +57,9 @@ app.get('/', function(req, res){
 await caasUserManagementServer.start(app, null,{createSession:true, sessionSecret:"12345"});
 
 
-let files = caasUserManagementServer.getDatabaseObjects().files;
-let converted = await files.find({ "converted": true });
-console.log("filesconverted:", converted.length);
-let i=0;
+// let files = caasUserManagementServer.getDatabaseObjects().files;
+// let converted = await files.find({ "converted": true });
+// console.log("filesconverted:", converted.length);
 
 })();
 app.listen(3000);

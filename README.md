@@ -17,6 +17,21 @@ Live Documentation for the client-side library can be found here: [https://techs
 To integrate CaaS User Management into your own server application as a node module, follow the steps below.
 1. Install the module with `npm install ts3d.hc.caas.usermanagement`
 2. Import the module with `const caasUserManagementServer = require('ts3d.hc.caas.usermanagement');`
+3. If you want to override any of the default settings, create a config directory and an empty file called local.json and specifiy any setting you want to override. Here are the default settings:
+```json
+{
+  "caas-ac": {
+    "mongodbURI": "mongodb://127.0.0.1:27017/caas_demo_app",
+    "conversionServiceURI": "http://localhost:3001",
+    "serverURI": "http://localhost:3000",
+    "useDirectFetch": false,
+    "useStreaming": false,
+    "demoMode": false,
+    "assignDemoHub": false,
+    "demoProject": ""
+  }
+}
+```
 3. Start the CaasUserManagementServer with caasUserManagementServer.start(), providing your express app as a parameter as well as other configuration settings. See below for a minimal example:
 
 ```
