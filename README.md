@@ -77,12 +77,43 @@ app.put('/myLogin', async function (req, res, next) {
 If you use this approach, it is advisable to do additional authentication on the REST api calls to the User Management server, to prevent unauthorized access to the user data and login calls.
 
 
-
 ## Using the User Management node module on a separate server
 If you want to use the User Management node module on a separate server, you can do so by simply proxying its REST api calls to this server from your web-server. In this scenario you might want to add an extra layer to the User Management server to handle authentication and authorization if desired.
 
+## Running Caas and Caas User Management from the same project
+You can easily run both CaaS and the CaaS User Management modules together. See below for a minimal example that initializes both modules:
+```
+
+const express = require('express');
+const path = require('path');
+const app = express();
+
+app.use(express.static(path.join(__dirname, 'public')));
+
+const conversionserver = require('ts3d.hc.caas');
+conversionserver.start();
+
+const caasUserManagementServer = require('ts3d.hc.caas.usermanagement');
+caasUserManagementServer.start(app, null,{createSession:true, sessionSecret:"12345"});
+
+app.listen(3000);
+```
+
+In this case, you want to make sure to have a local.json file in the config folder of your application which configures the categories for the two libraries following the pattern in the example below
 
 
+```json
+
+{
+    "hc-caas-um": {
+      //local settings for CaaS User Management
+    },
+    "hc-caas": {      
+      //local settings for CaaS
+      }
+}
+```
+  
 
 
 
