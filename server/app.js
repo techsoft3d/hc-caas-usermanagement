@@ -5,7 +5,6 @@ const mongoose = require('mongoose');
 const express = require('express');
 
 const cors = require('cors');
-const config = require('config');
 
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
@@ -21,11 +20,16 @@ process.on('uncaughtException', function (err) {
 
 
 exports.getDatabaseObjects = function () {
-  return {files: require('./models/Files'), hubs: require('./models/Hubs'), projects: require('./models/Projects'),  users: require('./models/Users')};
+  return { files: require('./models/Files'), hubs: require('./models/Hubs'), projects: require('./models/Projects'), users: require('./models/Users') };
 };
 
 
-exports.start = async function (app, mongoose_in, options = {createSession:true,sessionSecret:"caasSession83736"}) {
+exports.start = async function (app, mongoose_in, options = { createSession: true, sessionSecret: "caasSession83736" }) {
+
+  process.env["NODE_CONFIG_DIR"] = __dirname + "./../config" + ";" + process.cwd() + "/config";
+
+  const config = require('config');
+
   if (mongoose_in == undefined || !mongoose_in) {
     let mongoose = require('mongoose');
     global.tm_con = await mongoose.connect(config.get('caas-ac.mongodbURI'));

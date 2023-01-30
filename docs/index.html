@@ -57,6 +57,22 @@
 <ol>
 <li>Install the module with <code>npm install ts3d.hc.caas.usermanagement</code></li>
 <li>Import the module with <code>const caasUserManagementServer = require('ts3d.hc.caas.usermanagement');</code></li>
+<li>If you want to override any of the default settings, create a config directory and an empty file called local.json and specifiy any setting you want to override. Here are the default settings:</li>
+</ol>
+<pre class="prettyprint source lang-json"><code>{
+  &quot;caas-ac&quot;: {
+    &quot;mongodbURI&quot;: &quot;mongodb://127.0.0.1:27017/caas_demo_app&quot;,
+    &quot;conversionServiceURI&quot;: &quot;http://localhost:3001&quot;,
+    &quot;serverURI&quot;: &quot;http://localhost:3000&quot;,
+    &quot;useDirectFetch&quot;: false,
+    &quot;useStreaming&quot;: false,
+    &quot;demoMode&quot;: false,
+    &quot;assignDemoHub&quot;: false,
+    &quot;demoProject&quot;: &quot;&quot;
+  }
+}
+</code></pre>
+<ol start="3">
 <li>Start the CaasUserManagementServer with caasUserManagementServer.start(), providing your express app as a parameter as well as other configuration settings. See below for a minimal example:</li>
 </ol>
 <pre class="prettyprint source"><code>
