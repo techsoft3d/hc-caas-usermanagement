@@ -43,15 +43,15 @@
 
 
     <section>
-        <article><h1>CaaS Account Handling : Account Managenment for CAAS</h1>
+        <article><h1>CaaS User Management</h1>
 <h2>Introduction</h2>
-<p>This library implements account management on top of the <a href="https://github.com/techsoft3d/hc-caas">CaaS</a> library, which is a conversion and streaming backend for HOOPS Communicator. It provides an easy to use REST api for managing user accounts and their associated data, including Hubs and Projects with different access levels per user. By connecting this library to CaaS, you essentially get a CAD oriented SaaS application &quot;out of the box&quot;, with a few lines of server-side code, ideal for prototyping and testing or as the starting point for your own  application.</p>
-<p>The library consists of two components,  the server-side node.js library you can add to your project via npm as well as a client-side library for communicating with the server.  It also comes with a framework-agnostic  front-end, written with bootstrap that demonstrates the use of the client-side library and can be used as a starting point for your own application.</p>
+<p>This library implements user management on top of the <a href="https://github.com/techsoft3d/hc-caas">CaaS</a> library, which is a conversion and streaming backend for HOOPS Communicator. It provides a straightforward REST api for managing user accounts and their associated data, including Hubs and Projects with different access levels per user. By connecting this library to CaaS, you essentially get a CAD oriented SaaS application &quot;out of the box&quot;, with a few lines of server-side code, ideal for prototyping and testing or as the starting point for your own application.</p>
+<p>The library consists of two components, the server-side node.js library you can add to your project via npm as well as a client-side library for communicating with the server. It also comes with a bootstrap based front-end that demonstrates the use of the client-side library and can be used as a starting point for your own application.</p>
 <h2>Quick Start</h2>
-<p>To quickly test out CaaS Account Handling with the provided demo, follow the steps below.</p>
+<p>To quickly test out CaaS Account Management with the provided demo, follow the steps below.</p>
 <ol>
 <li>Clone the repository</li>
-<li>Install the dependencies with <code>npm install</code></li>
+<li>Install all dependencies with <code>npm install</code></li>
 <li>Ensure CaaS is running on port 3001. If not, follow the instructions <a href="https://github.com/techsoft3d/hc-caas">here</a></li>
 <li>Start the server with <code>npm start</code></li>
 <li>Open a browser and navigate to <code>http://localhost:3000/viewer.html</code></li>
@@ -82,7 +82,10 @@ app.listen(3000);
 <ol>
 <li>Add 'caasac.min.js' to your client-side project. The client-side library is included in the dist folder of this repository.</li>
 <li>Create a new CaasAccountHandlingClient object with <code>const caasac = new CaasAccountHandlingClient(serverip);</code></li>
-</ol></article>
+<li>See the various demos and Reference Manual for API usage.</li>
+</ol>
+<h2>More details on the Server</h2>
+<p>By default the Caas Account Handling server will add its own end-points to your express app, which are all prefixed with '/caas_um_api'. It will also create its own mongodb session store as well as a user-session. If you are already using mongodb you can provide it as the second parameter to the start function. In addition, the Account Handling server can create its own session store, for cookie based session management but you can choose to do your own session management. In this case the account handling server will expect a session object to be present on the request object for all its REST api calls. If you allow the account handling server to create its own session store, you should provide a secret for the session store as the third parameter to the start function, which will be used to sign the session cookies.</p></article>
     </section>
 
 
@@ -93,7 +96,7 @@ app.listen(3000);
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="CaasAccountHandlingClient.html">CaasAccountHandlingClient</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="CaasUserManagementClient.html">CaasUserManagementClient</a></li></ul>
 </nav>
 
 <br class="clear">

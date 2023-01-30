@@ -1,16 +1,16 @@
-# CaaS Account Handling : Account Managenment for CaaS
+# CaaS User Management 
 
 
 ## Introduction
-This library implements account management on top of the [CaaS](https://github.com/techsoft3d/hc-caas) library, which is a conversion and streaming backend for HOOPS Communicator. It provides an easy to use REST api for managing user accounts and their associated data, including Hubs and Projects with different access levels per user. By connecting this library to CaaS, you essentially get a CAD oriented SaaS application "out of the box", with a few lines of server-side code, ideal for prototyping and testing or as the starting point for your own  application.
+This library implements user management on top of the [CaaS](https://github.com/techsoft3d/hc-caas) library, which is a conversion and streaming backend for HOOPS Communicator. It provides a straightforward REST api for managing user accounts and their associated data, including Hubs and Projects with different access levels per user. By connecting this library to CaaS, you essentially get a CAD oriented SaaS application "out of the box", with a few lines of server-side code, ideal for prototyping and testing or as the starting point for your own application.
 
-The library consists of two components,  the server-side node.js library you can add to your project via npm as well as a client-side library for communicating with the server.  It also comes with a framework-agnostic  front-end, written with bootstrap that demonstrates the use of the client-side library and can be used as a starting point for your own application.
+The library consists of two components, the server-side node.js library you can add to your project via npm as well as a client-side library for communicating with the server. It also comes with a bootstrap based front-end that demonstrates the use of the client-side library and can be used as a starting point for your own application.
 
 
 ## Quick Start 
-To quickly test out CaaS Account Handling with the provided demo, follow the steps below.
+To quickly test out CaaS User Management with the provided demo, follow the steps below.
 1. Clone the repository
-2. Install the dependencies with `npm install`
+2. Install all dependencies with `npm install`
 3. Ensure CaaS is running on port 3001. If not, follow the instructions [here](https://github.com/techsoft3d/hc-caas)
 4. Start the server with `npm start`
 5. Open a browser and navigate to `http://localhost:3000/viewer.html`
@@ -21,10 +21,10 @@ To quickly test out CaaS Account Handling with the provided demo, follow the ste
 ## Integrate with your own Node-Based Server Application
 
 ### Server Side
-To integrate CaaS Account Handling into your own server application as a node module, follow the steps below.
-1. Install the module with `npm install hc-caas-account-handling`
-2. Import the module with `const caasAccountHandling = require('hc-caas-account-handling');`
-3. Start the CaasAccountHandlingServer with caasAccountHandling.start(), providing your express app as a parameter as well as other configuration settings. See below for a minimal example:
+To integrate CaaS User Management into your own server application as a node module, follow the steps below.
+1. Install the module with `npm install hc-caas-user-management`
+2. Import the module with `const caasUserManagement = require('hc-caas-user-management');`
+3. Start the CaasAccountHandlingServer with caasUserManagement.start(), providing your express app as a parameter as well as other configuration settings. See below for a minimal example:
 
 ```
 
@@ -34,7 +34,7 @@ const app = express();
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-const caasAccountHandling = require('hc-caas-account-handling');
+const caasUserManagement = require('hc-caas-user-management');
 caasAc.start(app, null,{createSession:true, sessionSecret:"12345"});
 
 app.listen(3000);
@@ -42,8 +42,14 @@ app.listen(3000);
 ```
 
 ### Client Side
-1. Add 'caasac.min.js' to your client-side project. The client-side library is included in the dist folder of this repository.
-2. Create a new CaasAccountHandlingClient object with `const caasac = new CaasAccountHandlingClient(serverip);`
+1. Add 'caasu.min.js' to your client-side project. The client-side library is included in the dist folder of this repository.
+2. Create a new CaasUserManagementClient object with `const caasac = new CaasUserManagementClient(serverip);`
+3. See the various demos and Reference Manual for further API usage.
+
+## More details on the Server
+By default the CaaS User Management server will add its own end-points to your express app, which are all prefixed with '/caas_um_api'. It will also create its own mongodb session store as well as a user-session. If you are already using mongodb you can provide it as the second parameter to the start function. In addition, the User Management Server can create its own session store, for cookie based session management but you can choose to do your own session management. In this case the user management server will expect a session object to be present on the request object for all its REST api calls. If you allow the account handling server to create its own session store, you should provide a secret for the session store as the third parameter to the start function, which will be used to sign the session cookies. 
+
+
 
 
 

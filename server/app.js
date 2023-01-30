@@ -105,9 +105,9 @@ exports.start = async function (app, mongoose_in, options = {createSession:true,
     }));
   }
 
-  app.use("/caas_ac_api", loginRoutes);
+  app.use("/caas_um_api", loginRoutes);
   app.use(middleware.requireLogin);
-  app.use("/caas_ac_api", apiRoutes);
+  app.use("/caas_um_api", apiRoutes);
 
 
   csmanager.init(config.get('caas-ac.conversionServiceURI'));

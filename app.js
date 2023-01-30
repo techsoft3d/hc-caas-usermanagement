@@ -45,7 +45,7 @@ app.get('/', function(req, res){
   // });
 
 
-// app.use('/caas_ac_api',function(req,res,next) {  
+// app.use('/caas_um_api',function(req,res,next) {  
 //   if (req.session && req.session.caasUser)  {
 //     console.log("User:" + req.session.caasUser.lastName);
 

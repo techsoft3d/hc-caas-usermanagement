@@ -1,8 +1,8 @@
-/** This class provides a wrapper for the CaaS Account Management Server REST API*/
-export class CaasAccountHandlingClient {
+/** This class provides a wrapper for the CaaS User Management Server REST API*/
+export class CaasUserManagementClient {
 /**
-     * Creates a CaaS Manager Object
-     * @param  {string} serveraddress - Address of CaaS Account Management Server
+     * Creates a CaaS User Management Object
+     * @param  {string} serveraddress - Address of CaaS User Management Server
      */
     constructor(serveraddress) {
         this.currentUser = null;
@@ -38,7 +38,7 @@ getCurrentProject() {
 
 
 /**
-     * Retrieves if the CaaS Account Management Server is configured for direct fetch
+     * Retrieves if the CaaS User Management Server is configured for direct fetch
      * @return {bool} true if direct fetch is configured
      */    
     getUseDirectFetch() {
@@ -47,7 +47,7 @@ getCurrentProject() {
 
     
 /**
-     * Retrieves if the CaaS Account Management Server is configured for streaming
+     * Retrieves if the CaaS User Management Server is configured for streaming
      * @return {bool} true if streaming is configured
      */    
     getUseStreaming() {
@@ -56,7 +56,7 @@ getCurrentProject() {
 
 
     /**
-         * Retrieves if the CaaS Account Management Server is in demo mode
+         * Retrieves if the CaaS User Management Server is in demo mode
          * @return {bool} true if streaming is configured
          */
     getDemoMode() {
@@ -64,19 +64,19 @@ getCurrentProject() {
     }
 
     /**
-         * Retrieves the CaaS Account Management Server
+         * Retrieves the CaaS User Management Server
          * @return {string} URL to upload models to
          */
     getUploadURL() {
-        return this.serveraddress + '/caas_ac_api/upload';
+        return this.serveraddress + '/caas_um_api/upload';
     }
 
     /**
-         * Retrieves the CaaS Account Management Server configuration
+         * Retrieves the CaaS User Management Server configuration
          * @return {object} Server Configuration
          */
     async getConfiguration() {
-        let res = await fetch(this.serveraddress + '/caas_ac_api/configuration');
+        let res = await fetch(this.serveraddress + '/caas_um_api/configuration');
         let data = await res.json();
         this.useDirectFetch = data.useDirectFetch;
         this.useStreaming = data.useStreaming;
@@ -90,7 +90,7 @@ getCurrentProject() {
          */
     async checkLogin()
     {
-        let res = await fetch(this.serveraddress + '/caas_ac_api/checklogin');
+        let res = await fetch(this.serveraddress + '/caas_um_api/checklogin');
         let data = await res.json();
         if (data.succeeded)
         {
@@ -120,7 +120,7 @@ getCurrentProject() {
          */    
     async logout()
     {
-        await fetch(this.serveraddress + '/caas_ac_api/logout/', { method: 'PUT' });        
+        await fetch(this.serveraddress + '/caas_um_api/logout/', { method: 'PUT' });        
 
     }
 
@@ -138,7 +138,7 @@ getCurrentProject() {
         let _this = this;
         return new Promise(function (resolve, reject) {
             $.ajax({
-                url: _this.serveraddress + "/caas_ac_api/register",
+                url: _this.serveraddress + "/caas_um_api/register",
                 type: 'post',
                 data: fd,
                 contentType: false,
@@ -163,7 +163,7 @@ getCurrentProject() {
     async login(email, password) {
 
 
-        let response = await fetch(this.serveraddress + '/caas_ac_api/login/' + email + '/' + password, { method: 'PUT' });
+        let response = await fetch(this.serveraddress + '/caas_um_api/login/' + email + '/' + password, { method: 'PUT' });
         response = await response.json();
         if (response.ERROR) {
 
@@ -181,7 +181,7 @@ getCurrentProject() {
             * Leave currently active Hub        
             */
     async leaveHub() {
-        await fetch(this.serveraddress + '/caas_ac_api/hub/none', { method: 'PUT' });
+        await fetch(this.serveraddress + '/caas_um_api/hub/none', { method: 'PUT' });
 
         this.currentProject = null;
         this.currentHub = null;
@@ -194,7 +194,7 @@ getCurrentProject() {
             */
     async getHubs() {
 
-        let response = await fetch(this.serveraddress + '/caas_ac_api/hubs');
+        let response = await fetch(this.serveraddress + '/caas_um_api/hubs');
         let hubs = await response.json();
         return hubs;
     }
@@ -205,7 +205,7 @@ getCurrentProject() {
             * @param  {string} name - New Hub Name
             */
     async renameHub(hubid, name) {
-        await fetch(this.serveraddress + '/caas_ac_api/renameHub/' + hubid + "/" + name, { method: 'PUT' });
+        await fetch(this.serveraddress + '/caas_um_api/renameHub/' + hubid + "/" + name, { method: 'PUT' });
     }
 
  /**
@@ -214,7 +214,7 @@ getCurrentProject() {
          * @return {Object} Data about new Hub  
          */
     async createHub(name) {
-        let res = await fetch(this.serveraddress + '/caas_ac_api/newhub/' + name, { method: 'PUT' });
+        let res = await fetch(this.serveraddress + '/caas_um_api/newhub/' + name, { method: 'PUT' });
         let data = await res.json();
         return data;
     }
@@ -225,7 +225,7 @@ getCurrentProject() {
          */
     async loadHub(hubid) {
        
-        let res = await fetch(this.serveraddress + '/caas_ac_api/hub/' + hubid, { method: 'PUT' });
+        let res = await fetch(this.serveraddress + '/caas_um_api/hub/' + hubid, { method: 'PUT' });
 
         let hubinfo  = await res.json();
         this.currentHub = hubinfo;
@@ -237,7 +237,7 @@ getCurrentProject() {
          * @return {Object} Users associated with Hub
          */
     async getHubUsers(hubid) {
-        let response = await fetch(this.serveraddress + '/caas_ac_api/hubusers/' + hubid);
+        let response = await fetch(this.serveraddress + '/caas_um_api/hubusers/' + hubid);
         return await response.json();
     }
 
@@ -248,7 +248,7 @@ getCurrentProject() {
          * @param  {string} role - User Role ("User" "Admin", "Owner")
          */
     async addHubUser(hubid,email, role) {  
-        await fetch(this.serveraddress + '/caas_ac_api/addHubUser/' + hubid + "/" + email + "/" + role, { method: 'PUT' });
+        await fetch(this.serveraddress + '/caas_um_api/addHubUser/' + hubid + "/" + email + "/" + role, { method: 'PUT' });
     }
 
  /**
@@ -258,7 +258,7 @@ getCurrentProject() {
          * @param  {string} role - User Role ("User" "Admin", "Owner")
          */
     async updateHubUser(hubid,email, role) {  
-        await fetch(this.serveraddress + '/caas_ac_api/updateHubUser/' + hubid + "/" + email + "/" + role, { method: 'PUT' });
+        await fetch(this.serveraddress + '/caas_um_api/updateHubUser/' + hubid + "/" + email + "/" + role, { method: 'PUT' });
     }
 
  /**
@@ -268,7 +268,7 @@ getCurrentProject() {
          */
     async deleteHubUser(hubid,email) {
   
-        await fetch(this.serveraddress + '/caas_ac_api/deleteHubUser/' + hubid + "/" + email, { method: 'PUT' });        
+        await fetch(this.serveraddress + '/caas_um_api/deleteHubUser/' + hubid + "/" + email, { method: 'PUT' });        
     }
 
  /**
@@ -277,7 +277,7 @@ getCurrentProject() {
          */
     async deleteHub(hubid) {
   
-        await fetch(this.serveraddress + '/caas_ac_api/deleteHub/' + hubid, { method: 'PUT' });
+        await fetch(this.serveraddress + '/caas_um_api/deleteHub/' + hubid, { method: 'PUT' });
     }
 
  /**
@@ -286,7 +286,7 @@ getCurrentProject() {
          * @param  {string} email - User email
          */    
     async acceptHub(hubid, email) {
-        await fetch(this.serveraddress + '/caas_ac_api/acceptHub/' + hubid + "/" + email, { method: 'PUT' });        
+        await fetch(this.serveraddress + '/caas_um_api/acceptHub/' + hubid + "/" + email, { method: 'PUT' });        
         this.refreshHubTable();
     }
 
@@ -296,7 +296,7 @@ getCurrentProject() {
             */
     async leaveProject()
     {
-        await fetch(this.serveraddress + '/caas_ac_api/project/none', { method: 'PUT' });
+        await fetch(this.serveraddress + '/caas_um_api/project/none', { method: 'PUT' });
         this.currentProject = null;
 
     }
@@ -306,7 +306,7 @@ getCurrentProject() {
             * @param  {string} name - New Hub Project
             */
     async renameProject(projectid,name) {
-        await fetch(this.serveraddress + '/caas_ac_api/renameproject/' + projectid + "/" +  name, { method: 'PUT' });
+        await fetch(this.serveraddress + '/caas_um_api/renameproject/' + projectid + "/" +  name, { method: 'PUT' });
     }
 
  /**
@@ -315,7 +315,7 @@ getCurrentProject() {
          * @return {Object} Data about new Project  
          */
     async createProject(name) {
-        let res = await fetch(this.serveraddress + '/caas_ac_api/newproject/' + name, { method: 'PUT' });
+        let res = await fetch(this.serveraddress + '/caas_um_api/newproject/' + name, { method: 'PUT' });
         let data = await res.json();
         return data;
     }
@@ -325,7 +325,7 @@ getCurrentProject() {
          * @param  {string} projectid - Id of Project
          */
     async deleteProject(projectid) {
-       await fetch(this.serveraddress + '/caas_ac_api/deleteproject/' + projectid, { method: 'PUT' });
+       await fetch(this.serveraddress + '/caas_um_api/deleteproject/' + projectid, { method: 'PUT' });
    }
 
     /**
@@ -333,7 +333,7 @@ getCurrentProject() {
          * @param  {string} projectid - Id of Project
          */
     async loadProject(projectid) {
-        let res = await fetch(this.serveraddress + '/caas_ac_api/project/' + projectid, { method: 'PUT' });
+        let res = await fetch(this.serveraddress + '/caas_um_api/project/' + projectid, { method: 'PUT' });
         let data = await res.json();
         this.currentProject = data.projectname;
     }
@@ -344,7 +344,7 @@ getCurrentProject() {
             */
     async getProjects() {
       
-        let response = await fetch(this.serveraddress + '/caas_ac_api/projects');
+        let response = await fetch(this.serveraddress + '/caas_um_api/projects');
         let projects = await response.json();
         return projects;
     }
@@ -355,7 +355,7 @@ getCurrentProject() {
          * @return {Object} Users associated with Hub
          */
     async getProjectUsers(projectid) {
-        let response = await fetch(this.serveraddress + '/caas_ac_api/projectusers/' + projectid);
+        let response = await fetch(this.serveraddress + '/caas_um_api/projectusers/' + projectid);
         let projectusers = await response.json();
         return projectusers;
     }
@@ -368,7 +368,7 @@ getCurrentProject() {
          * @param  {string} role - User Role ("User" "Admin", "Owner")
          */    
     async addProjectUser(projectid, email, role) {
-        await fetch(this.serveraddress + '/caas_ac_api/addProjectUser/' + projectid + "/" + email + "/" + role, { method: 'PUT' });
+        await fetch(this.serveraddress + '/caas_um_api/addProjectUser/' + projectid + "/" + email + "/" + role, { method: 'PUT' });
     }
 
 
@@ -379,7 +379,7 @@ getCurrentProject() {
          * @param  {string} role - User Role ("User" "Admin", "Owner")
          */
     async updateProjectUser(projectid, email, role) {
-        let res = await fetch(this.serveraddress + '/caas_ac_api/updateProjectUser/' + projectid + "/" + email + "/" + role, { method: 'PUT' });
+        let res = await fetch(this.serveraddress + '/caas_um_api/updateProjectUser/' + projectid + "/" + email + "/" + role, { method: 'PUT' });
     }
 
 
@@ -389,7 +389,7 @@ getCurrentProject() {
          * @param  {string} email - User email
          */    
     async deleteProjectUser(projectid,email) {
-        await fetch(this.serveraddress + '/caas_ac_api/deleteProjectUser/' + projectid + "/" + email, { method: 'PUT' });        
+        await fetch(this.serveraddress + '/caas_um_api/deleteProjectUser/' + projectid + "/" + email, { method: 'PUT' });        
     }
 
 
@@ -400,7 +400,7 @@ getCurrentProject() {
          * @return {Object} Upload Token
          */    
     async getUploadToken(name,size) {
-        let data = await fetch(this.serveraddress + '/caas_ac_api/uploadToken/' + name + "/" + size);                    
+        let data = await fetch(this.serveraddress + '/caas_um_api/uploadToken/' + name + "/" + size);                    
         let json = await data.json();
         return json;
     }
@@ -412,7 +412,7 @@ getCurrentProject() {
          * @param  {string} startpath (if zipped assembly)
          */        
     processUploadFromToken(itemid, startpath) {
-        fetch(this.serveraddress + '/caas_ac_api/processToken/' + itemid, { method: 'PUT',headers: {'startpath': startpath} });
+        fetch(this.serveraddress + '/caas_um_api/processToken/' + itemid, { method: 'PUT',headers: {'startpath': startpath} });
     }
 
 
@@ -421,7 +421,7 @@ getCurrentProject() {
          * @return {Object} List of models
          */    
     async getModels() {        
-        let res = await fetch(this.serveraddress + '/caas_ac_api/models');
+        let res = await fetch(this.serveraddress + '/caas_um_api/models');
         let data = await res.json();
         return data;
     }
@@ -434,7 +434,7 @@ getCurrentProject() {
          * @return {Object} Download Token
          */
     async getDownloadToken(itemid, type) {
-        let res = await fetch(this.serveraddress + '/caas_ac_api/downloadToken/' + itemid + "/" + type);
+        let res = await fetch(this.serveraddress + '/caas_um_api/downloadToken/' + itemid + "/" + type);
         let json = await res.json();
         return json;
     }
@@ -446,7 +446,7 @@ getCurrentProject() {
             * @return {Object} Image
             */
     async getPNG(itemid) {
-        let image = await fetch(this.serveraddress + '/caas_ac_api/png/' + itemid);
+        let image = await fetch(this.serveraddress + '/caas_um_api/png/' + itemid);
         return image;
     }
 
@@ -456,7 +456,7 @@ getCurrentProject() {
             * @return {Object} Scs data
             */
     async getSCS(itemid) {
-        let res = await fetch(this.serveraddress + '/caas_ac_api/scs/' + itemid);
+        let res = await fetch(this.serveraddress + '/caas_um_api/scs/' + itemid);
         let ab = await res.arrayBuffer();
         let byteArray = new Uint8Array(ab);
         return byteArray;
@@ -468,7 +468,7 @@ getCurrentProject() {
          */          
 
     async enableStreamAccess(itemid) {
-        await fetch(this.serveraddress + '/caas_ac_api/enableStreamAccess/' + itemid, { method: 'PUT' });
+        await fetch(this.serveraddress + '/caas_um_api/enableStreamAccess/' + itemid, { method: 'PUT' });
     }
 
 
@@ -477,7 +477,7 @@ getCurrentProject() {
          * @param  {string} itemid - File Id       
          */             
     async deleteModel(itemid) {
-        await fetch(this.serveraddress + '/caas_ac_api/deleteModel/' + itemid, { method: 'PUT'});
+        await fetch(this.serveraddress + '/caas_um_api/deleteModel/' + itemid, { method: 'PUT'});
     }
 
 
@@ -497,7 +497,7 @@ getCurrentProject() {
         }
         else {
 
-            let res = await fetch(this.serveraddress + '/caas_ac_api/streamingSession');
+            let res = await fetch(this.serveraddress + '/caas_um_api/streamingSession');
             let data = await res.json();
 
             viewer = new Communicator.WebViewer({

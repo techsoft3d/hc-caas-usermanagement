@@ -1,12 +1,12 @@
 const path = require('path');
 const FileManagerPlugin = require('filemanager-webpack-plugin');
 module.exports = {
-  entry: './public/hcCaasAc/CaasAcc.js',
+  entry: './public/hcCaasU/CaasUserManagement.js',
   mode: "production",
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'caasac.min.js',
-    library: 'CaasAcc', //add this line to enable re-use
+    filename: 'caasu.min.js',
+    library: 'CaasU', //add this line to enable re-use
   },
   plugins: [
     new FileManagerPlugin({
