@@ -47,23 +47,17 @@
 <h2>Introduction</h2>
 <p>This library implements user management on top of the <a href="https://github.com/techsoft3d/hc-caas">CaaS</a> library, which is a conversion and streaming backend for HOOPS Communicator. It provides a straightforward REST api for managing user accounts and their associated data, including Hubs and Projects with different access levels per user. By connecting this library to CaaS, you essentially get the framework for a CAD oriented SaaS application &quot;out of the box&quot;, with a few lines of server-side code, ideal for prototyping and testing or as the starting point for your own application.</p>
 <p>The library consists of two components, the server-side node.js library you can add to your project via npm as well as a client-side library for communicating with the server. It also comes with a bootstrap based front-end that demonstrates the use of the client-side library and can be used as a starting point for your own application.</p>
-<h2>Quick Start</h2>
-<p>To quickly test out CaaS User Management with the provided demo, follow the steps below.</p>
-<ol>
-<li>Clone the repository</li>
-<li>Install all dependencies with <code>npm install</code></li>
-<li>Ensure CaaS is running on port 3001. If not, follow the instructions <a href="https://github.com/techsoft3d/hc-caas">here</a></li>
-<li>Start the server with <code>npm start</code></li>
-<li>Open a browser and navigate to <code>http://localhost:3000/viewer.html</code></li>
-<li>Register at least one user account, create a hub, project. You can then upload a file, etc.</li>
-</ol>
-<h2>Integrate with your own Node-Based Server Application</h2>
+<h2>Feedback</h2>
+<p>For questions/feedback please send an email to guido@techsoft3d.com or post in our <a href="https://forum.techsoft3d.com/">forum</a>. For a 60 day trial of the HOOPS Web Platform go to https://www.techsoft3d.com/products/hoops/web-platform.</p>
+<h2>Documentation</h2>
+<p>Live Documentation for the client-side library can be found here: <a href="https://techsoft3d.github.io/hc-caas-usermanagement/">https://techsoft3d.github.io/hc-caas-usermanagement/</a></p>
+<h2>Integrate with your own Node-Based Application</h2>
 <h3>Server Side</h3>
 <p>To integrate CaaS User Management into your own server application as a node module, follow the steps below.</p>
 <ol>
-<li>Install the module with <code>npm install hc-caas-user-management</code></li>
-<li>Import the module with <code>const caasUserManagement = require('hc-caas-user-management');</code></li>
-<li>Start the CaasAccountHandlingServer with caasUserManagement.start(), providing your express app as a parameter as well as other configuration settings. See below for a minimal example:</li>
+<li>Install the module with <code>npm install ts3d.hc.caas.usermanagement</code></li>
+<li>Import the module with <code>const caasUserManagementServer = require('ts3d.hc.caas.usermanagement');</code></li>
+<li>Start the CaasUserManagementServer with caasUserManagementServer.start(), providing your express app as a parameter as well as other configuration settings. See below for a minimal example:</li>
 </ol>
 <pre class="prettyprint source"><code>
 const express = require('express');
@@ -72,35 +66,37 @@ const app = express();
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-const caasUserManagement = require('hc-caas-user-management');
-caasAc.start(app, null,{createSession:true, sessionSecret:&quot;12345&quot;});
+const caasUserManagementServer = require('ts3d.hc.caas.usermanagement');
+caasUserManagementServer.start(app, null,{createSession:true, sessionSecret:&quot;12345&quot;});
 
 app.listen(3000);
 
 </code></pre>
 <h3>Client Side</h3>
 <ol>
-<li>Add 'caasu.min.js' to your client-side project. The client-side library is included in the dist folder of this repository.</li>
-<li>Create a new CaasUserManagementClient object with <code>const caasac = new CaasUserManagementClient(serverip);</code></li>
+<li>Add 'caasu.min.js' to your client-side project. The client-side library is included in the dist folder of this repository.<br>
+<code>&lt;script type=&quot;text/javascript&quot; src=&quot;js/caasu.min.js&quot;&gt;&lt;/script&gt;</code></li>
+<li>Create a new CaasUserManagementClient object, specifying the server address.<br>
+<code>myUserManagmentClient = new CaasU.CaasUserManagementClient(serveraddress);</code></li>
 <li>See the various demos and Reference Manual for further API usage.</li>
 </ol>
 <h2>More details on the Server</h2>
-<p>By default the CaaS User Management server will add its own end-points to your express app, which are all prefixed with '/caas_um_api'. It will also create its own mongodb session store as well as a user-session. If you are already using mongodb you can provide it as the second parameter to the start function. In addition, the User Management Server can create its own session store, for cookie based session management but you can choose to do your own session management. In this case the user management server will expect a session object to be present on the request object for all its REST api calls. If you allow the account handling server to create its own session store, you should provide a secret for the session store as the third parameter to the start function, which will be used to sign the session cookies.</p>
+<p>By default the CaaS User Management server will add its own end-points to your express app, which are all prefixed with <code>/caas_um_api</code>. It will also create its own mongodb session store as well as a user-session. If you are already using mongodb you can provide it as the second parameter to the start function. In addition, the User Management Server can create its own session store for cookie based session management but you can choose to do provide your own. In this case the user management module will expect a session object to be present on the request object for all its REST api calls. If you allow the account handling server to create its own session store, you should provide a secret for the session store as the third parameter to the start function, which will be used to sign the session cookies.</p>
 <h2>Security and User Accounts</h2>
-<p>Account management is provided out of the box, with a simple registration and login process, utilizing a straightforward encrypted password scheme. However it is straightforwards to use the library with your own account management. To make this approach practical, the server-side module provides an easy way to retrieve all user account data, which gives you the ability to create accounts directly server-side, bypassing the REST api. This approach allows you to handle all account creation while still leveraging the library for managing the connection CaaS as well as Hubs and Project.</p>
+<p>Account management is provided out of the box, with a simple registration and login process, utilizing a straightforward encrypted password scheme. However it is straightforwards to use the library with your own account management. To make this approach practical, the server-side module provides an easy way to retrieve all user account data, which gives you the ability to create accounts directly server-side, bypassing the REST api. This approach allows you to handle all account creation while still leveraging the library for managing the connection CaaS as well as Hubs and Project. See below for an example on how to retrieve all user account data and add the user to the session object:</p>
+<pre class="prettyprint source"><code>app.put('/myLogin', async function (req, res, next) {
+    //perform custom login procedure
+    //...    
+
+    let usersDB = caasUserManagementServer.getDatabaseObjects().users;
+    let user = await usersDB.findOne({email:loggedinuser});
+    req.session.caasUser = users2;
+});
+
+</code></pre>
+<p>If you use this approach, it is advisable to do additional authentication on the REST api calls to the User Management server, to prevent unauthorized access to the user data and login calls.</p>
 <h2>Using the User Management node module on a separate server</h2>
-<p>If you want to use the User Management node module on a separate server, you can do so by simply proxying its REST api calls to this server from your web-server. In this scenario you might want to add an extra layer to the User Management server to handle authentication and authorization if desired.</p>
-<pre class="prettyprint source"><code>
-
-
-
-
-
-
-
-
-
-</code></pre></article>
+<p>If you want to use the User Management node module on a separate server, you can do so by simply proxying its REST api calls to this server from your web-server. In this scenario you might want to add an extra layer to the User Management server to handle authentication and authorization if desired.</p></article>
     </section>
 
 
