@@ -4,6 +4,8 @@ class CsManagerClient {
 
     static msready() {
         csManagerClient = new CsManagerClient();
+        csManagerClient.initialize();
+
         let myDropzone;
         if (!myUserManagmentClient.getUseDirectFetch()) {
 
@@ -49,15 +51,64 @@ class CsManagerClient {
     }
 
     constructor() {
-        let _this = this;
         this._updatedTime = undefined;
         this._modelHash = [];
 
+
+    }
+
+    async initialize() {
+        let _this = this;
+
         this._checkForNewModels();
 
+        let rowMenu = [
+            {
+                label: "<i class='fas fa-user'></i> Delete",
+                action: async function (e, row) {
+                    let modelid = row.getData().id;
+                    delete csManagerClient._modelHash[modelid];
+                    _this.modelTable.deleteRow(modelid);
+                    await myUserManagmentClient.deleteModel(modelid);
+                }
+            },
+        ];
+
+        this.modelTable = new Tabulator("#sidebar_modellist", {
+            layout: "fitColumns",
+            responsiveLayout: "hide",
+            cellVertAlign: "middle",
+            selectable: 1,
+            rowContextMenu: rowMenu,
+            rowClick: function (e, row) {
+                var i = 0;
+
+            },
+            columns: [
+                { title: "ID", field: "id", visible: false, sorter: "number", headerSort: false },
+                { title: "", field: "image", formatter: "image", minWidth: 60, maxWidth: 60, responsive: 0, formatterParams: { width: "50px", height: "50px" } },
+                { title: "Name", field: "name", formatter: "plaintext",vertAlign: "middle" },
+                { title: "Created", field: "created", formatter: "datetime", responsive: 2,vertAlign: "middle" },
+                {
+                    title: "Size", field: "size", formatter: "money", responsive: 2, maxWidth: 80,vertAlign: "middle", formatterParams: {
+                        decimal: ".",
+                        thousand: "",
+                        symbol: "MB",
+                        symbolAfter: true,
+                        precision: false
+                    }
+                }
+            ],
+        });
+
+        this.modelTable.on("rowSelected", function(row){
+            let data = row.getData();
+            _this.loadModel(data.id);
+        });
+      
         setInterval(async function () {
             await _this._checkForNewModels();
-        }, 3000);
+        }, 2000);
     }
 
     showUploadWindow() {
@@ -78,171 +129,73 @@ class CsManagerClient {
         }
     }
 
+    async _fetchImage(data) {
+        let image;
+        if (myUserManagmentClient.getUseDirectFetch()) {
+            let json = myUserManagmentClient.getDownloadToken(data.id, "png");
+            if (!json.error) {
+                image = await fetch(json.token);
+            }
+        }
+        else {
+            image = await myUserManagmentClient.getPNG(data.id);
+        }
+
+        if (image) {
+            let imageblob = await image.blob();
+            let urlCreator = window.URL || window.webkitURL;
+            let part = urlCreator.createObjectURL(imageblob);
+            this._modelHash[data.id].image = part;
+            this.modelTable.updateData([{ id: data.id, image: part }]);
+        }
+    }
+
     async _updateModelList(data) {
-      
-        for (var i = 0; i < data.length; i++) {
-            var part;
-            var file = data[i].name.split(".")[0];
-            if (!data[i].pending) {
-                let image = null;
-                if (myUserManagmentClient.getUseDirectFetch()) {
-                    let json = myUserManagmentClient.getDownloadToken(data[i].id, "png");
-                    if (!json.error) {
-                        image = await fetch(json.token);
-                    }
-                }
-                else {
-                    image = await myUserManagmentClient.getPNG(data[i].id);
-                }
-
-                if (image && image.status == 200) {
-                    let imageblob = await image.blob();
-                    let urlCreator = window.URL || window.webkitURL;
-                    part = urlCreator.createObjectURL(imageblob);
-                }
-            }
-            else
-                part = "app/images/spinner.gif";
-
-            if (part) {
-                if (!this._modelHash[data[i].id]) {
-                    this._modelHash[data[i].id] = { nodeid: null, name: data[i].name,image: part, filesize: data[i].filesize, uploaded: data[i].uploaded};
-                }
-                this._modelHash[data[i].id].image = part;
-            }
-        }
-        this._drawModelList("sidebar_modellist");
-    }
-
-    async _drawModelList(targetdiv) {
-
-        $("[id^=modelmenubutton]").each(function (index) {
-            $(this).contextMenu("destroy");
-        });
-
-        var html = "";
-        $("#" + targetdiv).empty();
-        html += '<button onclick=\'csManagerClient.showUploadWindow()\' class="bcfbutton fileUploadButton"><i class="bx bx-upload"></i></button>';
-        html += '<div style="top:40px;position:relative;">';
-
-        for (var i in this._modelHash) {
-            html += '<div id="' + i + '" class = "modelcard">';
-            if (this._modelHash[i].image.indexOf("spinner.gif") != -1)
-                html += '<img src="' + this._modelHash[i].image + '" class="modelcard_imagespinner"></img>';
-            else
-                html += '<img src="' + this._modelHash[i].image + '" class="modelcard_image"></img>';
-            html += '<div class="modelcard_info">';
-            html += '<span class="modelcard_title">' + this._modelHash[i].name + '</span><br>';
-            if (this._modelHash[i].filesize) {
-                html += '<span class="modelcard_size">Size:' + (this._modelHash[i].filesize / (1024 * 1024)).toFixed(2) + 'MB</span><br>';
-            }
-            else {
-                html += '<span class="modelcard_size">Size:n/a</span><br>';
-            }
-            if (this._modelHash[i].uploaded) {
-                html += '<span class="modelcard_size">Uploaded:' + moment(this._modelHash[i].uploaded).format("MM/DD/YYYY h:mm:ss a") + '</span>';
-            }
-            else {
-                html += '<span class="modelcard_size">Uploaded:n/a</span>';
-            }
-            html += "</div>";
-            html += '<label class="switch">';
-            if (this._modelHash[i].nodeid) {
-                html += '<input type="checkbox" checked onclick=\'csManagerClient.addModel(this,"' + i + '")\'><span class="slider round"></span></label>';
-            }
-            else {
-                html += '<input type="checkbox" onclick=\'csManagerClient.addModel(this,"' + i + '")\'><span class="slider round"></span></label>';
-            }
-            html += '<button id="modelmenubutton_' + i + '" class="modelmenubutton"><i style="pointer-events:none" class="bx bx-dots-vertical"></i></button>';
-            html += "</div>";
-        }
-        html += "</div>";
-        $("#" + targetdiv).append(html);
-
-        let viewermenu = [                    
-            {
-                name: 'Delete',
-                fun: async function (item) {
-                    //csManagerClient
-                    let modelid = item.trigger[0].id.split("_")[1];
-
-                    if (csManagerClient._modelHash[modelid].nodeid != null) {
-                        hwv.model.deleteNode(csManagerClient._modelHash[modelid].nodeid);
-                        csManagerClient._modelHash[modelid].nodeid = null;
-                    }
-                    delete csManagerClient._modelHash[modelid];
-                    await myUserManagmentClient.deleteModel(modelid);
-
-                }
-            }  
-        ];
-
-        $("[id^=modelmenubutton]").each(function (index) {
-            let modelid = this.id.split("_")[1];
-            let item = csManagerClient._modelHash[modelid];
           
-            $(this).contextMenu("menu", viewermenu, {
-                'displayAround': 'trigger',
-                'position': 'bottom',
-                verAdjust: 0,
-                horAdjust: 0
-            });
-        });
-    }
 
-    async addModel(o, modelid) {
-        if (o.checked) {
-            if (this._modelHash[modelid].nodeid == null) {
-                let numberchecked = 0;
-                for (var i in this._modelHash) {
-                    if (this._modelHash[i].nodeid != null) {
-                        numberchecked++;
-                    }
-                }
-                if (numberchecked == 0) {
-                    hwv.model.clear();
-                }
-                let res;
-                if (!myUserManagmentClient.getUseStreaming()) {
-                    let byteArray;
-                    if (myUserManagmentClient.getUseDirectFetch()) {
-                        let json = myUserManagmentClient.getDownloadToken(modelid, "scs");
-                        res = await fetch(json.token);
-                        let ab = await res.arrayBuffer();
-                        byteArray = new Uint8Array(ab);
-                    }
-                    else {
-                        byteArray = await myUserManagmentClient.getSCS(modelid);
-                    }
-
-                    if (this._modelHash[modelid].name.indexOf(".dwg") != -1 && numberchecked == 0) {
-                        hwv.view.setAmbientOcclusionEnabled(false);
-                        await hwv.model.loadSubtreeFromScsBuffer(hwv.model.getRootNode(), byteArray);
-                        this._modelHash[modelid].nodeid = hwv.model.getRootNode();
-                    }
-                    else {
-                        hwv.view.setAmbientOcclusionEnabled(true);
-                        let modelnode = hwv.model.createNode(modelid);
-                        await hwv.model.loadSubtreeFromScsBuffer(modelnode, byteArray);
-                        this._modelHash[modelid].nodeid = modelnode;
-                    }
-                }
-                else {
-                    await myUserManagmentClient.enableStreamAccess(modelid);
-                    let modelnode = hwv.model.createNode(modelid);
-                    await hwv.model.loadSubtreeFromModel(modelnode,this._modelHash[modelid].name);
-                    this._modelHash[modelid].nodeid = modelnode;
-                }
+        for (var i = 0; i < data.length; i++) {
+            let part = null;
+            if (!data[i].pending && (!this._modelHash[data[i].id] || !this._modelHash[data[i].id].image)) {
+                part = this._fetchImage(data[i]);
             }
-        }
-        else {           
-            if (this._modelHash[modelid].nodeid != hwv.model.getRootNode()) {            
-                hwv.model.deleteNode(this._modelHash[modelid].nodeid);
+
+            if (!this._modelHash[data[i].id]) {               
+                this._modelHash[data[i].id] = { nodeid: null, name: data[i].name, image: part, filesize: data[i].filesize, uploaded: data[i].uploaded };
+                this.modelTable.addData([{
+                    id: data[i].id, name: this._modelHash[data[i].id].name, created: luxon.DateTime.fromISO(this._modelHash[data[i].id].uploaded),
+                    image: this._modelHash[data[i].id].image ? this._modelHash[data[i].id].image : "app/images/spinner.gif", size: (this._modelHash[data[i].id].filesize / (1024 * 1024)).toFixed(2)
+                }]);
             }
             else {
-                hwv.model.clear();
+                if (!this._modelHash[data[i].id].image && part) {
+                    this._modelHash[data[i].id].image = part;
+                    this.modelTable.updateData([{ id: data[i].id, image: part }]);
+                }
             }
-            this._modelHash[modelid].nodeid = null;
+        }    
+    }
+   
+    async loadModel(modelid) {
+        hwv.model.clear();
+        if (this._modelHash[modelid].name.indexOf(".dwg")) {
+            hwv.view.setAmbientOcclusionEnabled(false);
         }
+        if (!myUserManagmentClient.getUseStreaming()) {
+            let byteArray;
+            if (myUserManagmentClient.getUseDirectFetch()) {
+                let json = myUserManagmentClient.getDownloadToken(modelid, "scs");
+                res = await fetch(json.token);
+                let ab = await res.arrayBuffer();
+                byteArray = new Uint8Array(ab);
+            }
+            else {
+                byteArray = await myUserManagmentClient.getSCS(modelid);
+            }           
+            await hwv.model.loadSubtreeFromScsBuffer(hwv.model.getRootNode(), byteArray);
+        }
+        else {
+            await myUserManagmentClient.enableStreamAccess(modelid);
+            await hwv.model.loadSubtreeFromModel(hwv.model.getRootNode(), this._modelHash[modelid].name);
+        }        
     }
 }

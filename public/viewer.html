@@ -28,6 +28,7 @@
     src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js"></script>
   <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/dropzone.css" />
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/luxon/3.2.1/luxon.min.js" integrity="sha512-pyR2hpC7bLig9Ub4eUIOC/BAO4anpdt7jhpF4dfrPv+qIg+KWztdVjFPCRCsRaWVfUylUCvrrxqMFNrJBdQIjQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/tabulator/5.2.7/js/tabulator.min.js"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/tabulator/5.2.7/css/tabulator.min.css" rel="stylesheet">
 
@@ -322,7 +323,8 @@
   </div>
 
   <div id="sidebar_models" style="overflow:hidden;display:none;overflow-y:auto;top:40px;left:40px;height:100%;background-color:gainsboro;position:absolute;padding-bottom:50px">
-    <div id="sidebar_modellist"></div>
+    <button onclick='csManagerClient.showUploadWindow()' class="bcfbutton fileUploadButton"><i class="bx bx-upload"></i></button>
+    <div id="sidebar_modellist" style="height:calc(100% - 30px);top:30px;overflow: hidden; width:100%;font-size:70%;margin-bottom:10px"></div>
   </div>
   
 

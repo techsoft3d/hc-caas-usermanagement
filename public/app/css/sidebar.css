@@ -555,12 +555,3 @@ font-size:25px;
 .edithubbuttons2:hover {
   background:grey;
 }
-
-.tabulator-row-odd {
-  background-color: #ffffff !important;
-  border-bottom: 1px solid #ddd;
-}
-.tabulator-row-even {
-  background-color: #ffffff !important;
-  border-bottom: 1px solid #ddd;
-}
