@@ -66,15 +66,15 @@ app.listen(3000);
 ### Client Side
 1. Add 'caasu.min.js' to your client-side project. The client-side library is included in the dist folder of this repository.  
 `<script type="text/javascript" src="js/caasu.min.js"></script>`
-2. Create a new CaasUserManagementClient object, specifying the server address.  
-` myUserManagmentClient = new CaasU.CaasUserManagementClient(serveraddress); `
+2. Create a new CaasUserManagementClient object, specifying your server address.  
+` myUserManagmentClient = new CaasU.CaasUserManagementClient("http://localhost:3000"); `
 3. See the various demos and Reference Manual for further API usage. Alternatively, feel free to copy the content of the public folder from this project to your own project and use the provided demos as a starting point for your own application.
 
-## More details on the Server
-By default the CaaS User Management server will add its own end-points to your express app, which are all prefixed with `/caas_um_api`. It will also create its own mongodb session store as well as a user-session. If you are already using mongodb you can provide it as the second parameter to the start function. In addition, the User Management Server can create its own session store for cookie based session management but you can choose to do provide your own. In this case the user management module will expect a session object to be present on the request object for all its REST api calls. If you allow the account handling server to create its own session store, you should provide a secret for the session store as the third parameter to the start function, which will be used to sign the session cookies. 
+## More Details on the Server
+By default the CaaS User Management server will add its own end-points to your express app, which are all prefixed with `/caas_um_api`. It will also start its own mongooose session as well as create a user-session. If you are already using mongoose you can provide its connection as the second parameter to the start function. In addition, the User Management Server can create its own session store for cookie based session management but you can choose to provide your own as well. In this case the user management module will expect a session object to be present on the request object for all its REST api calls. If you allow the account handling server to create its own session store, you should provide a secret for the session store as the third parameter to the start function, which will be used to sign the session cookies. 
 
 ## Security and User Accounts
-Account management is provided out of the box, with a simple registration and login process, utilizing a straightforward encrypted password scheme. However it is straightforwards to use the library with your own account management. To make this approach practical, the server-side module provides an easy way to retrieve all user account data, which gives you the ability to create accounts directly server-side, bypassing the REST api. This approach allows you to handle all account creation while still leveraging the library for managing the connection CaaS as well as Hubs and Project. See below for an example on how to retrieve all user account data and add the user to the session object:
+Account management is provided out of the box, with a simple registration and login process, utilizing a straightforward encrypted password scheme. However it is easy to use the library with your own account management. To make this approach practical, the server-side module provides an easy way to retrieve all user account data, which gives you the ability to create and query accounts directly server-side, bypassing the REST api. This approach allows you to handle all account creation while still leveraging the library for managing the connection to CaaS as well as Hubs and Project. See below for an example on how to retrieve all user account data and add the user to the session object:
 
 ```
 app.put('/myLogin', async function (req, res, next) {
@@ -88,13 +88,13 @@ app.put('/myLogin', async function (req, res, next) {
 
 ```
 
-If you use this approach, it is advisable to do additional authentication on the REST api calls to the User Management server, to prevent unauthorized access to the user data and login calls.
+If you use this approach, it is advisable to do additional authentication on the REST api calls to the User Management server to prevent unauthorized access to the user data and login endpoints.
 
 
-## Using the User Management node module on a separate server
-If you want to use the User Management node module on a separate server, you can do so by simply proxying its REST api calls to this server from your web-server. In this scenario you might want to add an extra layer to the User Management server to handle authentication and authorization if desired.
+## Running CaaS User Management on a separate server
+If you want to use the User Management node module on a separate server from your main application, you can do so by simply proxying its REST api calls (which are all prefixed with `/caas_um_api`)  from your web-server. In this scenario you might want to add an extra layer to the server to handle authentication and authorization if desired.
 
-## Running Caas and Caas User Management from the same project
+## Running CaaS and CaaS User Management from the same project
 You can easily run both CaaS and the CaaS User Management modules together. See below for a minimal example that initializes both modules:
 ```
 
