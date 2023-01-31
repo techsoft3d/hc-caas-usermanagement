@@ -57,15 +57,15 @@ exports.start = async function (app, mongoose_in, options = { createSession: tru
     destination: (req, file, cb) => {
 
       var uv4 = uuidv4();
-      if (!fs.existsSync("./csmodelupload")) {
-        fs.mkdirSync("./csmodelupload");
+      if (!fs.existsSync("./upload")) {
+        fs.mkdirSync("./upload");
       }
 
-      var dir = "./csmodelupload/" + uv4;
+      var dir = "./upload/" + uv4;
       if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir);
       }
-      cb(null, 'csmodelupload/' + uv4);
+      cb(null, 'upload/' + uv4);
 
     },
     filename: (req, file, cb) => {
@@ -111,6 +111,7 @@ exports.start = async function (app, mongoose_in, options = { createSession: tru
       store: store
     }));
   }
+  
 
   app.use("/caas_um_api", loginRoutes);
   app.use(middleware.requireLogin);

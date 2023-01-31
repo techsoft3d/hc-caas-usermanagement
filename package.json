@@ -1,12 +1,13 @@
 {
   "name": "ts3d.hc.caas.usermanagement",
-  "version": "0.1.6",
+  "version": "0.2.2",
   "description": "",
   "main": "./server/app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon --max-old-space-size=8192 app.js",
-    "start-server": "node app.js --max-old-space-size=1000000"
+    "start-server": "node app.js --max-old-space-size=1000000",
+    "start-session": "node app_session.js --max-old-space-size=1000000"
   },
   "author": "Guido Hoffmann",
   "license": "",

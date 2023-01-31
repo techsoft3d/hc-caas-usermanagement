@@ -99,8 +99,7 @@ caasUserManagementServer.start(app, null,{createSession:true, sessionSecret:"123
 app.listen(3000);
 ```
 
-In this case, you want to make sure to have a local.json file in the config folder of your application which configures the categories for the two libraries following the pattern in the example below
-
+In this case, you want to make sure to have a local.json file in the config folder of your application which configures the categories for the two libraries following the pattern in the example below:
 
 ```json
 
