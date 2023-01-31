@@ -19,7 +19,7 @@ exports.init = (uri) =>
 
 exports.process = async (tempid, filename, project,startpath) => {
 
-    let stats = fs.statSync("./csmodelupload/" + tempid + "/" + filename);
+    let stats = fs.statSync("./upload/" + tempid + "/" + filename);
     const item = new files({
         name: filename,
         converted: false,
@@ -33,14 +33,14 @@ exports.process = async (tempid, filename, project,startpath) => {
     const modelid = item._id.toString();
 
     let form = new FormData();
-    form.append('file', fs.createReadStream("./csmodelupload/" + tempid + "/" + filename));
+    form.append('file', fs.createReadStream("./upload/" + tempid + "/" + filename));
 
-    let api_arg  = {webhook:config.get('caas-ac.serverURI') + '/caas_um_api/webhook', startPath:startpath};
+    let api_arg  = {webhook:config.get('hc-caas-um.serverURI') + '/caas_um_api/webhook', startPath:startpath};
         
     res = await fetch(conversionServiceURI + '/api/upload', { method: 'POST', body: form,headers: {'CS-API-Arg': JSON.stringify(api_arg)}});
     const data = await res.json();
 
-    del("./csmodelupload/" + tempid);
+    del("./upload/" + tempid);
     item.storageID = data.itemid;
     item.save();
     _updated();
@@ -50,7 +50,7 @@ exports.process = async (tempid, filename, project,startpath) => {
 };
 
 exports.getUploadToken = async (name, size, project) => {
-    let api_arg = { webhook: config.get('caas-ac.serverURI') + '/caas_um_api/webhook' };
+    let api_arg = { webhook: config.get('hc-caas-um.serverURI') + '/caas_um_api/webhook' };
 
     let res;
     try {
@@ -136,9 +136,11 @@ exports.getSCS = async (itemid,project) => {
 
 exports.deleteModel = async (itemid, project) => {
     let item = await files.findOne({ "_id": itemid, project:project });
-    res = await fetch(conversionServiceURI + '/api/delete/' + item.storageID, { method: 'put'});
-    await files.deleteOne({ "_id": itemid });
-    _updated();
+    if (item) {
+        res = await fetch(conversionServiceURI + '/api/delete/' + item.storageID, { method: 'put'});
+        await files.deleteOne({ "_id": itemid });
+        _updated();
+    }
 };
 
 exports.getPNG = async (itemid, project) => {

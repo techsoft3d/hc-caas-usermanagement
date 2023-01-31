@@ -20,7 +20,7 @@ To integrate CaaS User Management into your own server application as a node mod
 3. If you want to override any of the default settings, create a config directory and an empty file called local.json and specifiy any setting you want to override. Here are the default settings:
 ```json
 {
-  "caas-ac": {
+  "hc-caas-um": {
     "mongodbURI": "mongodb://127.0.0.1:27017/caas_demo_app",
     "conversionServiceURI": "http://localhost:3001",
     "serverURI": "http://localhost:3000",
@@ -54,7 +54,7 @@ app.listen(3000);
 `<script type="text/javascript" src="js/caasu.min.js"></script>`
 2. Create a new CaasUserManagementClient object, specifying the server address.  
 ` myUserManagmentClient = new CaasU.CaasUserManagementClient(serveraddress); `
-3. See the various demos and Reference Manual for further API usage.
+3. See the various demos and Reference Manual for further API usage. Alternatively, feel free to copy the content of the public folder from this project to your own project and use the provided demos as a starting point for your own application.
 
 ## More details on the Server
 By default the CaaS User Management server will add its own end-points to your express app, which are all prefixed with `/caas_um_api`. It will also create its own mongodb session store as well as a user-session. If you are already using mongodb you can provide it as the second parameter to the start function. In addition, the User Management Server can create its own session store for cookie based session management but you can choose to do provide your own. In this case the user management module will expect a session object to be present on the request object for all its REST api calls. If you allow the account handling server to create its own session store, you should provide a secret for the session store as the third parameter to the start function, which will be used to sign the session cookies. 
@@ -77,12 +77,42 @@ app.put('/myLogin', async function (req, res, next) {
 If you use this approach, it is advisable to do additional authentication on the REST api calls to the User Management server, to prevent unauthorized access to the user data and login calls.
 
 
-
 ## Using the User Management node module on a separate server
 If you want to use the User Management node module on a separate server, you can do so by simply proxying its REST api calls to this server from your web-server. In this scenario you might want to add an extra layer to the User Management server to handle authentication and authorization if desired.
 
+## Running Caas and Caas User Management from the same project
+You can easily run both CaaS and the CaaS User Management modules together. See below for a minimal example that initializes both modules:
+```
 
+const express = require('express');
+const path = require('path');
+const app = express();
 
+app.use(express.static(path.join(__dirname, 'public')));
+
+const conversionserver = require('ts3d.hc.caas');
+conversionserver.start();
+
+const caasUserManagementServer = require('ts3d.hc.caas.usermanagement');
+caasUserManagementServer.start(app, null,{createSession:true, sessionSecret:"12345"});
+
+app.listen(3000);
+```
+
+In this case, you want to make sure to have a local.json file in the config folder of your application which configures the categories for the two libraries following the pattern in the example below:
+
+```json
+
+{
+    "hc-caas-um": {
+      //local settings for CaaS User Management
+    },
+    "hc-caas": {      
+      //local settings for CaaS
+      }
+}
+```
+  
 
 
 

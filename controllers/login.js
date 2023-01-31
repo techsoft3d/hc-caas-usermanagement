@@ -16,7 +16,7 @@ const fs = require('fs');
 async function copyStarterProject(user,hub)
 {
     let newproject = null;
-    let project = await Projects.findOne({ "_id": config.get('caas-ac.demoProject') });
+    let project = await Projects.findOne({ "_id": config.get('hc-caas-um.demoProject') });
     if (project) {
         newproject = new Projects({
             name: project.name,
@@ -48,7 +48,7 @@ async function copyStarterProject(user,hub)
 }
 
 exports.postRegister = async(req, res, next) => {
-    if (config.get('caas-ac.demoMode')) {
+    if (config.get('hc-caas-um.demoMode')) {
         res.json({ERROR:"Demo mode. Can't register users."});
         return;
     }
@@ -65,7 +65,7 @@ exports.postRegister = async(req, res, next) => {
 
         req.session.caasUser = user;
 
-        if (config.get('caas-ac.assignDemoHub') == true && config.get('caas-ac.demoProject') != "")
+        if (config.get('hc-caas-um.assignDemoHub') == true && config.get('hc-caas-um.demoProject') != "")
         {
             let hub = new Hubs({ "name": "Demo Hub", users:[]});
             await hub.save();
@@ -84,7 +84,7 @@ exports.postRegister = async(req, res, next) => {
 
 exports.postLogin = async(req, res, next) => {    
     console.log("login");
-    if (config.get('caas-ac.demoMode')) {
+    if (config.get('hc-caas-um.demoMode')) {
         res.json({ERROR:"Demo mode. No manual login allowed."});
         return;
     }
@@ -111,14 +111,14 @@ exports.postLogin = async(req, res, next) => {
 
 exports.configuration = async(req, res, next) => {    
     console.log("configuration");    
-    res.json({useDirectFetch : config.get('caas-ac.useDirectFetch'),useStreaming : config.get('caas-ac.useStreaming'),demoMode: config.get('caas-ac.demoMode')});    
+    res.json({useDirectFetch : config.get('hc-caas-um.useDirectFetch'),useStreaming : config.get('hc-caas-um.useStreaming'),demoMode: config.get('hc-caas-um.demoMode')});    
 };
 
 
 
 exports.checkLogin = async (req, res, next) => {
     console.log("check login");
-    if (config.get('caas-ac.demoMode')) {
+    if (config.get('hc-caas-um.demoMode')) {
         req.session.caasUser = null;
         let item = await Users.findOne({ "email": "demouser@techsoft3d.com" });
         if (item) {
@@ -565,7 +565,7 @@ exports.updateHubUser = async (req, res, next) => {
 
 async function checkHubAuthorized(email,hubid, role) {
 
-    if (config.get('caas-ac.demoMode')) {     
+    if (config.get('hc-caas-um.demoMode')) {     
         return false;
     }
 
@@ -581,7 +581,7 @@ async function checkHubAuthorized(email,hubid, role) {
 
 
 exports.putDeleteHub = async (req, res, next) => {
-    if (config.get('caas-ac.demoMode')) {
+    if (config.get('hc-caas-um.demoMode')) {
         res.json({ERROR:"Not authorized."});
         return;
     }
@@ -619,7 +619,7 @@ exports.acceptHub = async (req, res, next) => {
 
 
 exports.putNewHub = async(req, res, next) => {    
-    if (config.get('caas-ac.demoMode')) {
+    if (config.get('hc-caas-um.demoMode')) {
         res.json({ERROR:"Not authorized."});
         return;
     }
@@ -636,7 +636,7 @@ exports.putNewHub = async(req, res, next) => {
 
 
 exports.putHub = async(req, res, next) => {    
-    if (config.get('caas-ac.demoMode')) {
+    if (config.get('hc-caas-um.demoMode')) {
         res.json({ERROR:"Not authorized."});
         return;
     }
