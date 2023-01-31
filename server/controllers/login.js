@@ -116,7 +116,6 @@ exports.configuration = async(req, res, next) => {
 
 
 exports.checkLogin = async (req, res, next) => {
-    console.log("check login");
     if (config.get('hc-caas-um.demoMode')) {
         req.session.caasUser = null;
         let item = await Users.findOne({ "email": "demouser@techsoft3d.com" });
