@@ -14,6 +14,17 @@ For questions/feedback please send an email to guido@techsoft3d.com or post in o
 ## Documentation
 Live Documentation for the client-side library can be found here: [https://techsoft3d.github.io/hc-caas-usermanagement/](https://techsoft3d.github.io/hc-caas-usermanagement/)
 
+
+## Quick Start 
+To quickly test out CaaS User Management with the provided demo, follow the steps below.
+1. Clone the repository
+2. Install all dependencies with `npm install`
+3. Ensure CaaS is running on port 3001. If not, follow the instructions [here](https://github.com/techsoft3d/hc-caas)
+4. Start the server with `npm start`
+5. Open a browser and navigate to `http://localhost:3000`
+6. Register at least one user account, create a hub, project. You can then convert and view files, etc.
+
+
 ## Integrate with your own Node-Based Application
 
 ### Server Side
