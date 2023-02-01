@@ -16,7 +16,7 @@ class CsManagerClient {
 
 
        
-            myDropzone = new Dropzone("div#dropzonearea", { url: myUserManagmentClient.getUploadURL(), maxFiles: 100,  parallelUploads: 100,method:'post',timeout: 180000, uploadMultiple:false,autoProcessQueue:true,
+            myDropzone = new Dropzone("div#dropzonearea", { url: myUserManagmentClient.getUploadURL(), maxFiles: 500,  parallelUploads: 10,method:'post',timeout: 180000, uploadMultiple:false,autoProcessQueue:true,
                     // Specifing an event as an configuration option overwrites the default
                     // `addedfile` event handler.
                     addedfile: function(file) {
@@ -191,6 +191,7 @@ class CsManagerClient {
             $("#assemblyuploadbutton").prop('disabled', false);
             myDropzone.options.autoProcessQueue = false;
             myDropzone.options.uploadMultiple = true;
+            myDropzone.options.parallelUploads = 500;
             myDropzone.options.paramName = paramNameForSend;
             myDropzone.options.url = myUserManagmentClient.getUploadArrayURL();
         }
@@ -198,6 +199,7 @@ class CsManagerClient {
             $("#assemblyuploadbutton").prop('disabled', true);
             myDropzone.options.autoProcessQueue = true;
             myDropzone.options.uploadMultiple = false;
+            myDropzone.options.parallelUploads = 10;
             myDropzone.options.paramName = "file";
             myDropzone.options.url = myUserManagmentClient.getUploadURL();
         }

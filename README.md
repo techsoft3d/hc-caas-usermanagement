@@ -25,7 +25,6 @@ Live Documentation for the client-side library can be found here: [https://techs
 ## Disclaimer
 **This library is not an officially supported part of HOOPS Communicator and provided as-is.**
 
-
 ## Quick Start 
 To quickly test out CaaS User Management with the provided UI, follow the steps below.
 1. Clone the repository
@@ -86,7 +85,7 @@ app.listen(3000);
 The frontend is a straightforward bootstrap based implementation that uses the client-side library to communicate with the server. The emphasis is on simplicity, the goal during development was to make it easy to understand and extend, not to provide a fully production ready implementation.
 
 ## Additional Details on the Server
-By default the CaaS User Management server will add its own REST end-points to your express app, which are all prefixed with `/caas_um_api`. It will also start its own mongooose session as well as create a user-session. If you are already using mongoose you can provide its connection as the second parameter to the start function. In addition, the User Management Server can create its own session store for cookie based session management but you can choose to provide your own as well. In this case the user management library will expect a session to be present on the request object for all its REST API calls. If you allow the User Management server to create its own session store, you should provide a 'sessionSecret' for the session store, which will be used to sign the session cookies. 
+By default the CaaS User Management server will add its own REST end-points to your express app, which are all prefixed with `/caas_um_api`. It will also start its own database session as well as create a user-session for cookie management. If you are already using mongoose as your database you can provide its connection as the second parameter to the start function. In addition, the User Management Server can create its own session store for cookie based session management but you can choose to provide your own as well. In this case the user management library will expect a session to be present on the request object for all its REST API calls. If you allow the User Management server to create its own session store, you should provide an "unguessable" `sessionSecret` string for the session store, which will be used to sign the session cookies. 
 
 
 ## Security and User Accounts
