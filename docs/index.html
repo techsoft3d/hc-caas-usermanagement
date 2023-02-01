@@ -50,8 +50,8 @@
 <li>Upload UI redone</li>
 </ul>
 <h2>Introduction</h2>
-<p>This library implements user management on top of the <a href="https://github.com/techsoft3d/hc-caas">CaaS</a> library, which is a conversion and streaming backend for HOOPS Communicator. It provides a straightforward REST api for managing user accounts and their associated data, including Hubs and Projects with different access levels per user. By connecting this library to CaaS, you essentially get the framework for a CAD oriented SaaS application &quot;out of the box&quot;, with a few lines of server-side code, ideal for prototyping and testing or as the starting point for your own application.</p>
-<p>The library consists of two components, the server-side node.js library you can add to your project via npm as well as a client-side library for communicating with the server. It also comes with a bootstrap based front-end that demonstrates the use of the client-side library and can be used as a starting point for your own application.</p>
+<p>This library implements user management on top of the <a href="https://github.com/techsoft3d/hc-caas">CaaS</a> library, which is a conversion and streaming backend for HOOPS Communicator. It provides a straightforward REST API for managing user accounts and their associated data, including Hubs and Projects with different access levels per user. By connecting this library to CaaS, you essentially get the framework for a CAD oriented SaaS application &quot;out of the box&quot;, with a few lines of server-side code, ideal for prototyping and testing or as the starting point for your own development.</p>
+<p>The library consists of three components, the server-side node.js library you can add to your project via npm as well as a client-side library for communicating with the server. It also comes with an easily extendable bootstrap based front-end that uses the client-side library.</p>
 <h2>Feedback</h2>
 <p>For questions/feedback please send an email to guido@techsoft3d.com or post in our <a href="https://forum.techsoft3d.com/">forum</a>. For a 60 day trial of the HOOPS Web Platform go to https://www.techsoft3d.com/products/hoops/web-platform.</p>
 <h2>Roadmap</h2>
@@ -62,12 +62,12 @@
 <li>Oauth2 Support</li>
 <li>More modular UI Design</li>
 </ul>
-<h2>Disclaimer</h2>
-<p><strong>This library is not an officially supported part of HOOPS Communicator and provided as-is.</strong></p>
 <h2>Documentation</h2>
 <p>Live Documentation for the client-side library can be found here: <a href="https://techsoft3d.github.io/hc-caas-usermanagement/">https://techsoft3d.github.io/hc-caas-usermanagement/</a></p>
+<h2>Disclaimer</h2>
+<p><strong>This library is not an officially supported part of HOOPS Communicator and provided as-is.</strong></p>
 <h2>Quick Start</h2>
-<p>To quickly test out CaaS User Management with the provided demo, follow the steps below.</p>
+<p>To quickly test out CaaS User Management with the provided UI, follow the steps below.</p>
 <ol>
 <li>Clone the repository</li>
 <li>Install all dependencies with <code>npm install</code></li>
@@ -115,16 +115,18 @@ app.listen(3000);
 </code></pre>
 <h3>Client Side</h3>
 <ol>
-<li>Add 'caasu.min.js' to your client-side project. The client-side library is included in the dist folder of this repository.<br>
+<li>Add 'caasu.min.js' to your client-side project. The client-side library is included in the <code>/dist</code> folder of this repository.<br>
 <code>&lt;script type=&quot;text/javascript&quot; src=&quot;js/caasu.min.js&quot;&gt;&lt;/script&gt;</code></li>
 <li>Create a new CaasUserManagementClient object, specifying your server address.<br>
 <code>myUserManagmentClient = new CaasU.CaasUserManagementClient(&quot;http://localhost:3000&quot;);</code></li>
-<li>See the various demos and Reference Manual for further API usage. Alternatively, feel free to copy the content of the public folder from this project to your own project and use the provided demos as a starting point for your own application.</li>
+<li>See the frontend code in the public folder of this project and the <a href="https://techsoft3d.github.io/hc-caas-usermanagement/CaasUserManagementClient.html">reference manual</a> for further API usage. Alternatively, feel free to copy the content of the public folder from this repository to your own project and use the provided reference implementation as a starting point for your own application.</li>
 </ol>
-<h2>More Details on the Server</h2>
-<p>By default the CaaS User Management server will add its own end-points to your express app, which are all prefixed with <code>/caas_um_api</code>. It will also start its own mongooose session as well as create a user-session. If you are already using mongoose you can provide its connection as the second parameter to the start function. In addition, the User Management Server can create its own session store for cookie based session management but you can choose to provide your own as well. In this case the user management module will expect a session object to be present on the request object for all its REST api calls. If you allow the account handling server to create its own session store, you should provide a secret for the session store as the third parameter to the start function, which will be used to sign the session cookies.</p>
+<h2>Frontend</h2>
+<p>The frontend is a straightforward bootstrap based implementation that uses the client-side library to communicate with the server. The emphasis is on simplicity, the goal during development was to make it easy to understand and extend, not to provide a fully production ready implementation.</p>
+<h2>Additional Details on the Server</h2>
+<p>By default the CaaS User Management server will add its own REST end-points to your express app, which are all prefixed with <code>/caas_um_api</code>. It will also start its own database session as well as create a user-session for cookie management. If you are already using mongoose as your database you can provide its connection as the second parameter to the start function. In addition, the User Management Server can create its own session store for cookie based session management but you can choose to provide your own as well. In this case the user management library will expect a session to be present on the request object for all its REST API calls. If you allow the User Management server to create its own session store, you should provide an &quot;unguessable&quot; <code>sessionSecret</code> string for the session store, which will be used to sign the session cookies.</p>
 <h2>Security and User Accounts</h2>
-<p>Account management is provided out of the box, with a simple registration and login process, utilizing a straightforward encrypted password scheme. However it is easy to use the library with your own account management. To make this approach practical, the server-side module provides an easy way to retrieve all user account data, which gives you the ability to create and query accounts directly server-side, bypassing the REST api. This approach allows you to handle all account creation while still leveraging the library for managing the connection to CaaS as well as Hubs and Project. See below for an example on how to retrieve all user account data and add the user to the session object:</p>
+<p>Account management is provided out of the box, with a simple registration and login process, utilizing a straightforward encrypted password scheme. However it is easy to use the library with your own account management. To make this approach practical, the server-side module provides an easy way to retrieve all user account data, which gives you the ability to create and query accounts directly server-side, bypassing the REST API. This approach allows you to handle all account creation while still leveraging the library for managing the connection to CaaS as well as Hubs and Project. See below for an example on how to retrieve all user account data and add the user to the session object:</p>
 <pre class="prettyprint source"><code>app.put('/myLogin', async function (req, res, next) {
     //perform custom login procedure
     //...    
@@ -135,13 +137,12 @@ app.listen(3000);
 });
 
 </code></pre>
-<p>If you use this approach, it is advisable to do additional authentication on the REST api calls to the User Management server to prevent unauthorized access to the user data and login endpoints.</p>
+<p>If you use this approach, it is advisable to do additional authentication on the REST API calls to the User Management server to prevent unauthorized access to the user data and login endpoints.</p>
 <h2>Running CaaS User Management on a separate server</h2>
-<p>If you want to use the User Management node module on a separate server from your main application, you can do so by simply proxying its REST api calls (which are all prefixed with <code>/caas_um_api</code>)  from your web-server. In this scenario you might want to add an extra layer to the server to handle authentication and authorization if desired.</p>
+<p>If you want to use the User Management node module on a separate server from your main application, you can do so by simply proxying its REST API calls (which are all prefixed with <code>/caas_um_api</code>)  from your web-server. In this scenario you might want to add an extra layer to the server to handle authentication and authorization if desired.</p>
 <h2>Running CaaS and CaaS User Management from the same project</h2>
-<p>You can easily run both CaaS and the CaaS User Management modules together. See below for a minimal example that initializes both modules:</p>
-<pre class="prettyprint source"><code>
-const express = require('express');
+<p>You can easily run both CaaS and the CaaS User Management together. See below for a minimal example that initializes both libraries fromt the same Node application:</p>
+<pre class="prettyprint source"><code>const express = require('express');
 const path = require('path');
 const app = express();
 
@@ -155,7 +156,7 @@ caasUserManagementServer.start(app, null,{createSession:true, sessionSecret:&quo
 
 app.listen(3000);
 </code></pre>
-<p>In this case, you want to make sure to have a local.json file in the config folder of your application which configures the categories for the two libraries following the pattern in the example below:</p>
+<p>In this case, you want to make sure to have a local.json file in the config folder of your application which configures the two libraries following the pattern in the example below:</p>
 <pre class="prettyprint source lang-json"><code>
 {
     &quot;hc-caas-um&quot;: {
