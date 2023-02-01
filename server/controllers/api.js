@@ -14,6 +14,20 @@ exports.postUpload = async(req, res, next) => {
     res.json({ itemid: result });
 };
 
+
+exports.postUploadArray = async(req, res, next) => {
+    if (config.get('hc-caas-um.demoMode')) {
+        res.json({ERROR:"Not authorized."});
+        return;
+    }
+
+    let startmodel = req.headers.startmodel;
+    
+     result = await csmanager.processMultiple(req.files,startmodel,req.session.caasProject);
+    console.log("arrayupload:" + startmodel);
+    res.json({ itemid: result });
+};
+
 exports.getUploadToken = async(req, res, next) => {    
 
     if (config.get('hc-caas-um.demoMode')) {
