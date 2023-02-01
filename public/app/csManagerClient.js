@@ -52,7 +52,6 @@ class CsManagerClient {
                 response.setRequestHeader('startpath', $("#modelpath").val());                
             });
 
-
             myDropzone.on("sendingmultiple", async function (file, response, request) {
                 var selectedRows = _this.uploadTable.getSelectedRows();
                 let name;
@@ -65,7 +64,6 @@ class CsManagerClient {
 
                 response.setRequestHeader('startmodel', name);
             });
-
         }
         else {
             myDropzone = new Dropzone("div#dropzonearea", {
@@ -88,10 +86,7 @@ class CsManagerClient {
                 },
                 processing: function (file) {
                     this.options.url = file.signedRequest;
-                }
-
-                
-
+                }                
             });
 
             myDropzone.on("success", async function (file, response) {
