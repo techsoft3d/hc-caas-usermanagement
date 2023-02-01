@@ -35,6 +35,14 @@ class CsManagerClient {
                     uploadprogress: function(file, progress, bytesSent) {
                         _this.uploadTable.updateData([{ id: file.upload.uuid, progress: progress }]);
                       // Display the progress
+                    },
+                    accept: async function (file, cb) {
+                        if (file.name.indexOf(".zip") != -1) {
+                            await _this.chooseZipContent(file,cb);
+                        }
+                        else {
+                            cb();
+                        }
                     }                   
             });
             myDropzone.on("success", async function (file, response) {
@@ -43,19 +51,12 @@ class CsManagerClient {
             });       
 
             myDropzone.on("successmultiple", async function (file, response) {
-                _this.uploadTable.clear();
+                _this.uploadTable.clearData();
             });       
-       
-            myDropzone.on("accept", async function (file, cb) {
-
-
-                 await Communicator.Util.sleep(10000);
-                 cb();
-                            
-            });
-
+    
             myDropzone.on("sending", async function (file, response, request) {
 
+                response.setRequestHeader('startpath',_this.startPath);                
 
 //                let entries = await (new zip.ZipReader(new zip.BlobReader(file))).getEntries();
 //                await Communicator.Util.sleep(10000);
@@ -130,14 +131,60 @@ class CsManagerClient {
                 { title: "Type", field: "type", formatter: "plaintext",maxWidth: 80 },        
             ],
         });
+
+        csManagerClient.zipTable = new Tabulator("#zipcontentdivtable", {
+            layout: "fitColumns",
+            responsiveLayout: "hide",
+            cellVertAlign: "middle",
+            selectable: 1,           
+            rowClick: function (e, row) {
+                var i = 0;
+
+            },
+            columns: [               
+                { title: "Filename", field: "name", formatter: "plaintext" },
+                { title: "Type", field: "type", formatter: "plaintext",maxWidth: 80 },        
+            ],
+        });
      
     }
 
     constructor() {
         this._updatedTime = undefined;
         this._modelHash = [];
+    }
 
 
+    async chooseZipContent(file, cb) {
+        let _this = this;
+        this._cb = cb;
+        $("#standarduploaddiv").css('display', 'none');
+        $("#dropzonewrapper").css('display', 'none');
+        $("#zipcontentdiv").css('display', 'block');
+        let entries = await (new zip.ZipReader(new zip.BlobReader(file))).getEntries();
+        this.zipTable.clearData();
+
+        for (let i = 0; i < entries.length; i++) {
+            if (!entries[i].directory) {
+                let firstDot = entries[i].filename.indexOf(".");
+                let extension = "";
+                if (firstDot != -1) {
+                    extension = entries[i].filename.substring(firstDot + 1);
+                }
+                this.zipTable.addData([{ name: entries[i].filename, type: extension }]);
+            }
+        }
+    }
+
+    zipFileSelected() {
+        var selectedRows = this.zipTable.getSelectedRows();
+        if (selectedRows.length == 1) {
+            $("#standarduploaddiv").css('display', 'block');
+            $("#zipcontentdiv").css('display', 'none');        
+            $("#dropzonewrapper").css('display', 'block');
+            this.startPath = selectedRows[0].getData().name;
+            this._cb();
+        }
     }
 
     async initialize() {
@@ -192,13 +239,19 @@ class CsManagerClient {
 
     showUploadWindow() {
 
+        $("#standarduploaddiv").css('display', 'block');
+        $("#dropzonewrapper").css('display', 'block');
+        $("#zipcontentdiv").css('display', 'none');
         let myModal = new bootstrap.Modal(document.getElementById('uploadModal'));
+        myDropzone.removeAllFiles(true);
+        this.uploadTable.clearData();
+
         myModal.toggle();
     }
 
     uploadAsAssemblyClicked() {
         if ($("#uploadAsAssemblycheck")[0].checked) {
-            $("#assemblyuploadbutton").prop('disabled', false);
+            $("#assemblyuploadbutton").css('display', "block");
             myDropzone.options.autoProcessQueue = false;
             myDropzone.options.uploadMultiple = true;
             myDropzone.options.parallelUploads = 500;
@@ -206,7 +259,7 @@ class CsManagerClient {
             myDropzone.options.url = myUserManagmentClient.getUploadArrayURL();
         }
         else {
-            $("#assemblyuploadbutton").prop('disabled', true);
+            $("#assemblyuploadbutton").css('display', "none");
             myDropzone.options.autoProcessQueue = true;
             myDropzone.options.uploadMultiple = false;
             myDropzone.options.parallelUploads = 10;
