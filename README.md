@@ -1,5 +1,8 @@
 # CaaS User Management (beta)
 
+## Version Update (0.3.0) 
+* ZIP File Support in UI
+
 ## Version Update (0.2.7) 
 * Support for multi-file upload for assemblies
 * Upload UI redone
@@ -14,7 +17,6 @@ For questions/feedback please send an email to guido@techsoft3d.com or post in o
 
 ## Roadmap
 * Multi-file Upload Support for direct S3 upload
-* Improved ZIP upload with content preview
 * Email Flow for Signup 
 * Oauth2 Support
 * More modular UI Design
