@@ -248,7 +248,6 @@ exports.putProject = async(req, res, next) => {
 
 exports.getProjects = async(req, res, next) => {    
 
- //   let projects = await Projects.find({ "users.email": req.session.caasUser.email,"hub": req.session.caasHub } );
     let projects = await Projects.find({ "hub": req.session.caasHub,"users.email": req.session.caasUser.email} );
   
     let a = [];
