@@ -48,6 +48,44 @@ exports.process = async (tempid, filename, project,startpath) => {
     return modelid;    
 };
 
+
+exports.processMultiple = async (infiles, startmodel, project) => {
+
+    const item = new files({
+        name: startmodel,
+        converted: false,
+        storageID: "NONE",
+        filesize: 0,
+        uploaded: new Date(),       
+        project:project
+
+    });
+    await item.save();
+    const modelid = item._id.toString();
+
+    let form = new FormData();
+
+    for (let i = 0; i < infiles.length; i++) {
+        let tempid = infiles[i].destination.split("/")[1];
+        form.append('files', fs.createReadStream("./upload/" + tempid + "/" + infiles[i].originalname));
+    }
+
+    let api_arg  = {webhook:config.get('hc-caas-um.serverURI') + '/caas_um_api/webhook', rootFile:startmodel};    
+        
+    res = await fetch(conversionServiceURI + '/api/uploadArray', { method: 'POST', body: form,headers: {'CS-API-Arg': JSON.stringify(api_arg)}});
+    const data = await res.json();
+
+    for (let i = 0; i < infiles.length; i++) {
+        let tempid = infiles[i].destination.split("/")[1];
+        del("./upload/" + tempid);
+    }
+    item.storageID = data.itemid;
+    item.save();
+    _updated();
+    return modelid;    
+};
+
+
 exports.getUploadToken = async (name, size, project) => {
     let api_arg = { webhook: config.get('hc-caas-um.serverURI') + '/caas_um_api/webhook' };
 

@@ -16,7 +16,7 @@ class CsManagerClient {
 
 
        
-            myDropzone = new Dropzone("div#dropzonearea", { url: myUserManagmentClient.getUploadURL(),  parallelUploads: 10,method:'post',timeout: 180000, uploadMultiple:false,autoProcessQueue:true,
+            myDropzone = new Dropzone("div#dropzonearea", { url: myUserManagmentClient.getUploadURL(), maxFiles: 100,  parallelUploads: 100,method:'post',timeout: 180000, uploadMultiple:false,autoProcessQueue:true,
                     // Specifing an event as an configuration option overwrites the default
                     // `addedfile` event handler.
                     addedfile: function(file) {
@@ -42,9 +42,10 @@ class CsManagerClient {
                 myDropzone.removeFile(file);
             });       
 
-            myDropzone.on("processingmultiple", async function (file, response) {
-               
+            myDropzone.on("successmultiple", async function (file, response) {
+                _this.uploadTable.clear();
             });       
+       
 
             myDropzone.on("sending", async function (file, response, request) {
             
@@ -64,9 +65,6 @@ class CsManagerClient {
 
                 response.setRequestHeader('startmodel', name);
             });
-
-        //    myDropzone.options.autoProcessQueue = false;
-
 
         }
         else {
