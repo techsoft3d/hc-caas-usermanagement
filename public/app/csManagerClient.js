@@ -46,10 +46,20 @@ class CsManagerClient {
                 _this.uploadTable.clear();
             });       
        
+            myDropzone.on("accept", async function (file, cb) {
+
+
+                 await Communicator.Util.sleep(10000);
+                 cb();
+                            
+            });
 
             myDropzone.on("sending", async function (file, response, request) {
+
+
+//                let entries = await (new zip.ZipReader(new zip.BlobReader(file))).getEntries();
+//                await Communicator.Util.sleep(10000);
             
-                response.setRequestHeader('startpath', $("#modelpath").val());                
             });
 
             myDropzone.on("sendingmultiple", async function (file, response, request) {
