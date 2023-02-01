@@ -71,6 +71,11 @@ getCurrentProject() {
         return this.serveraddress + '/caas_um_api/upload';
     }
 
+    getUploadArrayURL() {
+        return this.serveraddress + '/caas_um_api/uploadArray';
+    }
+
+
     /**
          * Retrieves the CaaS User Management Server configuration
          * @return {object} Server Configuration

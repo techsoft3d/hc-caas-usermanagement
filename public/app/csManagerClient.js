@@ -1,4 +1,9 @@
 var csManagerClient = null;
+var myDropzone;
+
+function paramNameForSend() {
+    return "files";
+ }
 
 class CsManagerClient {
 
@@ -7,10 +12,11 @@ class CsManagerClient {
         csManagerClient.initialize();
 
         let _this = csManagerClient;
-        let myDropzone;
         if (!myUserManagmentClient.getUseDirectFetch()) {
 
-            myDropzone = new Dropzone("div#dropzonearea", { url: myUserManagmentClient.getUploadURL(), timeout: 180000, uploadMultiple:false,autoProcessQueue:true,
+
+       
+            myDropzone = new Dropzone("div#dropzonearea", { url: myUserManagmentClient.getUploadURL(),  parallelUploads: 10,method:'post',timeout: 180000, uploadMultiple:false,autoProcessQueue:true,
                     // Specifing an event as an configuration option overwrites the default
                     // `addedfile` event handler.
                     addedfile: function(file) {
@@ -36,8 +42,27 @@ class CsManagerClient {
                 myDropzone.removeFile(file);
             });       
 
+            myDropzone.on("processingmultiple", async function (file, response) {
+               
+            });       
+
             myDropzone.on("sending", async function (file, response, request) {
-                response.setRequestHeader('startpath', $("#modelpath").val());
+            
+                response.setRequestHeader('startpath', $("#modelpath").val());                
+            });
+
+
+            myDropzone.on("sendingmultiple", async function (file, response, request) {
+                var selectedRows = _this.uploadTable.getSelectedRows();
+                let name;
+                if (selectedRows.length != 0) {
+                    name = selectedRows[0].getData().name;
+                }
+                else {
+                    name = _this.uploadTable.getRows()[0].getData().name;
+                }
+
+                response.setRequestHeader('startmodel', name);
             });
 
         //    myDropzone.options.autoProcessQueue = false;
@@ -67,6 +92,8 @@ class CsManagerClient {
                     this.options.url = file.signedRequest;
                 }
 
+                
+
             });
 
             myDropzone.on("success", async function (file, response) {
@@ -86,7 +113,7 @@ class CsManagerClient {
             },
             columns: [
                 { title: "ID", field: "id", visible: false, sorter: "number", headerSort: false },
-                { title: "Progress", field: "progress", formatter: "progress",maxWidth: 90,formatterParams: {
+                { title: "Progress", field: "progress", formatter: "progress",maxWidth: 80,formatterParams: {
                     legend: function(val) { 
                         if (val > 0)  {
                             return "";
@@ -97,7 +124,7 @@ class CsManagerClient {
                     }                  
                 }},
                 { title: "Filename", field: "name", formatter: "plaintext" },
-                { title: "Type", field: "type", formatter: "plaintext",maxWidth: 60 },        
+                { title: "Type", field: "type", formatter: "plaintext",maxWidth: 80 },        
             ],
         });
      
@@ -165,6 +192,29 @@ class CsManagerClient {
         let myModal = new bootstrap.Modal(document.getElementById('uploadModal'));
         myModal.toggle();
     }
+
+    uploadAsAssemblyClicked() {
+        if ($("#uploadAsAssemblycheck")[0].checked) {
+            $("#assemblyuploadbutton").prop('disabled', false);
+            myDropzone.options.autoProcessQueue = false;
+            myDropzone.options.uploadMultiple = true;
+            myDropzone.options.paramName = paramNameForSend;
+            myDropzone.options.url = myUserManagmentClient.getUploadArrayURL();
+        }
+        else {
+            $("#assemblyuploadbutton").prop('disabled', true);
+            myDropzone.options.autoProcessQueue = true;
+            myDropzone.options.uploadMultiple = false;
+            myDropzone.options.paramName = "file";
+            myDropzone.options.url = myUserManagmentClient.getUploadURL();
+        }
+
+    }
+
+    uploadAsAssemblyStartClicked() {
+        myDropzone.processQueue();
+    }
+
 
     hideUploadWindow() {
         $("#filedroparea").css("display", "none");

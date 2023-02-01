@@ -74,7 +74,11 @@ exports.start = async function (app, mongoose_in, options = { createSession: tru
   });
 
   if (!config.get('hc-caas-um.demoMode')) {
-    app.use(multer({ storage: fileStorage }).single('file'));
+    let upload = multer({ storage: fileStorage });
+
+    app.post('/caas_um_api/upload',upload.single('file'));
+    app.post('/caas_um_api/uploadArray',upload.array('files'));
+
   }
 
   app.use(express.static(path.join(__dirname, 'public')));

@@ -45,8 +45,7 @@ exports.process = async (tempid, filename, project,startpath) => {
     item.save();
     _updated();
 
-    return modelid;
-    
+    return modelid;    
 };
 
 exports.getUploadToken = async (name, size, project) => {
