@@ -302,7 +302,7 @@ export class CaasUserManagementClient {
             * Leave currently active Project        
             */
     async leaveProject() {
-        await fetch(this.serveraddress + '/caas_um_api/project/none', { method: 'PUT' });
+        await fetch(this.serveraddress + '/caas_um_api/project/none/none', { method: 'PUT' });
         this.currentProject = null;
 
     }
@@ -336,21 +336,23 @@ export class CaasUserManagementClient {
 
     /**
          * Load a Project 
+         * @param  {string} hubid - Id of Hub* 
          * @param  {string} projectid - Id of Project
          */
-    async loadProject(projectid) {
-        let res = await fetch(this.serveraddress + '/caas_um_api/project/' + projectid, { method: 'PUT' });
+    async loadProject(hubid, projectid) {
+        let res = await fetch(this.serveraddress + '/caas_um_api/project/' + hubid + "/" + projectid, { method: 'PUT' });
         let data = await res.json();
-        this.currentProject = data.projectname;
+        this.currentProject = data;
     }
 
     /**
-            * Retrieves all projects associated with the current user and hub
+            * Retrieves all projects associated with a hub
+            * @param  {string} hubid - Id of Hub
             * @return {Object} List of projects
             */
-    async getProjects() {
+    async getProjects(hubid) {
 
-        let response = await fetch(this.serveraddress + '/caas_um_api/projects');
+        let response = await fetch(this.serveraddress + '/caas_um_api/projects/' + hubid);
         let projects = await response.json();
         return projects;
     }

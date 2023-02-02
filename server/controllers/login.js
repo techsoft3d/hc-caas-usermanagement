@@ -134,7 +134,7 @@ exports.checkLogin = async (req, res, next) => {
     }
 
     if (req.session && req.session.caasUser) {
-        let projectid = null;
+        let projectinfo = null;
         let hubinfo = null;
 
         let item = await Users.findOne({ "email": req.session.caasUser.email });
@@ -150,12 +150,9 @@ exports.checkLogin = async (req, res, next) => {
             }
 
             if (req.session.caasProject) {
-                projectid = req.session.caasProject._id;
+                projectinfo = { id: req.session.caasProject._id, name: req.session.caasProject.name };
             }
-            if (req.session.caasHub) {
-                hubinfo = { id: req.session.caasHub._id, name: req.session.caasHub.name };
-            }
-            res.json({ succeeded: true, user: { email: req.session.caasUser.email }, project: projectid, hub: hubinfo });
+            res.json({ succeeded: true, user: { email: req.session.caasUser.email }, project: projectinfo, hub: hubinfo });
         }
     }
     else
@@ -234,21 +231,21 @@ exports.putRenameProject = async (req, res, next) => {
 exports.putProject = async(req, res, next) => {    
 
     if (req.params.projectid != "none") {
-        var item = await Projects.findOne({ "_id": req.params.projectid });
-        req.session.caasProject = item;
-        res.json({projectname:item.name});
+        let item = await Projects.findOne({ "users.email": req.session.caasUser.email,"hub": req.params.hubid, "_id": req.params.projectid });
+        if (item) {
+            req.session.caasProject = item;
+            res.json({id:req.params.projectid, name:item.name});
+            return;
+        }
     }
-    else {
         req.session.caasProject = null;
-        res.sendStatus(200);
-    }
+    res.json({ ERROR: "Not authorized." });
 };
 
 
 exports.getProjects = async(req, res, next) => {    
 
- //   let projects = await Projects.find({ "users.email": req.session.caasUser.email,"hub": req.session.caasHub } );
-    let projects = await Projects.find({ "hub": req.session.caasHub,"users.email": req.session.caasUser.email} );
+    let projects = await Projects.find({ "hub": req.params.hubid,"users.email": req.session.caasUser.email} );
   
     let a = [];
     for (let i = 0; i < projects.length; i++) {
@@ -256,7 +253,6 @@ exports.getProjects = async(req, res, next) => {
     }
     res.json(a);    
 };
-
 
 exports.getHubs = async(req, res, next) => {    
 
@@ -268,7 +264,6 @@ exports.getHubs = async(req, res, next) => {
     }
     res.json(a);    
 };
-
 
 exports.getUsers = async(req, res, next) => {    
 

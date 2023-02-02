@@ -49,7 +49,7 @@ class Admin {
                 this.adminProject.handleProjectSelection();
             }
             else {              
-                this.adminProject.loadProject(myUserManagmentClient.getCurrentProject());
+                this.adminProject.loadProject(myUserManagmentClient.getCurrentProject().id);
             }
         }
         this._updateUI();
