@@ -17,8 +17,6 @@ class CsManagerClient {
 
        
             myDropzone = new Dropzone("div#dropzonearea", { url: myUserManagmentClient.getUploadURL(), maxFiles: 500,  parallelUploads: 10,method:'post',timeout: 180000, uploadMultiple:false,autoProcessQueue:true,
-                    // Specifing an event as an configuration option overwrites the default
-                    // `addedfile` event handler.
                     addedfile: function(file) {
 
                         let firstDot = file.name.indexOf(".");
@@ -27,14 +25,11 @@ class CsManagerClient {
                             extension = file.name.substring(firstDot + 1);
                         }
                         _this.uploadTable.addData([{ id:file.upload.uuid,name:file.name,type: extension, progress: 0 }]);
-                      // Now attach this new element some where in your page
                     },
                     thumbnail: function(file, dataUrl) {
-                      // Display the image in your file.previewElement
                     },
                     uploadprogress: function(file, progress, bytesSent) {
                         _this.uploadTable.updateData([{ id: file.upload.uuid, progress: progress }]);
-                      // Display the progress
                     },
                     accept: async function (file, cb) {
                         if (file.name.indexOf(".zip") != -1) {
@@ -57,9 +52,6 @@ class CsManagerClient {
             myDropzone.on("sending", async function (file, response, request) {
 
                 response.setRequestHeader('startpath',_this.startPath);                
-
-//                let entries = await (new zip.ZipReader(new zip.BlobReader(file))).getEntries();
-//                await Communicator.Util.sleep(10000);
             
             });
 
@@ -212,7 +204,7 @@ class CsManagerClient {
             rowContextMenu: rowMenu,          
             columns: [
                 { title: "ID", field: "id", visible: false, sorter: "number", headerSort: false },
-                { title: "", field: "image", formatter: "image", minWidth: 60, maxWidth: 60, responsive: 0, formatterParams: { width: "50px", height: "50px" } },
+                { title: "", field: "image", formatter: "image", minWidth: 60, maxWidth: 60, responsive: 0, formatterParams: { width: "55px", height: "45px" } },
                 { title: "Name", field: "name", formatter: "plaintext",vertAlign: "middle" },
                 { title: "Created", field: "created", formatter: "datetime", responsive: 2,vertAlign: "middle" },
                 {
@@ -243,8 +235,8 @@ class CsManagerClient {
         $("#dropzonewrapper").css('display', 'block');
         $("#zipcontentdiv").css('display', 'none');
         let myModal = new bootstrap.Modal(document.getElementById('uploadModal'));
-        myDropzone.removeAllFiles(true);
-        this.uploadTable.clearData();
+        // myDropzone.removeAllFiles(true);
+        // this.uploadTable.clearData();
 
         myModal.toggle();
     }

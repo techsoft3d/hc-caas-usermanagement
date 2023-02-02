@@ -982,7 +982,7 @@
 
 
 <div class="description">
-    <p>Create a new Project associated with the current user and Hub</p>
+    <p>Create a new Project associated to a hub</p>
 </div>
 
 
@@ -3186,7 +3186,7 @@
     
 
     
-    <h4 class="name" id="getProjects"><span class="type-signature">(async) </span>getProjects<span class="signature">()</span><span class="type-signature"> &rarr; {Object}</span></h4>
+    <h4 class="name" id="getProjects"><span class="type-signature">(async) </span>getProjects<span class="signature">(hubid)</span><span class="type-signature"> &rarr; {Object}</span></h4>
     
 
     
@@ -3194,7 +3194,7 @@
 
 
 <div class="description">
-    <p>Retrieves all projects associated with the current user and hub</p>
+    <p>Retrieves all projects associated with a hub</p>
 </div>
 
 
@@ -3203,6 +3203,55 @@
 
 
 
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>hubid</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Id of Hub</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
 
 
 
@@ -4626,7 +4675,7 @@
     
 
     
-    <h4 class="name" id="loadProject"><span class="type-signature">(async) </span>loadProject<span class="signature">(projectid)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="loadProject"><span class="type-signature">(async) </span>loadProject<span class="signature">(hubid, projectid)</span><span class="type-signature"></span></h4>
     
 
     
@@ -4666,6 +4715,29 @@
     </thead>
 
     <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>hubid</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Id of Hub*</p></td>
+        </tr>
+
     
 
         <tr>
@@ -5438,7 +5510,7 @@
     
 
     
-    <h4 class="name" id="renameProject"><span class="type-signature">(async) </span>renameProject<span class="signature">(projectid, name)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="renameProject"><span class="type-signature">(async) </span>renameProject<span class="signature">(hubid, projectid, name)</span><span class="type-signature"></span></h4>
     
 
     
@@ -5478,6 +5550,29 @@
     </thead>
 
     <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>hubid</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Id of Hub</p></td>
+        </tr>
+
     
 
         <tr>

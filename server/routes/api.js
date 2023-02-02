@@ -19,11 +19,11 @@ router.put('/customImage/:itemid', apiController.generateCustomImage);
 
 router.put('/deleteModel/:itemid', apiController.deleteModel);
 
-router.put('/newproject/:projectname', loginController.putNewProject);
+router.put('/newproject/:hubid/:name', loginController.putNewProject);
 router.put('/deleteproject/:projectid', loginController.putDeleteProject);
-router.put('/renameproject/:projectid/:newname', loginController.putRenameProject);
-router.put('/project/:projectid', loginController.putProject);
-router.get('/projects', loginController.getProjects);
+router.put('/renameproject/:hubid/:projectid/:newname', loginController.putRenameProject);
+router.put('/project/:hubid/:projectid', loginController.putProject);
+router.get('/projects/:hubid', loginController.getProjects);
 router.get('/projectusers/:projectid', loginController.getProjectUsers);
 router.put('/addProjectUser/:projectid/:userid/:role', loginController.addProjectUser);
 router.put('/deleteProjectUser/:projectid/:userid', loginController.deleteProjectUser);
