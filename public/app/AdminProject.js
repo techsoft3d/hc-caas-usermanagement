@@ -23,7 +23,7 @@ class AdminProject {
     }
 
     async renameProject() {
-        await myUserManagmentClient.renameProject(myUserManagmentClient.getCurrentHub().id, this.editProject.id, $("#editProjectName").val());
+        await myUserManagmentClient.renameProject(this.editProject.id, $("#editProjectName").val());
     }
 
     async newProject() {
@@ -39,7 +39,7 @@ class AdminProject {
 
     async loadProject(projectid) {
 
-        await myUserManagmentClient.loadProject(myUserManagmentClient.getCurrentHub().id, projectid);
+        await myUserManagmentClient.loadProject(projectid);
 
         $(".projectname").empty();
         $(".projectname").append(myUserManagmentClient.getCurrentProject().name);
