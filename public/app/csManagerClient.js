@@ -235,8 +235,8 @@ class CsManagerClient {
         $("#dropzonewrapper").css('display', 'block');
         $("#zipcontentdiv").css('display', 'none');
         let myModal = new bootstrap.Modal(document.getElementById('uploadModal'));
-        myDropzone.removeAllFiles(true);
-        this.uploadTable.clearData();
+        // myDropzone.removeAllFiles(true);
+        // this.uploadTable.clearData();
 
         myModal.toggle();
     }

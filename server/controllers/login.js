@@ -167,13 +167,13 @@ exports.putLogout = async (req, res, next) => {
 
 exports.putNewProject = async (req, res, next) => {
     
-    if (await checkHubAuthorized(req.session.caasUser.email, req.session.caasHub._id.toString(), 1)) {
+    if (await checkHubAuthorized(req.session.caasUser.email, req.params.hubid, 1)) {
 
         console.log("new project");
         const project = new Projects({
-            name: req.params.projectname,
+            name: req.params.name,
             users: [{ email: req.session.caasUser.email, role: 0 }],
-            hub: req.session.caasHub
+            hub: req.params.hubid
         });
 
         await project.save();
@@ -214,7 +214,7 @@ exports.putDeleteProject = async(req, res, next) => {
 
 exports.putRenameProject = async (req, res, next) => {
 
-    if (await checkHubAuthorized(req.session.caasUser.email, req.session.caasHub._id.toString(), 1)) {
+    if (await checkHubAuthorized(req.session.caasUser.email, req.params.hubid, 1)) {
 
         let item = await Projects.findOne({ "_id": req.params.projectid });
         item.name = req.params.newname;

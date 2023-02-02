@@ -1,6 +1,6 @@
 {
     "hc-caas-um": {
-      "mongodbURI": "mongodb://127.0.0.1:27017/caas_demo_app2"
+      "mongodbURI": "mongodb://127.0.0.1:27017/caas_demo_app"
     }
   }
   

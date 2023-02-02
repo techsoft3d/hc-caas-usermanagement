@@ -308,20 +308,21 @@ export class CaasUserManagementClient {
     }
     /**
               * Rename a Project
+              * @param  {string} hubid - Id of Hub
               * @param  {string} projectid - Id of Project
               * @param  {string} name - New Hub Project
               */
-    async renameProject(projectid, name) {
-        await fetch(this.serveraddress + '/caas_um_api/renameproject/' + projectid + "/" + name, { method: 'PUT' });
+    async renameProject(hubid, projectid, name) {
+        await fetch(this.serveraddress + '/caas_um_api/renameproject/' + hubid + "/" + projectid + "/" + name, { method: 'PUT' });
     }
 
     /**
-            * Create a new Project associated with the current user and Hub       
+            * Create a new Project associated to a hub
             * @param  {string} name - Name of new Project
             * @return {Object} Data about new Project  
             */
-    async createProject(name) {
-        let res = await fetch(this.serveraddress + '/caas_um_api/newproject/' + name, { method: 'PUT' });
+    async createProject(hubid, name) {
+        let res = await fetch(this.serveraddress + '/caas_um_api/newproject/' + hubid + "/" + name, { method: 'PUT' });
         let data = await res.json();
         return data;
     }
