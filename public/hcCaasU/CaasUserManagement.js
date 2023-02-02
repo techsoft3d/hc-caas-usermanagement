@@ -312,8 +312,8 @@ export class CaasUserManagementClient {
               * @param  {string} projectid - Id of Project
               * @param  {string} name - New Hub Project
               */
-    async renameProject(hubid, projectid, name) {
-        await fetch(this.serveraddress + '/caas_um_api/renameproject/' + hubid + "/" + projectid + "/" + name, { method: 'PUT' });
+    async renameProject(projectid, name) {
+        await fetch(this.serveraddress + '/caas_um_api/renameproject/' + projectid + "/" + name, { method: 'PUT' });
     }
 
     /**
@@ -340,8 +340,8 @@ export class CaasUserManagementClient {
          * @param  {string} hubid - Id of Hub* 
          * @param  {string} projectid - Id of Project
          */
-    async loadProject(hubid, projectid) {
-        let res = await fetch(this.serveraddress + '/caas_um_api/project/' + hubid + "/" + projectid, { method: 'PUT' });
+    async loadProject(projectid) {
+        let res = await fetch(this.serveraddress + '/caas_um_api/project/' + projectid, { method: 'PUT' });
         let data = await res.json();
         this.currentProject = data;
     }

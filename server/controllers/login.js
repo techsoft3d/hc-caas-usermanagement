@@ -167,7 +167,7 @@ exports.putLogout = async (req, res, next) => {
 
 exports.putNewProject = async (req, res, next) => {
     
-    if (await checkHubAuthorized(req.session.caasUser.email, req.params.hubid, 1)) {
+    if (await checkAuthorized(req.session.caasUser.email, req.params.hubid,null, 1)) {
 
         console.log("new project");
         const project = new Projects({
@@ -202,7 +202,7 @@ async function deleteOneProject(projectid, req) {
 
 exports.putDeleteProject = async(req, res, next) => {    
 
-    if (await checkHubAuthorized(req.session.caasUser.email, req.session.caasHub._id.toString(), 1)) {
+    if (await checkAuthorized(req.session.caasUser.email,null,req.params.projectid, 1)) {
         await deleteOneProject(req.params.projectid, req);
         res.sendStatus(200);   
     }
@@ -214,7 +214,7 @@ exports.putDeleteProject = async(req, res, next) => {
 
 exports.putRenameProject = async (req, res, next) => {
 
-    if (await checkHubAuthorized(req.session.caasUser.email, req.params.hubid, 1)) {
+    if (await checkAuthorized(req.session.caasUser.email, null,req.params.projectid, 1)) {
 
         let item = await Projects.findOne({ "_id": req.params.projectid });
         item.name = req.params.newname;
@@ -231,7 +231,7 @@ exports.putRenameProject = async (req, res, next) => {
 exports.putProject = async(req, res, next) => {    
 
     if (req.params.projectid != "none") {
-        let item = await Projects.findOne({ "users.email": req.session.caasUser.email,"hub": req.params.hubid, "_id": req.params.projectid });
+        let item = await Projects.findOne({ "users.email": req.session.caasUser.email, "_id": req.params.projectid });
         if (item) {
             req.session.caasProject = item;
             res.json({id:req.params.projectid, name:item.name});
@@ -357,7 +357,7 @@ async function addOneProjectUser(projectid, email, role) {
 
 exports.addProjectUser = async (req, res, next) => {
 
-    if (await checkHubAuthorized(req.session.caasUser.email,req.session.caasHub._id.toString(),1)) {
+    if (await checkAuthorized(req.session.caasUser.email,null,req.params.projectid,1)) {
         let role = 2;
         if (req.params.role == "Editor")
         {
@@ -388,7 +388,7 @@ async function deleteOneProjectUser(projectid, email) {
     await item.save();
 }
 exports.deleteProjectUser = async (req, res, next) => {
-    if (await checkHubAuthorized(req.session.caasUser.email,req.session.caasHub._id.toString(),1)) {
+    if (await checkAuthorized(req.session.caasUser.email,null,req.params.projectid,1)) {
         await deleteOneProjectUser(req.params.projectid, req.params.userid);     
         res.sendStatus(200);
     }
@@ -401,7 +401,7 @@ exports.deleteProjectUser = async (req, res, next) => {
 
 
 exports.updateProjectUser = async (req, res, next) => {
-    if (await checkHubAuthorized(req.session.caasUser.email,req.session.caasHub._id.toString(),1)) {
+    if (await checkAuthorized(req.session.caasUser.email,null,req.params.projectid,1)) {
 
         var item = await Projects.findOne({ "_id": req.params.projectid });
         let projectusers = item.users;
@@ -465,7 +465,7 @@ async function addOneHubUser(hubid, email, role,accepted) {
 
 exports.addHubUser = async (req, res, next) => {
 
-    if (await checkHubAuthorized(req.session.caasUser.email,req.params.hubid,1)) {
+    if (await checkAuthorized(req.session.caasUser.email,req.params.hubid,null,1)) {
         let role = 2;
         if (req.params.role == "Admin")
         {
@@ -484,7 +484,7 @@ exports.addHubUser = async (req, res, next) => {
 
 
 exports.putRenameHub = async (req, res, next) => {
-    if (await checkHubAuthorized(req.session.caasUser.email, req.params.hubid, 1)) {
+    if (await checkAuthorized(req.session.caasUser.email, req.params.hubid,null, 1)) {
         let item = await Hubs.findOne({ "_id": req.params.hubid });
         item.name = req.params.newname;
         item.save();
@@ -501,7 +501,7 @@ exports.putRenameHub = async (req, res, next) => {
 
 
 exports.deleteHubUser = async (req, res, next) => {
-    if (await checkHubAuthorized(req.session.caasUser.email,req.params.hubid,1)) {
+    if (await checkAuthorized(req.session.caasUser.email,req.params.hubid,null,1)) {
 
         var item = await Hubs.findOne({ "_id": req.params.hubid });
         let hubusers = item.users;
@@ -530,7 +530,7 @@ exports.deleteHubUser = async (req, res, next) => {
 
 
 exports.updateHubUser = async (req, res, next) => {
-    if (await checkHubAuthorized(req.session.caasUser.email,req.params.hubid,1)) {
+    if (await checkAuthorized(req.session.caasUser.email,req.params.hubid,null,1)) {
 
         var item = await Hubs.findOne({ "_id": req.params.hubid });
         let hubusers = item.users;
@@ -556,15 +556,21 @@ exports.updateHubUser = async (req, res, next) => {
 };
 
 
-async function checkHubAuthorized(email,hubid, role) {
+async function checkAuthorized(email,hubid,projectid, role) {
 
     if (config.get('hc-caas-um.demoMode')) {     
         return false;
     }
 
-    let hub = await Hubs.findOne({ "_id": hubid, "users": { $elemMatch: { "email": email, "role": { $lte: role } } } });
+    let found;
+    if (hubid) {
+        found = await Hubs.findOne({ "_id": hubid, "users": { $elemMatch: { "email": email, "role": { $lte: role } } } });
+    }
+    else {
+        found = await Projects.findOne({ "_id": projectid, "users": { $elemMatch: { "email": email, "role": { $lte: role } } } });
+    }
 
-    if (hub) {
+    if (found) {
         return true;
     }
     return false;
@@ -630,7 +636,7 @@ exports.putNewHub = async(req, res, next) => {
 
 exports.putHub = async (req, res, next) => {
 
-    if (req.params.hubid == "none" || await checkHubAuthorized(req.session.caasUser.email, req.params.hubid, 2)) {
+    if (req.params.hubid == "none" || await checkAuthorized(req.session.caasUser.email, req.params.hubid,null, 2)) {
         if (config.get('hc-caas-um.demoMode')) {
             res.json({ ERROR: "Not authorized." });
             return;

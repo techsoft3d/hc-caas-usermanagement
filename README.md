@@ -2,6 +2,7 @@
 
 ## Version Update (0.3.0) 
 * ZIP File Support in UI
+* Requires CaaS Version 0.9.11 or later
 
 ## Version Update (0.2.7) 
 * Support for multi-file upload for assemblies
