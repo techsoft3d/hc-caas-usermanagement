@@ -8,14 +8,23 @@ function paramNameForSend() {
 class CsManagerClient {
 
     static msready() {
+
         csManagerClient = new CsManagerClient();
         csManagerClient.initialize();
 
         let _this = csManagerClient;
+
+        $("#uploadModal").on("hidden.bs.modal", function () {
+            if (_this._zipViewActive) {
+                myDropzone.removeAllFiles(true);
+                _this.uploadTable.clearData();
+                _this._zipViewActive = false;
+            }
+        });
+
+
         if (!myUserManagmentClient.getUseDirectFetch()) {
 
-
-       
             myDropzone = new Dropzone("div#dropzonearea", { url: myUserManagmentClient.getUploadURL(), maxFiles: 500,  parallelUploads: 10,method:'post',timeout: 180000, uploadMultiple:false,autoProcessQueue:true,
                     addedfile: function(file) {
 
@@ -33,12 +42,27 @@ class CsManagerClient {
                     },
                     accept: async function (file, cb) {
                         if (file.name.indexOf(".zip") != -1) {
-                            await _this.chooseZipContent(file,cb);
+                            if (_this._zipViewActive) {
+                                _this.uploadTable.deleteRow(file.upload.uuid);
+                                myDropzone.removeFile(file);
+                            }
+                            else {
+                                await _this.chooseZipContent(file,cb);
+                            }
                         }
                         else {
                             cb();
                         }
-                    }                   
+                    },
+                     sending: function (file, xhr) {
+
+                    // console.log('sending');
+                    // var _send = xhr.send;
+                    // //            xhr.setRequestHeader('x-amz-acl', 'public-read');
+                    // xhr.send = function () {
+                    //     _send.call(xhr, file);
+                    // };
+                }               
             });
             myDropzone.on("success", async function (file, response) {
                 _this.uploadTable.deleteRow(file.upload.uuid);
@@ -134,10 +158,10 @@ class CsManagerClient {
 
             },
             columns: [               
-                { title: "Filename", field: "name", formatter: "plaintext" },
+                { title: "Filename", field: "name", formatter: "plaintext",sorter:"string" },
                 { title: "Type", field: "type", formatter: "plaintext",maxWidth: 80 },        
             ],
-        });
+        });    
      
     }
 
@@ -150,6 +174,7 @@ class CsManagerClient {
     async chooseZipContent(file, cb) {
         let _this = this;
         this._cb = cb;
+        this._zipViewActive = true;
         $("#standarduploaddiv").css('display', 'none');
         $("#dropzonewrapper").css('display', 'none');
         $("#zipcontentdiv").css('display', 'block');
@@ -166,6 +191,18 @@ class CsManagerClient {
                 this.zipTable.addData([{ name: entries[i].filename, type: extension }]);
             }
         }
+        this.zipTable.setSort([
+            {column:"name", dir:"asc"}
+        ]);
+
+        let rows = this.zipTable.getRows();
+        for (let i = 0; i < rows.length; i++) {
+
+            if (rows[i].getPrevRow() == 0) {
+                rows[i].select();
+                break;
+            }
+        }
     }
 
     zipFileSelected() {
@@ -175,6 +212,7 @@ class CsManagerClient {
             $("#zipcontentdiv").css('display', 'none');        
             $("#dropzonewrapper").css('display', 'block');
             this.startPath = selectedRows[0].getData().name;
+            this._zipViewActive = false;            
             this._cb();
         }
     }
