@@ -44,10 +44,14 @@
 
     <section>
         <article><h1>CaaS User Management (beta)</h1>
+<h2>Version Update (0.3.8)</h2>
+<ul>
+<li>Direct S3 Upload Support (single file and zip upload only)</li>
+<li>Requires CaaS Version 0.9.12 or later</li>
+</ul>
 <h2>Version Update (0.3.6)</h2>
 <ul>
 <li>Direct S3 Upload Support (single file upload only)</li>
-<li>Requires CaaS Version 0.9.12 or later</li>
 </ul>
 <h2>Version Update (0.3.0)</h2>
 <ul>
@@ -65,7 +69,7 @@
 <p>For questions/feedback please send an email to guido@techsoft3d.com or post in our <a href="https://forum.techsoft3d.com/">forum</a>. For a 60 day trial of the HOOPS Web Platform go to https://www.techsoft3d.com/products/hoops/web-platform.</p>
 <h2>Roadmap</h2>
 <ul>
-<li>Assembly and ZIP Upload Support for direct S3 upload</li>
+<li>Assembly Upload Support for direct S3 upload</li>
 <li>Email Flow for Signup</li>
 <li>Oauth2 Support</li>
 <li>More modular UI Design</li>
@@ -134,7 +138,7 @@ app.listen(3000);
 <h2>Additional Details on the Server</h2>
 <p>By default the CaaS User Management server will add its own REST end-points to your express app, which are all prefixed with <code>/caas_um_api</code>. It will also start its own database session as well as create a user-session for cookie management. If you are already using mongoose as your database you can provide its connection as the second parameter to the start function. In addition, the User Management Server can create its own session store for cookie based session management but you can choose to provide your own as well. In this case the user management library will expect a session to be present on the request object for all its REST API calls. If you allow the User Management server to create its own session store, you should provide an &quot;unguessable&quot; <code>sessionSecret</code> string for the session store, which will be used to sign the session cookies.</p>
 <h2>Security and User Accounts</h2>
-<p>Account management is provided out of the box, with a simple registration and login process, utilizing a straightforward encrypted password scheme. However it is easy to use the library with your own account management. To make this approach practical, the server-side module provides an easy way to retrieve all user account data, which gives you the ability to create and query accounts directly server-side, bypassing the REST API. This approach allows you to handle all account creation while still leveraging the library for managing the connection to CaaS as well as Hubs and Project. See below for an example on how to retrieve all user account data and add the user to the session object:</p>
+<p>Account management is provided out of the box, with a simple registration and login process, utilizing a straightforward encrypted password scheme. However it is easy to use the library with your own account management. To allow for this, the server-side library has a function to retrieve all user account data, which gives you the ability to create and query accounts directly server-side via mongoose, thereyby bypassing the REST API. This approach allows you to handle all account creation while still leveraging the library for managing the connection to CaaS as well as Hubs and Project. See below for an example on how to retrieve all user account data and add the user to the session object:</p>
 <pre class="prettyprint source"><code>app.put('/myLogin', async function (req, res, next) {
     //perform custom login procedure
     //...    

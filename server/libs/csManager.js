@@ -51,24 +51,27 @@ exports.process = async (tempid, filename, project,startpath) => {
 
 exports.processMultiple = async (infiles, startmodel, project) => {
 
+    let form = new FormData();
+
+    let size = 0;
+    for (let i = 0; i < infiles.length; i++) {
+        let tempid = infiles[i].destination.split("/")[1];
+        form.append('files', fs.createReadStream("./upload/" + tempid + "/" + infiles[i].originalname));
+        let stats = fs.statSync("./upload/" + tempid + "/" + infiles[i].originalname);
+        size += stats.size;        
+    }
+
     const item = new files({
         name: startmodel,
         converted: false,
         storageID: "NONE",
-        filesize: 0,
+        filesize: size,
         uploaded: new Date(),       
         project:project
 
     });
     await item.save();
     const modelid = item._id.toString();
-
-    let form = new FormData();
-
-    for (let i = 0; i < infiles.length; i++) {
-        let tempid = infiles[i].destination.split("/")[1];
-        form.append('files', fs.createReadStream("./upload/" + tempid + "/" + infiles[i].originalname));
-    }
 
     let api_arg  = {webhook:config.get('hc-caas-um.serverURI') + '/caas_um_api/webhook', rootFile:startmodel};    
         
