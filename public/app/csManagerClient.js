@@ -3,7 +3,7 @@ var myDropzone;
 
 function paramNameForSend() {
     return "files";
- }
+}
 
 class CsManagerClient {
 
@@ -23,128 +23,153 @@ class CsManagerClient {
         });
 
 
-        if (!myUserManagmentClient.getUseDirectFetch()) {
+        //        if (!myUserManagmentClient.getUseDirectFetch()) {
 
-            myDropzone = new Dropzone("div#dropzonearea", { url: myUserManagmentClient.getUploadURL(), maxFiles: 500,  parallelUploads: 10,method:'post',timeout: 180000, uploadMultiple:false,autoProcessQueue:true,
-                    addedfile: function(file) {
+        let directFetch = myUserManagmentClient.getUseDirectFetch();
+        if (directFetch) {
+            $("#uploadAsAssemblycheck").prop("disabled", true);
 
-                        let firstDot = file.name.indexOf(".");
-                        let extension = "";
-                        if (firstDot != -1) {
-                            extension = file.name.substring(firstDot + 1);
-                        }
-                        _this.uploadTable.addData([{ id:file.upload.uuid,name:file.name,type: extension, progress: 0 }]);
-                    },
-                    thumbnail: function(file, dataUrl) {
-                    },
-                    uploadprogress: function(file, progress, bytesSent) {
-                        _this.uploadTable.updateData([{ id: file.upload.uuid, progress: progress }]);
-                    },
-                    accept: async function (file, cb) {
-                        if (file.name.indexOf(".zip") != -1) {
-                            if (_this._zipViewActive) {
-                                _this.uploadTable.deleteRow(file.upload.uuid);
-                                myDropzone.removeFile(file);
-                            }
-                            else {
-                                await _this.chooseZipContent(file,cb);
-                            }
-                        }
-                        else {
-                            cb();
-                        }
-                    },
-                     sending: function (file, xhr) {
-
-                    // console.log('sending');
-                    // var _send = xhr.send;
-                    // //            xhr.setRequestHeader('x-amz-acl', 'public-read');
-                    // xhr.send = function () {
-                    //     _send.call(xhr, file);
-                    // };
-                }               
-            });
-            myDropzone.on("success", async function (file, response) {
-                _this.uploadTable.deleteRow(file.upload.uuid);
-                myDropzone.removeFile(file);
-            });       
-
-            myDropzone.on("successmultiple", async function (file, response) {
-                _this.uploadTable.clearData();
-            });       
-    
-            myDropzone.on("sending", async function (file, response, request) {
-
-                response.setRequestHeader('startpath',_this.startPath);                
-            
-            });
-
-            myDropzone.on("sendingmultiple", async function (file, response, request) {
-                var selectedRows = _this.uploadTable.getSelectedRows();
-                let name;
-                if (selectedRows.length != 0) {
-                    name = selectedRows[0].getData().name;
-                }
-                else {
-                    name = _this.uploadTable.getRows()[0].getData().name;
-                }
-
-                response.setRequestHeader('startmodel', name);
-            });
         }
-        else {
-            myDropzone = new Dropzone("div#dropzonearea", {
-                url: "#", timeout: 180000, method: "PUT",
-                accept: async function (file, cb) {
-                    let json = await myUserManagmentClient.getUploadToken(file.name,file.size);
-                    
+        myDropzone = new Dropzone("div#dropzonearea", {
+            url: directFetch ? "#" : myUserManagmentClient.getUploadURL(), maxFiles: 500, parallelUploads: 10, method: directFetch ? 'put':'post', timeout: 180000, uploadMultiple: false, autoProcessQueue: true,
+            addedfile: function (file) {
+
+                let firstDot = file.name.indexOf(".");
+                let extension = "";
+                if (firstDot != -1) {
+                    extension = file.name.substring(firstDot + 1);
+                }
+                _this.uploadTable.addData([{ id: file.upload.uuid, name: file.name, type: extension, progress: 0 }]);
+            },
+            thumbnail: function (file, dataUrl) {
+            },
+            uploadprogress: function (file, progress, bytesSent) {
+                _this.uploadTable.updateData([{ id: file.upload.uuid, progress: progress }]);
+            },
+            accept: async function (file, cb) {
+                if (directFetch) {
+                    let json = await myUserManagmentClient.getUploadToken(file.name, file.size);
+
                     file.itemid = json.itemid;
                     file.signedRequest = json.token;
                     cb();
+                }
+                else if (file.name.indexOf(".zip") != -1) {
 
-                }, sending: function (file, xhr) {
+                    if (_this._zipViewActive) {
+                        _this.uploadTable.deleteRow(file.upload.uuid);
+                        myDropzone.removeFile(file);
+                    }
+                    else {
+                        await _this.chooseZipContent(file, cb);
+                    }
+                }
+                else {
+                    cb();
+                }
+            },
+            sending: function (file, xhr) {
 
-                    console.log('sending');
+                if (directFetch) {
                     var _send = xhr.send;
                     //            xhr.setRequestHeader('x-amz-acl', 'public-read');
                     xhr.send = function () {
                         _send.call(xhr, file);
                     };
-                },
-                processing: function (file) {
+                }
+            },
+            processing: function (file) {
+                if (directFetch) {
                     this.options.url = file.signedRequest;
-                }                
-            });
+                }
+            }          
+        });
+        myDropzone.on("success", async function (file, response) {
+            if (directFetch) {
+                myUserManagmentClient.processUploadFromToken(file.itemid);
+            }
+            _this.uploadTable.deleteRow(file.upload.uuid);
+            myDropzone.removeFile(file);
+        });
 
-            myDropzone.on("success", async function (file, response) {
-                myUserManagmentClient.processUploadFromToken(file.itemid,$("#modelpath").val());
-                myDropzone.removeFile(file);
-            });
-        }
+        myDropzone.on("successmultiple", async function (file, response) {
+            _this.uploadTable.clearData();
+        });
+
+        myDropzone.on("sending", async function (file, response, request) {
+
+            response.setRequestHeader('startpath', _this.startPath);
+
+        });
+
+        myDropzone.on("sendingmultiple", async function (file, response, request) {
+            var selectedRows = _this.uploadTable.getSelectedRows();
+            let name;
+            if (selectedRows.length != 0) {
+                name = selectedRows[0].getData().name;
+            }
+            else {
+                name = _this.uploadTable.getRows()[0].getData().name;
+            }
+
+            response.setRequestHeader('startmodel', name);
+        });
+
+        // else {
+        //     myDropzone = new Dropzone("div#dropzonearea", {
+        //         url: "#", timeout: 180000, method: "PUT",
+        //         accept: async function (file, cb) {
+        //             let json = await myUserManagmentClient.getUploadToken(file.name,file.size);
+
+        //             file.itemid = json.itemid;
+        //             file.signedRequest = json.token;
+        //             cb();
+
+        //         }, sending: function (file, xhr) {
+
+        //             console.log('sending');
+        //             var _send = xhr.send;
+        //             //            xhr.setRequestHeader('x-amz-acl', 'public-read');
+        //             xhr.send = function () {
+        //                 _send.call(xhr, file);
+        //             };
+        //         },
+        //         processing: function (file) {
+        //             this.options.url = file.signedRequest;
+        //         }                
+        //     });
+
+        //     myDropzone.on("success", async function (file, response) {
+        //         myUserManagmentClient.processUploadFromToken(file.itemid,$("#modelpath").val());
+        //         myDropzone.removeFile(file);
+        //     });
+        // }
 
         csManagerClient.uploadTable = new Tabulator("#uploadtable", {
             layout: "fitColumns",
             responsiveLayout: "hide",
             cellVertAlign: "middle",
-            selectable: 1,           
+            selectable: 1,
             rowClick: function (e, row) {
                 var i = 0;
 
             },
             columns: [
                 { title: "ID", field: "id", visible: false, sorter: "number", headerSort: false },
-                { title: "Progress", field: "progress", formatter: "progress",maxWidth: 80,formatterParams: {
-                    legend: function(val) { 
-                        if (val > 0)  {
-                            return "";
+                {
+                    title: "Progress", field: "progress", formatter: "progress", maxWidth: 80, formatterParams: {
+                        legend: function (val) {
+                            if (val > 0) {
+                                return "";
+                            }
+                            else {
+                                return "Pending";
+                            }
                         }
-                        else {
-                            return "Pending";
-                        }
-                    }                  
-                }},
+                    }
+                },
                 { title: "Filename", field: "name", formatter: "plaintext" },
-                { title: "Type", field: "type", formatter: "plaintext",maxWidth: 80 },        
+                { title: "Type", field: "type", formatter: "plaintext", maxWidth: 80 },
             ],
         });
 
@@ -152,24 +177,23 @@ class CsManagerClient {
             layout: "fitColumns",
             responsiveLayout: "hide",
             cellVertAlign: "middle",
-            selectable: 1,           
+            selectable: 1,
             rowClick: function (e, row) {
                 var i = 0;
 
             },
-            columns: [               
-                { title: "Filename", field: "name", formatter: "plaintext",sorter:"string" },
-                { title: "Type", field: "type", formatter: "plaintext",maxWidth: 80 },        
+            columns: [
+                { title: "Filename", field: "name", formatter: "plaintext", sorter: "string" },
+                { title: "Type", field: "type", formatter: "plaintext", maxWidth: 80 },
             ],
-        });    
-     
+        });
+
     }
 
     constructor() {
         this._updatedTime = undefined;
         this._modelHash = [];
     }
-
 
     async chooseZipContent(file, cb) {
         let _this = this;
@@ -192,7 +216,7 @@ class CsManagerClient {
             }
         }
         this.zipTable.setSort([
-            {column:"name", dir:"asc"}
+            { column: "name", dir: "asc" }
         ]);
 
         let rows = this.zipTable.getRows();
@@ -209,10 +233,10 @@ class CsManagerClient {
         var selectedRows = this.zipTable.getSelectedRows();
         if (selectedRows.length == 1) {
             $("#standarduploaddiv").css('display', 'block');
-            $("#zipcontentdiv").css('display', 'none');        
+            $("#zipcontentdiv").css('display', 'none');
             $("#dropzonewrapper").css('display', 'block');
             this.startPath = selectedRows[0].getData().name;
-            this._zipViewActive = false;            
+            this._zipViewActive = false;
             this._cb();
         }
     }
@@ -239,14 +263,14 @@ class CsManagerClient {
             responsiveLayout: "hide",
             cellVertAlign: "middle",
             selectable: 1,
-            rowContextMenu: rowMenu,          
+            rowContextMenu: rowMenu,
             columns: [
                 { title: "ID", field: "id", visible: false, sorter: "number", headerSort: false },
                 { title: "", field: "image", formatter: "image", minWidth: 60, maxWidth: 60, responsive: 0, formatterParams: { width: "55px", height: "45px" } },
-                { title: "Name", field: "name", formatter: "plaintext",vertAlign: "middle" },
-                { title: "Created", field: "created", formatter: "datetime", responsive: 2,vertAlign: "middle" },
+                { title: "Name", field: "name", formatter: "plaintext", vertAlign: "middle" },
+                { title: "Created", field: "created", formatter: "datetime", responsive: 2, vertAlign: "middle" },
                 {
-                    title: "Size", field: "size", formatter: "money", responsive: 2, maxWidth: 80,vertAlign: "middle", formatterParams: {
+                    title: "Size", field: "size", formatter: "money", responsive: 2, maxWidth: 80, vertAlign: "middle", formatterParams: {
                         decimal: ".",
                         thousand: "",
                         symbol: "MB",
@@ -257,11 +281,11 @@ class CsManagerClient {
             ],
         });
 
-        this.modelTable.on("rowSelected", function(row){
+        this.modelTable.on("rowSelected", function (row) {
             let data = row.getData();
             _this.loadModel(data.id);
         });
-      
+
         setInterval(async function () {
             await _this._checkForNewModels();
         }, 2000);
@@ -321,7 +345,7 @@ class CsManagerClient {
     async _fetchImage(data) {
         let image;
         if (myUserManagmentClient.getUseDirectFetch()) {
-            let json = myUserManagmentClient.getDownloadToken(data.id, "png");
+            let json = await myUserManagmentClient.getDownloadToken(data.id, "png");
             if (!json.error) {
                 image = await fetch(json.token);
             }
@@ -340,7 +364,7 @@ class CsManagerClient {
     }
 
     async _updateModelList(data) {
-          
+
 
         for (var i = 0; i < data.length; i++) {
             let part = null;
@@ -348,7 +372,7 @@ class CsManagerClient {
                 part = this._fetchImage(data[i]);
             }
 
-            if (!this._modelHash[data[i].id]) {               
+            if (!this._modelHash[data[i].id]) {
                 this._modelHash[data[i].id] = { nodeid: null, name: data[i].name, image: part, filesize: data[i].filesize, uploaded: data[i].uploaded };
                 this.modelTable.addData([{
                     id: data[i].id, name: this._modelHash[data[i].id].name, created: luxon.DateTime.fromISO(this._modelHash[data[i].id].uploaded),
@@ -361,9 +385,9 @@ class CsManagerClient {
                     this.modelTable.updateData([{ id: data[i].id, image: part }]);
                 }
             }
-        }    
+        }
     }
-   
+
     async loadModel(modelid) {
         hwv.model.clear();
         if (this._modelHash[modelid].name.indexOf(".dwg")) {
@@ -379,12 +403,12 @@ class CsManagerClient {
             }
             else {
                 byteArray = await myUserManagmentClient.getSCS(modelid);
-            }           
+            }
             await hwv.model.loadSubtreeFromScsBuffer(hwv.model.getRootNode(), byteArray);
         }
         else {
             await myUserManagmentClient.enableStreamAccess(modelid);
             await hwv.model.loadSubtreeFromModel(hwv.model.getRootNode(), this._modelHash[modelid].name);
-        }        
+        }
     }
 }
