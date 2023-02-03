@@ -1,8 +1,11 @@
 # CaaS User Management (beta)
 
+## Version Update (0.3.6) 
+* Direct S3 Upload Support (single file upload only)
+* Requires CaaS Version 0.9.12 or later
+
 ## Version Update (0.3.0) 
 * ZIP File Support in UI
-* Requires CaaS Version 0.9.11 or later
 
 ## Version Update (0.2.7) 
 * Support for multi-file upload for assemblies
@@ -17,7 +20,7 @@ The library consists of three components, the server-side node.js library you ca
 For questions/feedback please send an email to guido@techsoft3d.com or post in our [forum](https://forum.techsoft3d.com/). For a 60 day trial of the HOOPS Web Platform go to https://www.techsoft3d.com/products/hoops/web-platform.
 
 ## Roadmap
-* Multi-file Upload Support for direct S3 upload
+* Assembly and ZIP Upload Support for direct S3 upload
 * Email Flow for Signup 
 * Oauth2 Support
 * More modular UI Design

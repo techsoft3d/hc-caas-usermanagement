@@ -302,7 +302,7 @@ export class CaasUserManagementClient {
             * Leave currently active Project        
             */
     async leaveProject() {
-        await fetch(this.serveraddress + '/caas_um_api/project/none/none', { method: 'PUT' });
+        await fetch(this.serveraddress + '/caas_um_api/project/none', { method: 'PUT' });
         this.currentProject = null;
 
     }
@@ -420,7 +420,7 @@ export class CaasUserManagementClient {
             * @param  {string} itemid - File Id
             * @param  {string} startpath (if zipped assembly)
             */
-    processUploadFromToken(itemid, startpath) {
+    processUploadFromToken(itemid, startpath = "") {
         fetch(this.serveraddress + '/caas_um_api/processToken/' + itemid, { method: 'PUT', headers: { 'startpath': startpath } });
     }
 
