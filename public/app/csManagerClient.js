@@ -46,15 +46,9 @@ class CsManagerClient {
             uploadprogress: function (file, progress, bytesSent) {
                 _this.uploadTable.updateData([{ id: file.upload.uuid, progress: progress }]);
             },
-            accept: async function (file, cb) {
-                if (directFetch) {
-                    let json = await myUserManagmentClient.getUploadToken(file.name, file.size);
+            accept: async function (file, cb) {               
 
-                    file.itemid = json.itemid;
-                    file.signedRequest = json.token;
-                    cb();
-                }
-                else if (file.name.indexOf(".zip") != -1) {
+                if (file.name.indexOf(".zip") != -1) {
 
                     if (_this._zipViewActive) {
                         _this.uploadTable.deleteRow(file.upload.uuid);
@@ -65,6 +59,13 @@ class CsManagerClient {
                     }
                 }
                 else {
+                    if (directFetch) {
+                        let json = await myUserManagmentClient.getUploadToken(file.name, file.size);
+    
+                        file.itemid = json.itemid;
+                        file.signedRequest = json.token;                   
+                    }
+                    
                     cb();
                 }
             },
@@ -86,7 +87,7 @@ class CsManagerClient {
         });
         myDropzone.on("success", async function (file, response) {
             if (directFetch) {
-                myUserManagmentClient.processUploadFromToken(file.itemid);
+                myUserManagmentClient.processUploadFromToken(file.itemid, _this.startPath);
             }
             _this.uploadTable.deleteRow(file.upload.uuid);
             myDropzone.removeFile(file);
@@ -114,37 +115,7 @@ class CsManagerClient {
 
             response.setRequestHeader('startmodel', name);
         });
-
-        // else {
-        //     myDropzone = new Dropzone("div#dropzonearea", {
-        //         url: "#", timeout: 180000, method: "PUT",
-        //         accept: async function (file, cb) {
-        //             let json = await myUserManagmentClient.getUploadToken(file.name,file.size);
-
-        //             file.itemid = json.itemid;
-        //             file.signedRequest = json.token;
-        //             cb();
-
-        //         }, sending: function (file, xhr) {
-
-        //             console.log('sending');
-        //             var _send = xhr.send;
-        //             //            xhr.setRequestHeader('x-amz-acl', 'public-read');
-        //             xhr.send = function () {
-        //                 _send.call(xhr, file);
-        //             };
-        //         },
-        //         processing: function (file) {
-        //             this.options.url = file.signedRequest;
-        //         }                
-        //     });
-
-        //     myDropzone.on("success", async function (file, response) {
-        //         myUserManagmentClient.processUploadFromToken(file.itemid,$("#modelpath").val());
-        //         myDropzone.removeFile(file);
-        //     });
-        // }
-
+      
         csManagerClient.uploadTable = new Tabulator("#uploadtable", {
             layout: "fitColumns",
             responsiveLayout: "hide",
@@ -199,6 +170,7 @@ class CsManagerClient {
         let _this = this;
         this._cb = cb;
         this._zipViewActive = true;
+        this._zipFile = file;
         $("#standarduploaddiv").css('display', 'none');
         $("#dropzonewrapper").css('display', 'none');
         $("#zipcontentdiv").css('display', 'block');
@@ -229,14 +201,19 @@ class CsManagerClient {
         }
     }
 
-    zipFileSelected() {
-        var selectedRows = this.zipTable.getSelectedRows();
+    async zipFileSelected() {
+        let selectedRows = this.zipTable.getSelectedRows();
         if (selectedRows.length == 1) {
             $("#standarduploaddiv").css('display', 'block');
             $("#zipcontentdiv").css('display', 'none');
             $("#dropzonewrapper").css('display', 'block');
             this.startPath = selectedRows[0].getData().name;
             this._zipViewActive = false;
+            if (myUserManagmentClient.getUseDirectFetch()) {
+                let json = await myUserManagmentClient.getUploadToken(this._zipFile.name, this._zipFile.size);
+                this._zipFile.itemid = json.itemid;
+                this._zipFile.signedRequest = json.token;
+            }
             this._cb();
         }
     }
@@ -396,8 +373,8 @@ class CsManagerClient {
         if (!myUserManagmentClient.getUseStreaming()) {
             let byteArray;
             if (myUserManagmentClient.getUseDirectFetch()) {
-                let json = myUserManagmentClient.getDownloadToken(modelid, "scs");
-                res = await fetch(json.token);
+                let json = await myUserManagmentClient.getDownloadToken(modelid, "scs");
+                let res = await fetch(json.token);
                 let ab = await res.arrayBuffer();
                 byteArray = new Uint8Array(ab);
             }

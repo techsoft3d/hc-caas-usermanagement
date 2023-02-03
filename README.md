@@ -1,8 +1,11 @@
 # CaaS User Management (beta)
 
+## Version Update (0.3.8) 
+* Direct S3 Upload Support (single file and zip upload only)
+* Requires CaaS Version 0.9.12 or later
+
 ## Version Update (0.3.6) 
 * Direct S3 Upload Support (single file upload only)
-* Requires CaaS Version 0.9.12 or later
 
 ## Version Update (0.3.0) 
 * ZIP File Support in UI
@@ -20,7 +23,7 @@ The library consists of three components, the server-side node.js library you ca
 For questions/feedback please send an email to guido@techsoft3d.com or post in our [forum](https://forum.techsoft3d.com/). For a 60 day trial of the HOOPS Web Platform go to https://www.techsoft3d.com/products/hoops/web-platform.
 
 ## Roadmap
-* Assembly and ZIP Upload Support for direct S3 upload
+* Assembly Upload Support for direct S3 upload
 * Email Flow for Signup 
 * Oauth2 Support
 * More modular UI Design
@@ -95,7 +98,7 @@ By default the CaaS User Management server will add its own REST end-points to y
 
 
 ## Security and User Accounts
-Account management is provided out of the box, with a simple registration and login process, utilizing a straightforward encrypted password scheme. However it is easy to use the library with your own account management. To make this approach practical, the server-side module provides an easy way to retrieve all user account data, which gives you the ability to create and query accounts directly server-side, bypassing the REST API. This approach allows you to handle all account creation while still leveraging the library for managing the connection to CaaS as well as Hubs and Project. See below for an example on how to retrieve all user account data and add the user to the session object:
+Account management is provided out of the box, with a simple registration and login process, utilizing a straightforward encrypted password scheme. However it is easy to use the library with your own account management. To allow for this, the server-side library has a function to retrieve all user account data, which gives you the ability to create and query accounts directly server-side via mongoose, thereyby bypassing the REST API. This approach allows you to handle all account creation while still leveraging the library for managing the connection to CaaS as well as Hubs and Project. See below for an example on how to retrieve all user account data and add the user to the session object:
 
 ```
 app.put('/myLogin', async function (req, res, next) {
