@@ -86,7 +86,7 @@ export class CaasUserManagementClient {
          * @return {object} Server Configuration
          */
     async getConfiguration() {
-        let res = await fetch(this.serveraddress + '/caas_um_api/configuration');
+        let res = await fetch(this.serveraddress + '/caas_um_api/configuration',{  credentials: "include"});
         let data = await res.json();
         this.useDirectFetch = data.useDirectFetch;
         this.useStreaming = data.useStreaming;
@@ -99,7 +99,7 @@ export class CaasUserManagementClient {
             * @return {bool} true if logged in
             */
     async checkLogin() {
-        let res = await fetch(this.serveraddress + '/caas_um_api/checklogin');
+        let res = await fetch(this.serveraddress + '/caas_um_api/checklogin',{  credentials: "include"});
         let data = await res.json();
         if (data.succeeded) {
             this.currentUser = data.user;
@@ -127,7 +127,7 @@ export class CaasUserManagementClient {
             * Logout currently active user        
             */
     async logout() {
-        await fetch(this.serveraddress + '/caas_um_api/logout/', { method: 'PUT' });
+        await fetch(this.serveraddress + '/caas_um_api/logout/', {  credentials: "include", method: 'PUT' });
 
     }
 
@@ -170,7 +170,7 @@ export class CaasUserManagementClient {
     async login(email, password) {
 
 
-        let response = await fetch(this.serveraddress + '/caas_um_api/login/' + email + '/' + password, { method: 'PUT' });
+        let response = await fetch(this.serveraddress + '/caas_um_api/login/' + email + '/' + password, {  credentials: "include", method: 'PUT' });
         response = await response.json();
         if (response.ERROR) {
 
@@ -188,7 +188,7 @@ export class CaasUserManagementClient {
             * Leave currently active Hub        
             */
     async leaveHub() {
-        await fetch(this.serveraddress + '/caas_um_api/hub/none', { method: 'PUT' });
+        await fetch(this.serveraddress + '/caas_um_api/hub/none', {   credentials: "include",method: 'PUT' });
 
         this.currentProject = null;
         this.currentHub = null;
@@ -201,7 +201,7 @@ export class CaasUserManagementClient {
             */
     async getHubs() {
 
-        let response = await fetch(this.serveraddress + '/caas_um_api/hubs');
+        let response = await fetch(this.serveraddress + '/caas_um_api/hubs',{ credentials: "include"});
         let hubs = await response.json();
         return hubs;
     }
@@ -212,7 +212,7 @@ export class CaasUserManagementClient {
             * @param  {string} name - New Hub Name
             */
     async renameHub(hubid, name) {
-        await fetch(this.serveraddress + '/caas_um_api/renameHub/' + hubid + "/" + name, { method: 'PUT' });
+        await fetch(this.serveraddress + '/caas_um_api/renameHub/' + hubid + "/" + name, { credentials: "include",method: 'PUT' });
     }
 
     /**
@@ -221,7 +221,7 @@ export class CaasUserManagementClient {
             * @return {Object} Data about new Hub  
             */
     async createHub(name) {
-        let res = await fetch(this.serveraddress + '/caas_um_api/newhub/' + name, { method: 'PUT' });
+        let res = await fetch(this.serveraddress + '/caas_um_api/newhub/' + name, { credentials: "include",method: 'PUT' });
         let data = await res.json();
         return data;
     }
@@ -232,7 +232,7 @@ export class CaasUserManagementClient {
             */
     async loadHub(hubid) {
 
-        let res = await fetch(this.serveraddress + '/caas_um_api/hub/' + hubid, { method: 'PUT' });
+        let res = await fetch(this.serveraddress + '/caas_um_api/hub/' + hubid, { credentials: "include",method: 'PUT' });
 
         let hubinfo = await res.json();
         this.currentHub = hubinfo;
@@ -244,7 +244,7 @@ export class CaasUserManagementClient {
             * @return {Object} Users associated with Hub
             */
     async getHubUsers(hubid) {
-        let response = await fetch(this.serveraddress + '/caas_um_api/hubusers/' + hubid);
+        let response = await fetch(this.serveraddress + '/caas_um_api/hubusers/' + hubid,{  credentials: "include"});
         return await response.json();
     }
 
@@ -255,7 +255,7 @@ export class CaasUserManagementClient {
             * @param  {string} role - User Role ("User" "Admin", "Owner")
             */
     async addHubUser(hubid, email, role) {
-        await fetch(this.serveraddress + '/caas_um_api/addHubUser/' + hubid + "/" + email + "/" + role, { method: 'PUT' });
+        await fetch(this.serveraddress + '/caas_um_api/addHubUser/' + hubid + "/" + email + "/" + role, { credentials: "include",method: 'PUT' });
     }
 
     /**
@@ -265,7 +265,7 @@ export class CaasUserManagementClient {
             * @param  {string} role - User Role ("User" "Admin", "Owner")
             */
     async updateHubUser(hubid, email, role) {
-        await fetch(this.serveraddress + '/caas_um_api/updateHubUser/' + hubid + "/" + email + "/" + role, { method: 'PUT' });
+        await fetch(this.serveraddress + '/caas_um_api/updateHubUser/' + hubid + "/" + email + "/" + role, { credentials: "include", method: 'PUT' });
     }
 
     /**
@@ -275,7 +275,7 @@ export class CaasUserManagementClient {
             */
     async deleteHubUser(hubid, email) {
 
-        await fetch(this.serveraddress + '/caas_um_api/deleteHubUser/' + hubid + "/" + email, { method: 'PUT' });
+        await fetch(this.serveraddress + '/caas_um_api/deleteHubUser/' + hubid + "/" + email, { credentials: "include", method: 'PUT' });
     }
 
     /**
@@ -284,7 +284,7 @@ export class CaasUserManagementClient {
             */
     async deleteHub(hubid) {
 
-        await fetch(this.serveraddress + '/caas_um_api/deleteHub/' + hubid, { method: 'PUT' });
+        await fetch(this.serveraddress + '/caas_um_api/deleteHub/' + hubid, { credentials: "include", method: 'PUT' });
     }
 
     /**
@@ -293,7 +293,7 @@ export class CaasUserManagementClient {
             * @param  {string} email - User email
             */
     async acceptHub(hubid, email) {
-        await fetch(this.serveraddress + '/caas_um_api/acceptHub/' + hubid + "/" + email, { method: 'PUT' });
+        await fetch(this.serveraddress + '/caas_um_api/acceptHub/' + hubid + "/" + email, { credentials: "include", method: 'PUT' });
         this.refreshHubTable();
     }
 
@@ -302,7 +302,7 @@ export class CaasUserManagementClient {
             * Leave currently active Project        
             */
     async leaveProject() {
-        await fetch(this.serveraddress + '/caas_um_api/project/none', { method: 'PUT' });
+        await fetch(this.serveraddress + '/caas_um_api/project/none', { credentials: "include", method: 'PUT' });
         this.currentProject = null;
 
     }
@@ -313,7 +313,7 @@ export class CaasUserManagementClient {
               * @param  {string} name - New Hub Project
               */
     async renameProject(projectid, name) {
-        await fetch(this.serveraddress + '/caas_um_api/renameproject/' + projectid + "/" + name, { method: 'PUT' });
+        await fetch(this.serveraddress + '/caas_um_api/renameproject/' + projectid + "/" + name, { credentials: "include", method: 'PUT' });
     }
 
     /**
@@ -322,7 +322,7 @@ export class CaasUserManagementClient {
             * @return {Object} Data about new Project  
             */
     async createProject(hubid, name) {
-        let res = await fetch(this.serveraddress + '/caas_um_api/newproject/' + hubid + "/" + name, { method: 'PUT' });
+        let res = await fetch(this.serveraddress + '/caas_um_api/newproject/' + hubid + "/" + name, { credentials: "include", method: 'PUT' });
         let data = await res.json();
         return data;
     }
@@ -332,7 +332,7 @@ export class CaasUserManagementClient {
             * @param  {string} projectid - Id of Project
             */
     async deleteProject(projectid) {
-        await fetch(this.serveraddress + '/caas_um_api/deleteproject/' + projectid, { method: 'PUT' });
+        await fetch(this.serveraddress + '/caas_um_api/deleteproject/' + projectid, { credentials: "include", method: 'PUT' });
     }
 
     /**
@@ -341,7 +341,7 @@ export class CaasUserManagementClient {
          * @param  {string} projectid - Id of Project
          */
     async loadProject(projectid) {
-        let res = await fetch(this.serveraddress + '/caas_um_api/project/' + projectid, { method: 'PUT' });
+        let res = await fetch(this.serveraddress + '/caas_um_api/project/' + projectid, { credentials: "include",method: 'PUT' });
         let data = await res.json();
         this.currentProject = data;
     }
@@ -353,7 +353,7 @@ export class CaasUserManagementClient {
             */
     async getProjects(hubid) {
 
-        let response = await fetch(this.serveraddress + '/caas_um_api/projects/' + hubid);
+        let response = await fetch(this.serveraddress + '/caas_um_api/projects/' + hubid,{ credentials: "include"});
         let projects = await response.json();
         return projects;
     }
@@ -364,7 +364,7 @@ export class CaasUserManagementClient {
             * @return {Object} Users associated with Hub
             */
     async getProjectUsers(projectid) {
-        let response = await fetch(this.serveraddress + '/caas_um_api/projectusers/' + projectid);
+        let response = await fetch(this.serveraddress + '/caas_um_api/projectusers/' + projectid,{ credentials: "include",});
         let projectusers = await response.json();
         return projectusers;
     }
@@ -377,7 +377,7 @@ export class CaasUserManagementClient {
             * @param  {string} role - User Role ("User" "Admin", "Owner")
             */
     async addProjectUser(projectid, email, role) {
-        await fetch(this.serveraddress + '/caas_um_api/addProjectUser/' + projectid + "/" + email + "/" + role, { method: 'PUT' });
+        await fetch(this.serveraddress + '/caas_um_api/addProjectUser/' + projectid + "/" + email + "/" + role, { credentials: "include", method: 'PUT' });
     }
 
 
@@ -388,7 +388,7 @@ export class CaasUserManagementClient {
             * @param  {string} role - User Role ("User" "Admin", "Owner")
             */
     async updateProjectUser(projectid, email, role) {
-        let res = await fetch(this.serveraddress + '/caas_um_api/updateProjectUser/' + projectid + "/" + email + "/" + role, { method: 'PUT' });
+        let res = await fetch(this.serveraddress + '/caas_um_api/updateProjectUser/' + projectid + "/" + email + "/" + role, { credentials: "include", method: 'PUT' });
     }
 
 
@@ -398,7 +398,7 @@ export class CaasUserManagementClient {
             * @param  {string} email - User email
             */
     async deleteProjectUser(projectid, email) {
-        await fetch(this.serveraddress + '/caas_um_api/deleteProjectUser/' + projectid + "/" + email, { method: 'PUT' });
+        await fetch(this.serveraddress + '/caas_um_api/deleteProjectUser/' + projectid + "/" + email, { credentials: "include", method: 'PUT' });
     }
 
 
@@ -409,7 +409,7 @@ export class CaasUserManagementClient {
             * @return {Object} Upload Token
             */
     async getUploadToken(name, size) {
-        let data = await fetch(this.serveraddress + '/caas_um_api/uploadToken/' + name + "/" + size);
+        let data = await fetch(this.serveraddress + '/caas_um_api/uploadToken/' + name + "/" + size,{ credentials: "include",});
         let json = await data.json();
         return json;
     }
@@ -421,7 +421,7 @@ export class CaasUserManagementClient {
             * @param  {string} startpath (if zipped assembly)
             */
     processUploadFromToken(itemid, startpath = "") {
-        fetch(this.serveraddress + '/caas_um_api/processToken/' + itemid, { method: 'PUT', headers: { 'startpath': startpath } });
+        fetch(this.serveraddress + '/caas_um_api/processToken/' + itemid, { credentials: "include", method: 'PUT', headers: { 'startpath': startpath } });
     }
 
 
@@ -430,7 +430,7 @@ export class CaasUserManagementClient {
             * @return {Object} List of models
             */
     async getModels() {
-        let res = await fetch(this.serveraddress + '/caas_um_api/models');
+        let res = await fetch(this.serveraddress + '/caas_um_api/models',{ credentials: "include",});
         let data = await res.json();
         return data;
     }
@@ -443,7 +443,7 @@ export class CaasUserManagementClient {
             * @return {Object} Download Token
             */
     async getDownloadToken(itemid, type) {
-        let res = await fetch(this.serveraddress + '/caas_um_api/downloadToken/' + itemid + "/" + type);
+        let res = await fetch(this.serveraddress + '/caas_um_api/downloadToken/' + itemid + "/" + type,{ credentials: "include"});
         let json = await res.json();
         return json;
     }
@@ -455,7 +455,7 @@ export class CaasUserManagementClient {
             * @return {Object} Image
             */
     async getPNG(itemid) {
-        let image = await fetch(this.serveraddress + '/caas_um_api/png/' + itemid);
+        let image = await fetch(this.serveraddress + '/caas_um_api/png/' + itemid,{ credentials: "include"});
         return image;
     }
 
@@ -465,7 +465,7 @@ export class CaasUserManagementClient {
             * @return {Object} Scs data
             */
     async getSCS(itemid) {
-        let res = await fetch(this.serveraddress + '/caas_um_api/scs/' + itemid);
+        let res = await fetch(this.serveraddress + '/caas_um_api/scs/' + itemid,{ credentials: "include"});
         let ab = await res.arrayBuffer();
         let byteArray = new Uint8Array(ab);
         return byteArray;
@@ -477,7 +477,7 @@ export class CaasUserManagementClient {
             */
 
     async enableStreamAccess(itemid) {
-        await fetch(this.serveraddress + '/caas_um_api/enableStreamAccess/' + itemid, { method: 'PUT' });
+        await fetch(this.serveraddress + '/caas_um_api/enableStreamAccess/' + itemid, { credentials: "include", method: 'PUT' });
     }
 
 
@@ -486,7 +486,7 @@ export class CaasUserManagementClient {
             * @param  {string} itemid - File Id       
             */
     async deleteModel(itemid) {
-        await fetch(this.serveraddress + '/caas_um_api/deleteModel/' + itemid, { method: 'PUT' });
+        await fetch(this.serveraddress + '/caas_um_api/deleteModel/' + itemid, { credentials: "include", method: 'PUT' });
     }
 
 
@@ -506,7 +506,7 @@ export class CaasUserManagementClient {
         }
         else {
 
-            let res = await fetch(this.serveraddress + '/caas_um_api/streamingSession');
+            let res = await fetch(this.serveraddress + '/caas_um_api/streamingSession',{ credentials: "include"});
             let data = await res.json();
 
             viewer = new Communicator.WebViewer({
