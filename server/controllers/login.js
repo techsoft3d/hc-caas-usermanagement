@@ -33,12 +33,9 @@ async function copyStarterProject(user,hub)
                 project: newproject,
                 name: allFiles[i].name,
                 converted: true,
-                storageid: allFiles[i].storageid,
+                storageID: allFiles[i].storageID,
                 filesize: allFiles[i].filesize,
-                hasStep: allFiles[i].hasStep,
-                hasFBX: allFiles[i].hasFBX,
-                hasHSF: allFiles[i].hasHSF,
-                uploaded: allFiles[i].uploaded,              
+                customData: allFiles[i].customData
             });
             await newfile.save();            
         }
@@ -46,6 +43,32 @@ async function copyStarterProject(user,hub)
     }
     return newproject;
 }
+
+
+
+async function copyStarterFilesIntoProject(projectid)
+{
+    let newproject = null;
+    let project = await Projects.findOne({ "_id": config.get('hc-caas-um.demoProject') });
+    if (project) {
+             
+        let allFiles = await files.find({ "project": project });
+        for (let i = 0; i < allFiles.length; i++) {
+            let newfile = new files({
+                project: projectid,
+                name: allFiles[i].name,
+                converted: true,
+                storageID: allFiles[i].storageID,
+                filesize: allFiles[i].filesize,
+                uploaded: allFiles[i].uploaded,
+                customData: allFiles[i].customData
+            });
+            await newfile.save();            
+        }
+
+    }
+}   
+
 
 exports.postRegister = async(req, res, next) => {
     if (config.get('hc-caas-um.demoMode')) {
@@ -111,6 +134,7 @@ exports.putLogin = async(req, res, next) => {
                         hub: null
                     });
                     await sessionProject.save();
+                    await copyStarterFilesIntoProject(sessionProject.id);
                 }
 
             }

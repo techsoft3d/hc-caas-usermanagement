@@ -177,8 +177,11 @@ exports.getSCS = async (itemid,project) => {
 exports.deleteModel = async (itemid, project) => {
     let item = await files.findOne({ "_id": itemid, project:project });
     if (item) {
-        res = await fetch(conversionServiceURI + '/api/delete/' + item.storageID, { method: 'put'});
         await files.deleteOne({ "_id": itemid });
+        let items = await files.find({ "storageID": item.storageID });
+        if (items.length == 0) {
+            res = await fetch(conversionServiceURI + '/api/delete/' + item.storageID, { method: 'put'});
+        }
         _updated();
     }
 };
