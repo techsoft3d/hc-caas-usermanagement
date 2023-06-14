@@ -1,8 +1,6 @@
 {
     "hc-caas-um": {
-      "mongodbURI": "mongodb://127.0.0.1:27017/caas_demo_app",
-      "createSessionProject": true,
-      "demoProject":"648855c5120c01233abb7322"
+      "mongodbURI": "mongodb://127.0.0.1:27017/caas_demo_app"
     }
   }
   
