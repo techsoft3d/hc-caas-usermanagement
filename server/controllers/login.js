@@ -139,7 +139,7 @@ exports.putLogin = async(req, res, next) => {
 
             }
             req.session.caasUser = item; 
-            res.json({succeeded:true, user:{email:req.session.caasUser.email}, sessionProject:sessionProject.id});
+            res.json({succeeded:true, user:{email:req.session.caasUser.email}, sessionProject:sessionProject ? sessionProject.id : null});
         }
         else
             res.json({ERROR:"Wrong password"});
