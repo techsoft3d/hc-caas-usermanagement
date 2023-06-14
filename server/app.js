@@ -45,7 +45,7 @@ exports.start = async function (app, mongoose_in, options = { createSession: tru
   const loginRoutes = require('./routes/login');
 
   let csmanager = require('./libs/csManager');
-  app.use(cors());
+  app.use(cors({ credentials: true, origin: true }));
   app.use(express.json({ limit: '25mb' }));
   app.use(express.urlencoded({ limit: '25mb', extended: false }));
 
@@ -80,8 +80,6 @@ exports.start = async function (app, mongoose_in, options = { createSession: tru
     app.post('/caas_um_api/uploadArray',upload.array('files'));
 
   }
-
-  app.use(express.static(path.join(__dirname, 'public')));
 
   if (options.createSession) {
 
@@ -138,6 +136,7 @@ function handleInitialConfiguration() {
         "useStreaming": false,
         "demoMode": false,
         "assignDemoHub": false,
+        "createSessionProject": false,
         "demoProject": ""    
   };
 
