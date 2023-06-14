@@ -99,8 +99,23 @@ exports.putLogin = async(req, res, next) => {
         let result = await bcrypt.compare(req.params.password, item.password);
         if (result)
         {       
+
+            let sessionProject = null;
+            if (config.get('hc-caas-um.createSessionProject') == true) {
+                
+                sessionProject = await Projects.findOne({ "users.email": item.email, "name": req.session.id });
+                if (!sessionProject) {
+                    sessionProject = new Projects({
+                        name: req.session.id,
+                        users: [{ email: item.email, role: 0 }],
+                        hub: null
+                    });
+                    await sessionProject.save();
+                }
+
+            }
             req.session.caasUser = item; 
-            res.json({succeeded:true, user:{email:req.session.caasUser.email}});
+            res.json({succeeded:true, user:{email:req.session.caasUser.email}, sessionProject:sessionProject.id});
         }
         else
             res.json({ERROR:"Wrong password"});
