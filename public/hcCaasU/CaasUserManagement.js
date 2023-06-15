@@ -14,6 +14,10 @@ export class CaasUserManagementClient {
         this.serveraddress = serveraddress;
         this.sessionid = localStorage.getItem("CSUM-API-SESSIONID");
     }
+
+    getSessionID() {
+        return this.sessionid;
+    }
     /**
         * Retrieves the currently active (logged in) user
         * @return {Object} Current User Object

@@ -1,6 +1,6 @@
-const serveraddress = "http://" + window.location.host;
+//const serveraddress = "http://" + window.location.host;
 
-//const serveraddress = "http://3.84.32.139:80";
+const serveraddress = "http://3.84.32.139:80";
 //const serveraddress = "http://127.0.0.1:3000";
 
 var myAdmin;

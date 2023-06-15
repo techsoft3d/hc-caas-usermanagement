@@ -1,4 +1,5 @@
 const config = require('config');
+const sessionManager = require('../libs/sessionManager');
 
 let csmanager = require('../libs/csManager');
 
@@ -97,10 +98,13 @@ exports.generateCustomImage = async (req, res, next) => {
 
 exports.getStreamingSession = async (req, res, next) => {
     let s = await csmanager.getStreamingSession();
-    setTimeout(() => {
-    req.session.streamingSessionId = s.sessionid.slice();
-    req.session.save();
-    console.log(req.session.id.toString(), req.session.streamingSessionId);
+    setTimeout(async () => {
+        req.session.streamingSessionId = s.sessionid.slice();
+        if (req.session.save) {
+            req.session.save();
+        }
+        await sessionManager.updateStreaming(req);
+        console.log(req.session.streamingSessionId);
     }, 300);
     res.json(s);
 };
@@ -109,6 +113,6 @@ exports.getStreamingSession = async (req, res, next) => {
 
 exports.enableStreamAccess = async (req, res, next) => {
     let s = await csmanager.enableStreamAccess(req.params.itemid,req.session.caasProject, req.session.streamingSessionId);
-    console.log("Access:" + req.session.id.toString() + " "  + req.session.streamingSessionId);
+    console.log("Access:" + req.session.streamingSessionId);
     res.sendStatus(200);
 };

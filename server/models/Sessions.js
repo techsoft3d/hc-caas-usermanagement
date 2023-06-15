@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const SessionSchema = new Schema({ 
+  streamingSessionId: String,
   user: { type: Object},
   hub: { type: Object},
   project: { type: Object}
