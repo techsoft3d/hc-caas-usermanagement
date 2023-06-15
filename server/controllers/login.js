@@ -86,7 +86,7 @@ exports.postRegister = async(req, res, next) => {
 
         let user = await Users.create(data);
 
-        req.session.caasUser = user;
+//        req.session.caasUser = user;
 
         if (config.get('hc-caas-um.assignDemoHub') == true && config.get('hc-caas-um.demoProject') != "")
         {

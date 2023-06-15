@@ -135,31 +135,26 @@ export class CaasUserManagementClient {
       * Register a new user
       * @param  {object} info - User Information
       */
-    register(info) {
+    async register(info) {
 
-        let fd = new FormData();
-        fd.append('firstName', info.firstName);
-        fd.append('lastName', info.lastName);
-        fd.append('email', info.email);
-        fd.append('password', info.password);
-        let _this = this;
-        return new Promise(function (resolve, reject) {
-            $.ajax({
-                url: _this.serveraddress + "/caas_um_api/register",
-                type: 'post',
-                data: fd,
-                contentType: false,
-                processData: false,
-                success: function (response) {
-                    if (response.ERROR) {
-                        resolve(response.ERROR);
-                    }
-                    else {
-                        resolve("SUCCESS");
-                    }
-                },
-            });
-        });
+        let fbody = JSON.stringify({'firstName': info.firstName,
+        'lastName': info.lastName,
+        'email': info.email,
+        'password': info.password});
+
+        let response = await fetch(this.serveraddress + '/caas_um_api/register/', {  body: fbody, credentials: "include", method: 'POST',
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+            } });
+
+        response = await response.json();            
+       
+        if (response.ERROR) {
+            return response.ERROR;
+        }       
+        else {
+            return "SUCCESS";
+        }
     }
 
     /**
