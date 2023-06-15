@@ -11,7 +11,6 @@ const { v4: uuidv4 } = require('uuid');
 
 const bodyParser = require('body-parser');
 
-const middleware = require('./middleware');
 
 process.env.ALLOW_CONFIG_MUTATIONS = "true";
 process.env.SUPPRESS_NO_CONFIG_WARNING = 'y';
@@ -114,6 +113,7 @@ exports.start = async function (app, mongoose_in, options = { createSession: tru
     }));
   }
   
+  const middleware = require('./middleware');
 
   app.use("/caas_um_api", loginRoutes);
   app.use(middleware.requireLogin);

@@ -4,6 +4,7 @@ const Hubs = require('../models/Hubs');
 const files = require('../models/Files');
 const bcrypt = require('bcrypt');
 const csmanager = require('../libs/csManager');
+const sessionManager = require('../libs/sessionManager');
 let mongoose = require('mongoose'); 
 const config = require('config');
 
@@ -97,7 +98,7 @@ exports.postRegister = async(req, res, next) => {
             await addOneProjectUser(project.id,user.email,0);
             
         }
-        res.json({user:req.session.caasUser.email});
+        res.json({user:user.email});
     }
     else 
         res.json({ERROR:"User already exists"});
@@ -136,10 +137,15 @@ exports.putLogin = async(req, res, next) => {
                     await sessionProject.save();
                     await copyStarterFilesIntoProject(sessionProject.id);
                 }
-
+            }
+            if (!req.session) {
+                req.session = {};
             }
             req.session.caasUser = item; 
-            res.json({succeeded:true, user:{email:req.session.caasUser.email}, sessionProject:sessionProject ? sessionProject.id : null});
+
+            let sessionid = await sessionManager.createSession(req);
+
+            res.json({succeeded:true, sessionid: sessionid, user:{email:req.session.caasUser.email}, sessionProject:sessionProject ? sessionProject.id : null});
         }
         else
             res.json({ERROR:"Wrong password"});
@@ -171,6 +177,9 @@ exports.checkLogin = async (req, res, next) => {
             }
         }
     }
+    if (!req.session || !req.session.caasUser) {
+        await sessionManager.attachSession(req);
+    }
 
     if (req.session && req.session.caasUser) {
         let projectinfo = null;
@@ -200,7 +209,10 @@ exports.checkLogin = async (req, res, next) => {
 
 exports.putLogout = async (req, res, next) => {
     console.log("logout");
-    req.session.destroy();
+    if (req.session) {
+        req.session.destroy();
+    }
+    sessionManager.deleteSession(req);
     res.json({ succeeded: true });
 };
 
@@ -274,10 +286,12 @@ exports.putProject = async(req, res, next) => {
         if (item) {
             req.session.caasProject = item;
             res.json({id:req.params.projectid, name:item.name});
+            sessionManager.updateSession(req);
             return;
         }
     }
-        req.session.caasProject = null;
+    req.session.caasProject = null;
+    sessionManager.updateSession(req);
     res.json({ ERROR: "Not authorized." });
 };
 
@@ -689,6 +703,7 @@ exports.putHub = async (req, res, next) => {
             req.session.caasHub = null;
             res.sendStatus(200);
         }
+        sessionManager.updateSession(req);
     }
     else {
         res.json({ ERROR: "Not authorized." });

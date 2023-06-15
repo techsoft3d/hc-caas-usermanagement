@@ -10,7 +10,7 @@ app.get('/', function(req, res){
   res.sendFile(__dirname + '/public/index.html');
 });
 
-caasUserManagementServer.start(app, null,{createSession:true, sessionSecret:"12345"});
+caasUserManagementServer.start(app, null,{createSession:false, sessionSecret:"12345"});
 
 app.listen(3000);
 
