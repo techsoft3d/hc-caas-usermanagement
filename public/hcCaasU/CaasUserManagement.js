@@ -167,10 +167,11 @@ export class CaasUserManagementClient {
          * @param  {string} email - User Email
          * @param  {string} password - User Password
          */
-    async login(email, password) {
+    async login(email, password, generateproject = false) {
 
+        let generateProjectText = generateproject ? "/true" : "";
 
-        let response = await fetch(this.serveraddress + '/caas_um_api/login/' + email + '/' + password, {  credentials: "include", mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}, method: 'PUT' });
+        let response = await fetch(this.serveraddress + '/caas_um_api/login/' + email + '/' + password + generateProjectText, {  credentials: "include", mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}, method: 'PUT' });
         response = await response.json();
         if (response.ERROR) {
 

@@ -129,7 +129,7 @@ exports.putLogin = async(req, res, next) => {
             if (!req.session) {
                 req.session = {};
             }
-            if (config.get('hc-caas-um.createSessionProject') == item.email) {
+            if (req.params.generateproject) {
                 if (!req.session.id) {
                     req.session.id = uuidv4();
                 }
