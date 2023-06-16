@@ -7,6 +7,7 @@ const csmanager = require('../libs/csManager');
 const sessionManager = require('../libs/sessionManager');
 let mongoose = require('mongoose'); 
 const config = require('config');
+const { v4: uuidv4 } = require('uuid');
 
 //var nodemailer = require('nodemailer');
 
@@ -125,8 +126,13 @@ exports.putLogin = async(req, res, next) => {
         {       
 
             let sessionProject = null;
-            if (config.get('hc-caas-um.createSessionProject') == true) {
-                
+            if (!req.session) {
+                req.session = {};
+            }
+            if (config.get('hc-caas-um.createSessionProject') == item.email) {
+                if (!req.session.id) {
+                    req.session.id = uuidv4();
+                }
                 sessionProject = await Projects.findOne({ "users.email": item.email, "name": req.session.id });
                 if (!sessionProject) {
                     sessionProject = new Projects({
@@ -138,9 +144,7 @@ exports.putLogin = async(req, res, next) => {
                     await copyStarterFilesIntoProject(sessionProject.id);
                 }
             }
-            if (!req.session) {
-                req.session = {};
-            }
+            
             req.session.caasUser = item; 
 
             let sessionid = await sessionManager.createSession(req);

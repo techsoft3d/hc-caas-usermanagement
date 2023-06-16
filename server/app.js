@@ -136,7 +136,7 @@ function handleInitialConfiguration() {
         "useStreaming": false,
         "demoMode": false,
         "assignDemoHub": false,
-        "createSessionProject": false,
+        "createSessionProject": null,
         "demoProject": ""    
   };
 
