@@ -44,7 +44,7 @@ exports.start = async function (app, mongoose_in, options = { createSession: tru
   const loginRoutes = require('./routes/login');
 
   let csmanager = require('./libs/csManager');
-  app.use(cors({ credentials: true, origin: true }));
+  app.use(cors());
   app.use(express.json({ limit: '25mb' }));
   app.use(express.urlencoded({ limit: '25mb', extended: false }));
 

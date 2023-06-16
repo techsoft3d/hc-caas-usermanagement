@@ -90,7 +90,7 @@ export class CaasUserManagementClient {
          * @return {object} Server Configuration
          */
     async getConfiguration() {
-        let res = await fetch(this.serveraddress + '/caas_um_api/configuration',{  credentials: "include", mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}});
+        let res = await fetch(this.serveraddress + '/caas_um_api/configuration',{  mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}});
         let data = await res.json();
         this.useDirectFetch = data.useDirectFetch;
         this.useStreaming = data.useStreaming;
@@ -103,7 +103,7 @@ export class CaasUserManagementClient {
             * @return {bool} true if logged in
             */
     async checkLogin() {
-        let res = await fetch(this.serveraddress + '/caas_um_api/checklogin',{  credentials: "include", mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}});
+        let res = await fetch(this.serveraddress + '/caas_um_api/checklogin',{  mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}});
         let data = await res.json();
         if (data.succeeded) {
 
@@ -132,7 +132,7 @@ export class CaasUserManagementClient {
             * Logout currently active user        
             */
     async logout() {
-        await fetch(this.serveraddress + '/caas_um_api/logout/', {  credentials: "include", mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}, method: 'PUT' });
+        await fetch(this.serveraddress + '/caas_um_api/logout/', {  mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}, method: 'PUT' });
 
     }
 
@@ -147,7 +147,7 @@ export class CaasUserManagementClient {
         'email': info.email,
         'password': info.password});
 
-        let response = await fetch(this.serveraddress + '/caas_um_api/register/', {  body: fbody, credentials: "include", mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}, method: 'POST',
+        let response = await fetch(this.serveraddress + '/caas_um_api/register/', {  body: fbody, mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}, method: 'POST',
             headers: {
                 "Content-type": "application/json; charset=UTF-8"
             } });
@@ -171,7 +171,7 @@ export class CaasUserManagementClient {
 
         let generateProjectText = generateproject ? "/true" : "";
 
-        let response = await fetch(this.serveraddress + '/caas_um_api/login/' + email + '/' + password + generateProjectText, {  credentials: "include", mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}, method: 'PUT' });
+        let response = await fetch(this.serveraddress + '/caas_um_api/login/' + email + '/' + password + generateProjectText, {  mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}, method: 'PUT' });
         response = await response.json();
         if (response.ERROR) {
 
@@ -191,7 +191,7 @@ export class CaasUserManagementClient {
             * Leave currently active Hub        
             */
     async leaveHub() {
-        await fetch(this.serveraddress + '/caas_um_api/hub/none', {   credentials: "include", mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid},method: 'PUT' });
+        await fetch(this.serveraddress + '/caas_um_api/hub/none', {   mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid},method: 'PUT' });
 
         this.currentProject = null;
         this.currentHub = null;
@@ -204,7 +204,7 @@ export class CaasUserManagementClient {
             */
     async getHubs() {
 
-        let response = await fetch(this.serveraddress + '/caas_um_api/hubs',{ credentials: "include", mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}});
+        let response = await fetch(this.serveraddress + '/caas_um_api/hubs',{ mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}});
         let hubs = await response.json();
         return hubs;
     }
@@ -215,7 +215,7 @@ export class CaasUserManagementClient {
             * @param  {string} name - New Hub Name
             */
     async renameHub(hubid, name) {
-        await fetch(this.serveraddress + '/caas_um_api/renameHub/' + hubid + "/" + name, { credentials: "include", mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid},method: 'PUT' });
+        await fetch(this.serveraddress + '/caas_um_api/renameHub/' + hubid + "/" + name, { mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid},method: 'PUT' });
     }
 
     /**
@@ -224,7 +224,7 @@ export class CaasUserManagementClient {
             * @return {Object} Data about new Hub  
             */
     async createHub(name) {
-        let res = await fetch(this.serveraddress + '/caas_um_api/newhub/' + name, { credentials: "include", mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid},method: 'PUT' });
+        let res = await fetch(this.serveraddress + '/caas_um_api/newhub/' + name, { mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid},method: 'PUT' });
         let data = await res.json();
         return data;
     }
@@ -235,7 +235,7 @@ export class CaasUserManagementClient {
             */
     async loadHub(hubid) {
 
-        let res = await fetch(this.serveraddress + '/caas_um_api/hub/' + hubid, { credentials: "include", mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid},method: 'PUT' });
+        let res = await fetch(this.serveraddress + '/caas_um_api/hub/' + hubid, { mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid},method: 'PUT' });
 
         let hubinfo = await res.json();
         this.currentHub = hubinfo;
@@ -247,7 +247,7 @@ export class CaasUserManagementClient {
             * @return {Object} Users associated with Hub
             */
     async getHubUsers(hubid) {
-        let response = await fetch(this.serveraddress + '/caas_um_api/hubusers/' + hubid,{  credentials: "include", mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}});
+        let response = await fetch(this.serveraddress + '/caas_um_api/hubusers/' + hubid,{  mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}});
         return await response.json();
     }
 
@@ -258,7 +258,7 @@ export class CaasUserManagementClient {
             * @param  {string} role - User Role ("User" "Admin", "Owner")
             */
     async addHubUser(hubid, email, role) {
-        await fetch(this.serveraddress + '/caas_um_api/addHubUser/' + hubid + "/" + email + "/" + role, { credentials: "include", mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid},method: 'PUT' });
+        await fetch(this.serveraddress + '/caas_um_api/addHubUser/' + hubid + "/" + email + "/" + role, { mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid},method: 'PUT' });
     }
 
     /**
@@ -268,7 +268,7 @@ export class CaasUserManagementClient {
             * @param  {string} role - User Role ("User" "Admin", "Owner")
             */
     async updateHubUser(hubid, email, role) {
-        await fetch(this.serveraddress + '/caas_um_api/updateHubUser/' + hubid + "/" + email + "/" + role, { credentials: "include", mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}, method: 'PUT' });
+        await fetch(this.serveraddress + '/caas_um_api/updateHubUser/' + hubid + "/" + email + "/" + role, { mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}, method: 'PUT' });
     }
 
     /**
@@ -278,7 +278,7 @@ export class CaasUserManagementClient {
             */
     async deleteHubUser(hubid, email) {
 
-        await fetch(this.serveraddress + '/caas_um_api/deleteHubUser/' + hubid + "/" + email, { credentials: "include", mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}, method: 'PUT' });
+        await fetch(this.serveraddress + '/caas_um_api/deleteHubUser/' + hubid + "/" + email, { mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}, method: 'PUT' });
     }
 
     /**
@@ -287,7 +287,7 @@ export class CaasUserManagementClient {
             */
     async deleteHub(hubid) {
 
-        await fetch(this.serveraddress + '/caas_um_api/deleteHub/' + hubid, { credentials: "include", mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}, method: 'PUT' });
+        await fetch(this.serveraddress + '/caas_um_api/deleteHub/' + hubid, { mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}, method: 'PUT' });
     }
 
     /**
@@ -296,7 +296,7 @@ export class CaasUserManagementClient {
             * @param  {string} email - User email
             */
     async acceptHub(hubid, email) {
-        await fetch(this.serveraddress + '/caas_um_api/acceptHub/' + hubid + "/" + email, { credentials: "include", mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}, method: 'PUT' });
+        await fetch(this.serveraddress + '/caas_um_api/acceptHub/' + hubid + "/" + email, { mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}, method: 'PUT' });
         this.refreshHubTable();
     }
 
@@ -305,7 +305,7 @@ export class CaasUserManagementClient {
             * Leave currently active Project        
             */
     async leaveProject() {
-        await fetch(this.serveraddress + '/caas_um_api/project/none', { credentials: "include", mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}, method: 'PUT' });
+        await fetch(this.serveraddress + '/caas_um_api/project/none', { mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}, method: 'PUT' });
         this.currentProject = null;
 
     }
@@ -316,7 +316,7 @@ export class CaasUserManagementClient {
               * @param  {string} name - New Hub Project
               */
     async renameProject(projectid, name) {
-        await fetch(this.serveraddress + '/caas_um_api/renameproject/' + projectid + "/" + name, { credentials: "include", mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}, method: 'PUT' });
+        await fetch(this.serveraddress + '/caas_um_api/renameproject/' + projectid + "/" + name, { mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}, method: 'PUT' });
     }
 
     /**
@@ -325,7 +325,7 @@ export class CaasUserManagementClient {
             * @return {Object} Data about new Project  
             */
     async createProject(hubid, name) {
-        let res = await fetch(this.serveraddress + '/caas_um_api/newproject/' + hubid + "/" + name, { credentials: "include", mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}, method: 'PUT' });
+        let res = await fetch(this.serveraddress + '/caas_um_api/newproject/' + hubid + "/" + name, { mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}, method: 'PUT' });
         let data = await res.json();
         return data;
     }
@@ -335,7 +335,7 @@ export class CaasUserManagementClient {
             * @param  {string} projectid - Id of Project
             */
     async deleteProject(projectid) {
-        await fetch(this.serveraddress + '/caas_um_api/deleteproject/' + projectid, { credentials: "include", mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}, method: 'PUT' });
+        await fetch(this.serveraddress + '/caas_um_api/deleteproject/' + projectid, { mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}, method: 'PUT' });
     }
 
     /**
@@ -344,7 +344,7 @@ export class CaasUserManagementClient {
          * @param  {string} projectid - Id of Project
          */
     async loadProject(projectid) {
-        let res = await fetch(this.serveraddress + '/caas_um_api/project/' + projectid, { credentials: "include", mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid},method: 'PUT' });
+        let res = await fetch(this.serveraddress + '/caas_um_api/project/' + projectid, { mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid},method: 'PUT' });
         let data = await res.json();
         this.currentProject = data;
     }
@@ -356,7 +356,7 @@ export class CaasUserManagementClient {
             */
     async getProjects(hubid) {
 
-        let response = await fetch(this.serveraddress + '/caas_um_api/projects/' + hubid,{ credentials: "include", mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}});
+        let response = await fetch(this.serveraddress + '/caas_um_api/projects/' + hubid,{ mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}});
         let projects = await response.json();
         return projects;
     }
@@ -367,7 +367,7 @@ export class CaasUserManagementClient {
             * @return {Object} Users associated with Hub
             */
     async getProjectUsers(projectid) {
-        let response = await fetch(this.serveraddress + '/caas_um_api/projectusers/' + projectid,{ credentials: "include", mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid},});
+        let response = await fetch(this.serveraddress + '/caas_um_api/projectusers/' + projectid,{ mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid},});
         let projectusers = await response.json();
         return projectusers;
     }
@@ -380,7 +380,7 @@ export class CaasUserManagementClient {
             * @param  {string} role - User Role ("User" "Admin", "Owner")
             */
     async addProjectUser(projectid, email, role) {
-        await fetch(this.serveraddress + '/caas_um_api/addProjectUser/' + projectid + "/" + email + "/" + role, { credentials: "include", mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}, method: 'PUT' });
+        await fetch(this.serveraddress + '/caas_um_api/addProjectUser/' + projectid + "/" + email + "/" + role, { mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}, method: 'PUT' });
     }
 
 
@@ -391,7 +391,7 @@ export class CaasUserManagementClient {
             * @param  {string} role - User Role ("User" "Admin", "Owner")
             */
     async updateProjectUser(projectid, email, role) {
-        let res = await fetch(this.serveraddress + '/caas_um_api/updateProjectUser/' + projectid + "/" + email + "/" + role, { credentials: "include", mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}, method: 'PUT' });
+        let res = await fetch(this.serveraddress + '/caas_um_api/updateProjectUser/' + projectid + "/" + email + "/" + role, { mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}, method: 'PUT' });
     }
 
 
@@ -401,7 +401,7 @@ export class CaasUserManagementClient {
             * @param  {string} email - User email
             */
     async deleteProjectUser(projectid, email) {
-        await fetch(this.serveraddress + '/caas_um_api/deleteProjectUser/' + projectid + "/" + email, { credentials: "include", mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}, method: 'PUT' });
+        await fetch(this.serveraddress + '/caas_um_api/deleteProjectUser/' + projectid + "/" + email, { mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}, method: 'PUT' });
     }
 
 
@@ -412,7 +412,7 @@ export class CaasUserManagementClient {
             * @return {Object} Upload Token
             */
     async getUploadToken(name, size) {
-        let data = await fetch(this.serveraddress + '/caas_um_api/uploadToken/' + name + "/" + size,{ credentials: "include", mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid},});
+        let data = await fetch(this.serveraddress + '/caas_um_api/uploadToken/' + name + "/" + size,{ mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid},});
         let json = await data.json();
         return json;
     }
@@ -424,7 +424,7 @@ export class CaasUserManagementClient {
             * @param  {string} startpath (if zipped assembly)
             */
     processUploadFromToken(itemid, startpath = "") {
-        fetch(this.serveraddress + '/caas_um_api/processToken/' + itemid, { credentials: "include", mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}, method: 'PUT', headers: { 'startpath': startpath } });
+        fetch(this.serveraddress + '/caas_um_api/processToken/' + itemid, { mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}, method: 'PUT', headers: { 'startpath': startpath } });
     }
 
 
@@ -433,7 +433,7 @@ export class CaasUserManagementClient {
             * @return {Object} List of models
             */
     async getModels() {
-        let res = await fetch(this.serveraddress + '/caas_um_api/models',{ credentials: "include", mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid},});
+        let res = await fetch(this.serveraddress + '/caas_um_api/models',{ mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid},});
         let data = await res.json();
         return data;
     }
@@ -446,7 +446,7 @@ export class CaasUserManagementClient {
             * @return {Object} Download Token
             */
     async getDownloadToken(itemid, type) {
-        let res = await fetch(this.serveraddress + '/caas_um_api/downloadToken/' + itemid + "/" + type,{ credentials: "include", mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}});
+        let res = await fetch(this.serveraddress + '/caas_um_api/downloadToken/' + itemid + "/" + type,{ mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}});
         let json = await res.json();
         return json;
     }
@@ -458,7 +458,7 @@ export class CaasUserManagementClient {
             * @return {Object} Image
             */
     async getPNG(itemid) {
-        let image = await fetch(this.serveraddress + '/caas_um_api/png/' + itemid,{ credentials: "include", mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}});
+        let image = await fetch(this.serveraddress + '/caas_um_api/png/' + itemid,{ mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}});
         return image;
     }
 
@@ -468,7 +468,7 @@ export class CaasUserManagementClient {
             * @return {Object} Scs data
             */
     async getSCS(itemid) {
-        let res = await fetch(this.serveraddress + '/caas_um_api/scs/' + itemid,{ credentials: "include", mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}});
+        let res = await fetch(this.serveraddress + '/caas_um_api/scs/' + itemid,{ mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}});
         let ab = await res.arrayBuffer();
         let byteArray = new Uint8Array(ab);
         return byteArray;
@@ -480,7 +480,7 @@ export class CaasUserManagementClient {
             */
 
     async enableStreamAccess(itemid) {
-        await fetch(this.serveraddress + '/caas_um_api/enableStreamAccess/' + itemid, { credentials: "include", mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}, method: 'PUT' });
+        await fetch(this.serveraddress + '/caas_um_api/enableStreamAccess/' + itemid, { mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}, method: 'PUT' });
     }
 
 
@@ -489,7 +489,7 @@ export class CaasUserManagementClient {
             * @param  {string} itemid - File Id       
             */
     async deleteModel(itemid) {
-        await fetch(this.serveraddress + '/caas_um_api/deleteModel/' + itemid, { credentials: "include", mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}, method: 'PUT' });
+        await fetch(this.serveraddress + '/caas_um_api/deleteModel/' + itemid, { mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}, method: 'PUT' });
     }
 
 
@@ -509,12 +509,12 @@ export class CaasUserManagementClient {
         }
         else {
 
-            let res = await fetch(this.serveraddress + '/caas_um_api/streamingSession',{ credentials: "include", mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}});
+            let res = await fetch(this.serveraddress + '/caas_um_api/streamingSession',{ mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}});
             let data = await res.json();
 
             viewer = new Communicator.WebViewer({
                 containerId: container,
-                endpointUri: 'ws://' + data.serverurl + ":" + data.port + '?token=' + data.sessionid,
+                endpointUri: (this.serveraddress.indexOf("https") != -1 ? 'wss://' : "ws://") + data.serverurl + ":" + data.port + '?token=' + data.sessionid,
                 model: "_empty",
                 rendererType: Communicator.RendererType.Client
             });
