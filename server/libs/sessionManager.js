@@ -1,11 +1,16 @@
-const Sessions = require('../models/Sessions');
+const { v4: uuidv4 } = require('uuid');
 
+
+let sessions = [];
+
+
+uuidv4();
 
 exports.attachSession = async (req) => {
     let sessionid = req.get("CSUM-API-SESSIONID");
     if (sessionid && sessionid != "null") {
 
-        let session = await Sessions.findOne({ "_id": sessionid });
+        let session = sessions[sessionid];
         if (session) {
             if (!req.session) {
                 req.session = {};
@@ -20,11 +25,12 @@ exports.attachSession = async (req) => {
 
 
 exports.createSession = async (req) => {
-    let session = new Sessions({
+    let session = {
         user: req.session.caasUser,   
-    });
-    await session.save();
-    return session._id;
+    };
+    let id = uuidv4();
+    sessions[id] = session;
+    return id;
 };
 
 
@@ -32,7 +38,7 @@ exports.createSession = async (req) => {
 exports.deleteSession = async (req) => {
     let sessionid = req.get("CSUM-API-SESSIONID");
     if (sessionid) {
-        await Sessions.deleteOne({ "_id": sessionid });
+        delete sessions[sessionid];
     }
 };
 
@@ -42,12 +48,11 @@ exports.updateSession = async (req) => {
     let sessionid = req.get("CSUM-API-SESSIONID");
     if (sessionid) {
 
-        let session = await Sessions.findOne({ "_id": sessionid });
+        let session = sessions[sessionid];
         if (session) {
             session.user = req.session.caasUser;
             session.hub = req.session.caasHub,
-            session.project = req.session.caasProject
-            await session.save();
+            session.project = req.session.caasProject           
         }       
     }
 };
@@ -56,11 +61,9 @@ exports.updateSession = async (req) => {
 exports.updateStreaming = async (req) => {   
     let sessionid = req.get("CSUM-API-SESSIONID");
     if (sessionid) {
-
-        let session = await Sessions.findOne({ "_id": sessionid });
+        let session = sessions[sessionid];
         if (session) {
             session.streamingSessionId =   req.session.streamingSessionId;
-            await session.save();
         }       
     }
 };
