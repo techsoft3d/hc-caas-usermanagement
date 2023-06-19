@@ -1,12 +1,12 @@
 const fs = require('fs');
 const del = require('del');
 const files = require('../models/Files');
+const Projects = require('../models/Projects');
 
 const FormData = require('form-data');
 const fetch = require('node-fetch');
 
 let conversionServiceURI = "";
-let _updatedTime = new Date();
 
 const config = require('config');
 
@@ -43,7 +43,7 @@ exports.process = async (tempid, filename, project,startpath) => {
     del("./upload/" + tempid);
     item.storageID = data.itemid;
     item.save();
-    _updated();
+    _updated(project);
 
     return modelid;    
 };
@@ -84,7 +84,7 @@ exports.processMultiple = async (infiles, startmodel, project) => {
     }
     item.storageID = data.itemid;
     item.save();
-    _updated();
+    _updated(project);
     return modelid;    
 };
 
@@ -109,7 +109,7 @@ exports.getUploadToken = async (name, size, project) => {
             project: project
         });
         await item.save();
-        _updated();
+        _updated(project);
         _checkPendingConversions();
 
         return { token: json.token, itemid: item._id.toString() };   
@@ -153,7 +153,7 @@ exports.generateCustomImage = async (itemid, project, startpath) => {
     console.log("processing custom image:" + item.name);
     let api_arg = { customImageCode: "let rmatrix = Communicator.Matrix.xAxisRotation(-90);await hwv.model.setNodeMatrix(hwv.model.getRootNode(), rmatrix);await hwv.view.fitWorld();" };
     res = await fetch(conversionServiceURI + '/api/customImage/' + item.storageID, { method: 'put', headers: { 'CS-API-Arg': JSON.stringify(api_arg) } });
-    _updated();
+    _updated(project);
 };
 
 
@@ -163,7 +163,8 @@ exports.getModels = async (project) => {
     for (let i = 0; i < models.length; i++) {
         res.push({ name: models[i].name, id: models[i]._id.toString(), pending: !models[i].converted, category:models[i].category,uploaded:models[i].uploaded, filesize:models[i].filesize});
     }
-    return {"updated":_updatedTime.toString(), "modelarray":res};
+    let projectObj = await Projects.findOne({ "_id": project });
+    return {"updated":projectObj.updatedAt, "modelarray":res};
 };
 
 
@@ -182,7 +183,7 @@ exports.deleteModel = async (itemid, project) => {
         if (items.length == 0) {
             res = await fetch(conversionServiceURI + '/api/delete/' + item.storageID, { method: 'put'});
         }
-        _updated();
+        _updated(project);
     }
 };
 
@@ -234,12 +235,12 @@ async function _checkPendingConversions() {
                     if (data.conversionState == "SUCCESS") {
                         notConverted[i].converted = true;
                         notConverted[i].save();
-                        _updated();
+                        _updated(notConverted[i].project);
                     }
                     else if (data.conversionState.indexOf("ERROR") != -1) {
                         console.log(notConverted[i]._id);
                         await files.deleteOne(notConverted[i]);
-                        _updated();
+                        _updated(notConverted[i].project);
                     }
                 }
             }
@@ -247,7 +248,10 @@ async function _checkPendingConversions() {
     }
 }
 
-function _updated()
+async function _updated(project)
 {
-    _updatedTime = new Date();
+    let projectobj = await Projects.findOne({ "_id": project });
+    projectobj.updatedAt = new Date();
+    projectobj.save();
+
 }

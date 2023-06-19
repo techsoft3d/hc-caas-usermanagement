@@ -437,7 +437,7 @@ export class CaasUserManagementClient {
             * @return {Object} List of models
             */
     async getModels() {
-        let res = await fetch(this.serveraddress + '/caas_um_api/models',{ mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid},});
+        let res = await fetch(this.serveraddress + '/caas_um_api/models',{ mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}});
         let data = await res.json();
         return data;
     }
