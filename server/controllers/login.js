@@ -15,6 +15,26 @@ const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
 
 
+const millisecondsInAnHour = 60 * 60 * 1000;
+const millisecondsInDay = 24 * 60 * 60 * 1000;
+
+setInterval(async function () {    
+    console.log("projectpurge");
+    let projects= await Projects.find({ "hub": null});
+    let rightnow = new Date();
+    for (let i=0;i<projects.length;i++) {
+        if (rightnow - projects[i].updatedAt > millisecondsInDay) {
+            console.log("deleting project:" + projects[i].name);
+            let models = await files.find({ project: projects[i].id });
+            for (let i = 0; i < models.length; i++) {
+                await csmanager.deleteModel(models[i]._id.toString());
+            }
+            await Projects.deleteOne({ "_id": projects[i].id });
+        }
+    }
+}, millisecondsInAnHour);
+
+
 async function copyStarterProject(user,hub)
 {
     let newproject = null;
@@ -142,7 +162,7 @@ exports.putLogin = async(req, res, next) => {
                     });
                     await sessionProject.save();
                     await copyStarterFilesIntoProject(sessionProject.id);
-                }
+                }              
             }
             
             req.session.caasUser = item; 
@@ -290,6 +310,12 @@ exports.putProject = async(req, res, next) => {
         if (item) {
             req.session.caasProject = item;
             res.json({id:req.params.projectid, name:item.name});
+            
+            if (item.hub == null) {
+                console.log("updating session project")
+                item.updatedAt = new Date();
+                item.save();
+            }
             sessionManager.updateSession(req);
             return;
         }
