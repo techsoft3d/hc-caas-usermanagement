@@ -43,7 +43,7 @@ exports.process = async (tempid, filename, project,startpath) => {
     del("./upload/" + tempid);
     item.storageID = data.itemid;
     item.save();
-    _updated(project);
+    await _updated(project);
 
     return modelid;    
 };
@@ -84,7 +84,7 @@ exports.processMultiple = async (infiles, startmodel, project) => {
     }
     item.storageID = data.itemid;
     item.save();
-    _updated(project);
+    await _updated(project);
     return modelid;    
 };
 
@@ -109,7 +109,7 @@ exports.getUploadToken = async (name, size, project) => {
             project: project
         });
         await item.save();
-        _updated(project);
+        await _updated(project);
         _checkPendingConversions();
 
         return { token: json.token, itemid: item._id.toString() };   
@@ -252,6 +252,6 @@ async function _updated(project)
 {
     let projectobj = await Projects.findOne({ "_id": project });
     projectobj.updatedAt = new Date();
-    projectobj.save();
+    await projectobj.save();
 
 }
