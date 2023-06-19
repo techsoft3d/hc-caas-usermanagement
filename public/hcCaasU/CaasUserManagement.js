@@ -15,6 +15,10 @@ export class CaasUserManagementClient {
         this.sessionid = localStorage.getItem("CSUM-API-SESSIONID");
     }
 
+    setUseStreaming(usestreaming) {
+        this.useStreaming = usestreaming;
+    }
+
     getSessionID() {
         return this.sessionid;
     }
