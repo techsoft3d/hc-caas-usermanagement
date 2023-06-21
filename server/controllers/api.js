@@ -1,9 +1,15 @@
 const config = require('config');
 const sessionManager = require('../libs/sessionManager');
 const geoip = require('geoip-lite');
+const path = require('path');
 
 let csmanager = require('../libs/csManager');
 
+// const {IP2Location} = require("ip2location-nodejs");
+// let ip2location = new IP2Location();
+// ip2location.open(path.join(__dirname,"./IP2LOCATION-LITE-DB3.BIN"));
+
+console.log(__dirname);
 exports.postUpload = async(req, res, next) => {
     if (config.get('hc-caas-um.demoMode')) {
         res.json({ERROR:"Not authorized."});
@@ -104,8 +110,15 @@ exports.getStreamingSession = async (req, res, next) => {
     if (ip.substr(0, 7) == "::ffff:") {
         ip = ip.substr(7)
     }    
+        
+    // let result = ip2location.getAll(ip);
+	// for (var key in result) {
+	// 	console.log(key + ": " + result[key]);
+	// }
+
     let geo = geoip.lookup(ip);
     let s = await csmanager.getStreamingSession(geo);
+
     setTimeout(async () => {
         req.session.streamingSessionId = s.sessionid.slice();
         if (req.session.save) {
