@@ -1,6 +1,6 @@
 {
   "name": "ts3d.hc.caas.usermanagement",
-  "version": "0.5.2",
+  "version": "0.5.6",
   "description": "",
   "main": "./server/app.js",
   "scripts": {
@@ -27,6 +27,7 @@
     "express-session": "^1.17.2",
     "filemanager-webpack-plugin": "^8.0.0",
     "form-data": "^4.0.0",
+    "geoip-lite": "^1.4.7",
     "http-proxy": "^1.18.1",
     "memorystore": "^1.6.7",
     "mongodb": "^4.4.1",

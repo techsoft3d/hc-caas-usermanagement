@@ -1,5 +1,6 @@
 const config = require('config');
 const sessionManager = require('../libs/sessionManager');
+const geoip = require('geoip-lite');
 
 let csmanager = require('../libs/csManager');
 
@@ -97,7 +98,14 @@ exports.generateCustomImage = async (req, res, next) => {
 };
 
 exports.getStreamingSession = async (req, res, next) => {
-    let s = await csmanager.getStreamingSession();
+    let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    // If IP address is from localhost it will be ::1 when working locally
+    // Convert it into a valid IPv4 or IPv6 format
+    if (ip.substr(0, 7) == "::ffff:") {
+        ip = ip.substr(7)
+    }    
+    let geo = geoip.lookup(ip);
+    let s = await csmanager.getStreamingSession(geo);
     setTimeout(async () => {
         req.session.streamingSessionId = s.sessionid.slice();
         if (req.session.save) {
