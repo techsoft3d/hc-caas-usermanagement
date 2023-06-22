@@ -9,7 +9,6 @@ let csmanager = require('../libs/csManager');
 // let ip2location = new IP2Location();
 // ip2location.open(path.join(__dirname,"./IP2LOCATION-LITE-DB3.BIN"));
 
-console.log(__dirname);
 exports.postUpload = async(req, res, next) => {
     if (config.get('hc-caas-um.demoMode')) {
         res.json({ERROR:"Not authorized."});

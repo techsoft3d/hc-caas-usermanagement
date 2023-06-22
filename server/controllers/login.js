@@ -19,7 +19,7 @@ const millisecondsInAnHour = 60 * 60 * 1000;
 const millisecondsInDay = 24 * 60 * 60 * 1000;
 
 setInterval(async function () {    
-    console.log("projectpurge");
+    console.log("Purging expired Projects");
     let projects= await Projects.find({ "hub": null});
     let rightnow = new Date();
     for (let i=0;i<projects.length;i++) {
