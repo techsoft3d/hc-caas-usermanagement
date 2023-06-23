@@ -13,8 +13,12 @@ export class CaasUserManagementClient {
         this.useStreaming = true;
         this.serveraddress = serveraddress;
         this.sessionid = localStorage.getItem("CSUM-API-SESSIONID");
+        this.streamingServerURL = "";
     }
 
+    getStreamingServerURL() {
+        return this.streamingServerURL;
+    }
     setUseStreaming(usestreaming) {
         this.useStreaming = usestreaming;
     }
@@ -522,6 +526,7 @@ export class CaasUserManagementClient {
                 model: "_empty",
                 rendererType: Communicator.RendererType.Client
             });
+            this.streamingServerURL = data.serverurl;
         }
         return viewer;
     }
