@@ -23,6 +23,10 @@ export class CaasUserManagementClient {
         this.useStreaming = usestreaming;
     }
 
+    gettUseStreaming() {
+        return this.usestreaming;
+    }
+
     getSessionID() {
         return this.sessionid;
     }
@@ -520,13 +524,23 @@ export class CaasUserManagementClient {
             let res = await fetch(this.serveraddress + '/caas_um_api/streamingSession',{ mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}});
             let data = await res.json();
 
-            viewer = new Communicator.WebViewer({
-                containerId: container,
-                endpointUri: (this.serveraddress.indexOf("https") != -1 ? 'wss://' : "ws://") + data.serverurl + ":" + data.port + '?token=' + data.sessionid,
-                model: "_empty",
-                rendererType: Communicator.RendererType.Client
-            });
-            this.streamingServerURL = data.serverurl;
+            if (!data.ERROR) {
+                viewer = new Communicator.WebViewer({
+                    containerId: container,
+                    endpointUri: (this.serveraddress.indexOf("https") != -1 ? 'wss://' : "ws://") + data.serverurl + ":" + data.port + '?token=' + data.sessionid,
+                    model: "_empty",
+                    rendererType: Communicator.RendererType.Client
+                });
+                this.streamingServerURL = data.serverurl;
+            }
+            else {
+                this.useStreaming = false;
+                viewer = new Communicator.WebViewer({
+                    containerId: container,
+                    empty: true,
+                    streamingMode: 1
+                });
+            }
         }
         return viewer;
     }

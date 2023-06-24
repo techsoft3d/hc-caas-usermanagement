@@ -108,24 +108,26 @@ exports.getStreamingSession = async (req, res, next) => {
     // Convert it into a valid IPv4 or IPv6 format
     if (ip.substr(0, 7) == "::ffff:") {
         ip = ip.substr(7)
-    }    
-        
+    }
+
     // let result = ip2location.getAll(ip);
-	// for (var key in result) {
-	// 	console.log(key + ": " + result[key]);
-	// }
+    // for (var key in result) {
+    // 	console.log(key + ": " + result[key]);
+    // }
 
     let geo = geoip.lookup(ip);
     let s = await csmanager.getStreamingSession(geo);
+    if (!s.ERROR) {
 
-    setTimeout(async () => {
-        req.session.streamingSessionId = s.sessionid.slice();
-        if (req.session.save) {
-            req.session.save();
-        }
-        await sessionManager.updateStreaming(req);
-        console.log(req.session.streamingSessionId);
-    }, 300);
+        setTimeout(async () => {
+            req.session.streamingSessionId = s.sessionid.slice();
+            if (req.session.save) {
+                req.session.save();
+            }
+            await sessionManager.updateStreaming(req);
+            console.log(req.session.streamingSessionId);
+        }, 300);
+    }
     res.json(s);
 };
 
