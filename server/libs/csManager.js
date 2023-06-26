@@ -263,3 +263,9 @@ async function _updated(project)
     await projectobj.save();
 
 }
+
+
+exports.getStatus = async () => {
+    let res = await fetch(conversionServiceURI + '/api/status');   
+    return res.text();
+}

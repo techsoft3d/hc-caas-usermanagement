@@ -138,3 +138,8 @@ exports.enableStreamAccess = async (req, res, next) => {
     console.log("Access:" + req.session.streamingSessionId);
     res.sendStatus(200);
 };
+
+
+exports.getStatus = async (req, res, next) => {
+    res.send(await csmanager.getStatus());
+};
