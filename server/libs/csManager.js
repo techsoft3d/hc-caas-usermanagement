@@ -15,6 +15,10 @@ exports.init = (uri) =>
 {
     conversionServiceURI = uri;
     _checkPendingConversions();      
+
+    if (config.get('hc-caas-um.usePolling') == true ) {
+        setInterval(_checkPendingConversions, 10000);
+    }
 };
 
 exports.process = async (tempid, filename, project,startpath) => {
