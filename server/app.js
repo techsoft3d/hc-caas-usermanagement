@@ -28,7 +28,16 @@ exports.getDatabaseObjects = function () {
 };
 
 
-exports.start = async function (app, mongoose_in, options = { createSession: true, sessionSecret: "caasSession83736" }) {
+exports.start = async function (app_in, mongoose_in, options = { createSession: true, sessionSecret: "caasSession83736" }) {
+  let app;
+
+  if (!app_in) {
+    app = express();
+
+  }
+  else {
+    app = app_in;
+  }
 
   handleInitialConfiguration();
 
@@ -123,7 +132,9 @@ exports.start = async function (app, mongoose_in, options = { createSession: tru
   app.use(middleware.requireLogin);
   app.use("/caas_um_api", apiRoutes);
 
-
+  if (!app_in) {
+    app.listen(config.get('hc-caas-um.port'));
+  }
   csmanager.init(config.get('hc-caas-um.conversionServiceURI'));
   return global.tm_con;
 };
@@ -141,6 +152,7 @@ function handleInitialConfiguration() {
         "demoMode": false,
         "assignDemoHub": false,
         "usePolling": false,
+        "port" : 3000,
         "demoProject": ""    
   };
 
