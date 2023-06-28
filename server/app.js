@@ -32,6 +32,10 @@ exports.start = async function (app, mongoose_in, options = { createSession: tru
 
   handleInitialConfiguration();
 
+  let versioninfo = require('../package.json');
+  process.env.caas_um_version = versioninfo.version;
+  console.log("Initializing CaaS User Management. Version: " + process.env.caas_um_version);
+
   if (mongoose_in == undefined || !mongoose_in) {
     let mongoose = require('mongoose');
     global.tm_con = await mongoose.connect(config.get('hc-caas-um.mongodbURI'));
