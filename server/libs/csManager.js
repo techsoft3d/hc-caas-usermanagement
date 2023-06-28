@@ -213,7 +213,7 @@ exports.updateConversionStatus =  async (storageId, convertedFiles) => {
 
 
 exports.getStreamingSession =  async (geo) => {
-    let res = await fetch(conversionServiceURI + '/api/streamingSession',{headers: {'CS-API-Arg': JSON.stringify({geo:geo.timezone})}});
+    let res = await fetch(conversionServiceURI + '/api/streamingSession',{headers: {'CS-API-Arg': JSON.stringify({geo:geo ? geo.timezone : ""})}});
     let data = await res.json();
     return data;
 };
