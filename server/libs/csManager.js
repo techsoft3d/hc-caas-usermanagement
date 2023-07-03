@@ -168,7 +168,13 @@ exports.getModels = async (project) => {
         res.push({ name: models[i].name, id: models[i]._id.toString(), pending: !models[i].converted, category:models[i].category,uploaded:models[i].uploaded, filesize:models[i].filesize});
     }
     let projectObj = await Projects.findOne({ "_id": project });
-    return {"updated":projectObj.updatedAt, "modelarray":res};
+    if (projetObj) {
+        return {"updated":projectObj.updatedAt, "modelarray":res};
+    }
+    else {
+        console.log("getModels: Project does not exist");
+        return {error: "Project does not exist"};
+    }
 };
 
 
