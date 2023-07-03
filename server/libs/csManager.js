@@ -168,7 +168,7 @@ exports.getModels = async (project) => {
         res.push({ name: models[i].name, id: models[i]._id.toString(), pending: !models[i].converted, category:models[i].category,uploaded:models[i].uploaded, filesize:models[i].filesize});
     }
     let projectObj = await Projects.findOne({ "_id": project });
-    if (projetObj) {
+    if (projectObj) {
         return {"updated":projectObj.updatedAt, "modelarray":res};
     }
     else {

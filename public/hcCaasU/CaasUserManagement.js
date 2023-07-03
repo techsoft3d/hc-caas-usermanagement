@@ -97,16 +97,31 @@ export class CaasUserManagementClient {
         return this.serveraddress + '/caas_um_api/uploadArray';
     }
 
+    setServerAddress(serveraddress) {
+        this.serveraddress = serveraddress;
+    }
+
     /**
          * Retrieves the CaaS User Management Server configuration
          * @return {object} Server Configuration
          */
     async getConfiguration() {
-        let res = await fetch(this.serveraddress + '/caas_um_api/configuration',{  mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}});
+        const controller = new AbortController();
+        let to = setTimeout(() => controller.abort(), 2000);
+        let res;
+        try {
+            res = await fetch(this.serveraddress + '/caas_um_api/configuration',{  mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}});
+        }
+        catch (e) {
+            return false;
+
+        }
+        clearTimeout(to);
         let data = await res.json();
         this.useDirectFetch = data.useDirectFetch;
         this.useStreaming = data.useStreaming;
         this.demoMode = data.demoMode;
+        return true;
     }
 
 
