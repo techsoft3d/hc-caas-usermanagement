@@ -41,7 +41,7 @@ exports.process = async (tempid, filename, project,startpath) => {
 
     let api_arg  = {webhook:config.get('hc-caas-um.serverURI') + '/caas_um_api/webhook', startPath:startpath};
         
-    res = await fetch(conversionServiceURI + '/api/upload', { method: 'POST', body: form,headers: {'CS-API-Arg': JSON.stringify(api_arg)}});
+    res = await fetch(conversionServiceURI + '/caas_api/upload', { method: 'POST', body: form,headers: {'CS-API-Arg': JSON.stringify(api_arg)}});
     const data = await res.json();
 
     del("./upload/" + tempid);
@@ -79,7 +79,7 @@ exports.processMultiple = async (infiles, startmodel, project) => {
 
     let api_arg  = {webhook:config.get('hc-caas-um.serverURI') + '/caas_um_api/webhook', rootFile:startmodel};    
         
-    res = await fetch(conversionServiceURI + '/api/uploadArray', { method: 'POST', body: form,headers: {'CS-API-Arg': JSON.stringify(api_arg)}});
+    res = await fetch(conversionServiceURI + '/caas_api/uploadArray', { method: 'POST', body: form,headers: {'CS-API-Arg': JSON.stringify(api_arg)}});
     const data = await res.json();
 
     for (let i = 0; i < infiles.length; i++) {
@@ -98,7 +98,7 @@ exports.getUploadToken = async (name, size, project) => {
 
     let res;
     try {
-        res = await fetch(conversionServiceURI + '/api/uploadToken' + "/" + name, { headers: { 'CS-API-Arg': JSON.stringify(api_arg) } });
+        res = await fetch(conversionServiceURI + '/caas_api/uploadToken' + "/" + name, { headers: { 'CS-API-Arg': JSON.stringify(api_arg) } });
     } catch (error) {
         console.log(error);
         return { error: "Conversion Service can't be reached" };
@@ -123,7 +123,7 @@ exports.getDownloadToken = async (itemid,type, project) => {
     let item = await files.findOne({ "_id": itemid, project:project});
     let json;
     try {
-        let res = await fetch(conversionServiceURI + '/api/downloadToken' + "/" +  item.storageID + "/" + type);     
+        let res = await fetch(conversionServiceURI + '/caas_api/downloadToken' + "/" +  item.storageID + "/" + type);     
         json = await res.json();  
     
         if (!json.error)
@@ -145,7 +145,7 @@ exports.processFromToken = async (itemid, project, startpath) => {
     console.log("processing:" + item.name);
     let api_arg  = {startPath:startpath};
 
-    res = await fetch(conversionServiceURI + '/api/reconvert/' + item.storageID, { method: 'put',headers: { 'CS-API-Arg': JSON.stringify(api_arg) } });
+    res = await fetch(conversionServiceURI + '/caas_api/reconvert/' + item.storageID, { method: 'put',headers: { 'CS-API-Arg': JSON.stringify(api_arg) } });
 
 };
 
@@ -156,7 +156,7 @@ exports.generateCustomImage = async (itemid, project, startpath) => {
     await item.save();
     console.log("processing custom image:" + item.name);
     let api_arg = { customImageCode: "let rmatrix = Communicator.Matrix.xAxisRotation(-90);await hwv.model.setNodeMatrix(hwv.model.getRootNode(), rmatrix);await hwv.view.fitWorld();" };
-    res = await fetch(conversionServiceURI + '/api/customImage/' + item.storageID, { method: 'put', headers: { 'CS-API-Arg': JSON.stringify(api_arg) } });
+    res = await fetch(conversionServiceURI + '/caas_api/customImage/' + item.storageID, { method: 'put', headers: { 'CS-API-Arg': JSON.stringify(api_arg) } });
     _updated(project);
 };
 
@@ -181,7 +181,7 @@ exports.getModels = async (project) => {
 
 exports.getSCS = async (itemid,project) => {
     let item = await files.findOne({ "_id": itemid, project:project});
-    let res = await fetch(conversionServiceURI + '/api/file/' + item.storageID + "/scs");
+    let res = await fetch(conversionServiceURI + '/caas_api/file/' + item.storageID + "/scs");
     return await res.arrayBuffer();
 };
 
@@ -197,7 +197,7 @@ exports.deleteModel = async (itemid, project) => {
         await files.deleteOne({ "_id": itemid });
         let items = await files.find({ "storageID": item.storageID });
         if (items.length == 0) {
-            res = await fetch(conversionServiceURI + '/api/delete/' + item.storageID, { method: 'put'});
+            res = await fetch(conversionServiceURI + '/caas_api/delete/' + item.storageID, { method: 'put'});
         }
         if (project) {
             _updated(project);
@@ -207,7 +207,7 @@ exports.deleteModel = async (itemid, project) => {
 
 exports.getPNG = async (itemid, project) => {
     let item = await files.findOne({ "_id": itemid, project:project});
-    let res = await fetch(conversionServiceURI + '/api/file/' + item.storageID + "/png");
+    let res = await fetch(conversionServiceURI + '/caas_api/file/' + item.storageID + "/png");
     return await res.arrayBuffer();
 };
 
@@ -219,7 +219,7 @@ exports.updateConversionStatus =  async (storageId, convertedFiles) => {
 
 
 exports.getStreamingSession =  async (geo) => {
-    let res = await fetch(conversionServiceURI + '/api/streamingSession',{headers: {'CS-API-Arg': JSON.stringify({geo:geo ? geo.timezone : ""})}});
+    let res = await fetch(conversionServiceURI + '/caas_api/streamingSession',{headers: {'CS-API-Arg': JSON.stringify({geo:geo ? geo.timezone : ""})}});
     let data = await res.json();
     return data;
 };
@@ -228,7 +228,7 @@ exports.getStreamingSession =  async (geo) => {
 
 exports.enableStreamAccess =  async (itemid, project, streamingSessionId) => {
     let item = await files.findOne({ "_id": itemid, project:project});
-    await fetch(conversionServiceURI + '/api/enableStreamAccess/' + streamingSessionId,{ method: 'put',headers:{'items':JSON.stringify([item.storageID])}});
+    await fetch(conversionServiceURI + '/caas_api/enableStreamAccess/' + streamingSessionId,{ method: 'put',headers:{'items':JSON.stringify([item.storageID])}});
 };
 
 var ONE_HOUR = 60 * 60 * 1000;
@@ -244,7 +244,7 @@ async function _checkPendingConversions() {
         else {
             if (notConverted[i].storageID != "NONE") {
                 try {
-                    res = await fetch(conversionServiceURI + '/api/data' + "/" + notConverted[i].storageID);
+                    res = await fetch(conversionServiceURI + '/caas_api/data' + "/" + notConverted[i].storageID);
                 } catch (error) {
                     console.log("fetch error");
                 } 
@@ -276,6 +276,6 @@ async function _updated(project)
 
 
 exports.getStatus = async () => {
-    let res = await fetch(conversionServiceURI + '/api/status');   
+    let res = await fetch(conversionServiceURI + '/caas_api/status');   
     return res.text();
 }

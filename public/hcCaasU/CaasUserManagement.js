@@ -110,7 +110,7 @@ export class CaasUserManagementClient {
         let to = setTimeout(() => controller.abort(), 2000);
         let res;
         try {
-            res = await fetch(this.serveraddress + '/caas_um_api/configuration',{  mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}});
+            res = await fetch(this.serveraddress + '/caas_um_api/configuration',{  signal: controller.signal, mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}});
         }
         catch (e) {
             return false;
