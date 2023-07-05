@@ -53,7 +53,7 @@ exports.start = async function (app_in, mongoose_in, options = { createSession: 
     global.tm_con = mongoose_in;
   }
 
-  const apiRoutes = require('./routes/caas_api');
+  const apiRoutes = require('./routes/api');
   const loginRoutes = require('./routes/login');
 
   let csmanager = require('./libs/csManager');
