@@ -2,6 +2,7 @@ const config = require('config');
 const sessionManager = require('../libs/sessionManager');
 const geoip = require('geoip-lite');
 const path = require('path');
+const stats = require('../models/Stats');
 
 let csmanager = require('../libs/csManager');
 
@@ -9,11 +10,31 @@ let csmanager = require('../libs/csManager');
 // let ip2location = new IP2Location();
 // ip2location.open(path.join(__dirname,"./IP2LOCATION-LITE-DB3.BIN"));
 
+
+
+
+function newStat(type,req, value) {
+    let item = {
+        from:  req.headers['x-forwarded-for'] || req.connection.remoteAddress
+    }
+    const stat = new stats({
+        Type: type,
+        From:  req.headers['x-forwarded-for'] || req.connection.remoteAddress,
+        Value: value      
+    });
+
+    stat.save();
+}
+
+
+
 exports.postUpload = async(req, res, next) => {
     if (config.get('hc-caas-um.demoMode')) {
         res.json({ERROR:"Not authorized."});
         return;
     }
+
+    newStat("upload",req,req.file.originalname);
 
     let id = req.file.destination.split("/");
     let result = "";
@@ -28,6 +49,8 @@ exports.postUploadArray = async(req, res, next) => {
         return;
     }
 
+    newStat("uploadArray",req,req.headers.startmodel);
+    
     let startmodel = req.headers.startmodel;
     
      result = await csmanager.processMultiple(req.files,startmodel,req.session.caasProject);
@@ -134,12 +157,90 @@ exports.getStreamingSession = async (req, res, next) => {
 
 
 exports.enableStreamAccess = async (req, res, next) => {
-    let s = await csmanager.enableStreamAccess(req.params.itemid,req.session.caasProject, req.session.streamingSessionId);
-    console.log("Access:" + req.session.streamingSessionId);
+    let filename = await csmanager.enableStreamAccess(req.params.itemid,req.session.caasProject, req.session.streamingSessionId);
+    newStat("streamAccess",req, filename);
+    console.log("Stream Access for " + filename + " ( req.session.streamingSessionId + ");
     res.sendStatus(200);
 };
 
 
 exports.getStatus = async (req, res, next) => {
-    res.send(await csmanager.getStatus());
+    let data1 = await csmanager.getStatus();
+    let s = await stats.find();
+
+    res.send(makeHTML(data1,s));
 };
+
+
+function formatDate(date) {
+    return new Date(date).toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+  }
+
+
+// Generate the HTML page
+const makeHTML = (serverData, statsdata) => {
+    const tableRows = serverData.map(row => {
+      return `
+          <tr>
+            <td>${row.servername}</td>
+            <td>${row.serveraddress}</td>
+            <td>${row.type}</td>
+            <td>${row.status}</td>
+            <td>${row.lastAccess}</td>
+          </tr>
+        `;
+    }).join('');
+
+    const tableRows2 = statsdata.map(row => {
+        return `
+            <tr>
+              <td>${row.Type}</td>
+              <td>${row.From}</td>
+              <td>${row.Value}</td>
+              <td>${formatDate(row.createdAt)}</td>
+            </tr>
+          `;
+      }).join('');
+  
+    const html = `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>Server Status</title>
+          </head>
+          <body>
+            <table>
+              <thead>
+                <tr>
+                  <th>Server Name</th>
+                  <th>Server Address</th>
+                  <th>Type</th>
+                  <th>Status</th>
+                  <th>Last Access</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${tableRows}
+              </tbody>
+            </table>
+            <br>
+            Usage Info<br><br>
+            <table>            
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Address</th>
+                <th>Info</th>
+                <th>Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${tableRows2}
+            </tbody>
+          </table>
+          </body>
+        </html>
+      `;
+  
+    return html;
+  };

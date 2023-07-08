@@ -229,6 +229,7 @@ exports.getStreamingSession =  async (geo) => {
 exports.enableStreamAccess =  async (itemid, project, streamingSessionId) => {
     let item = await files.findOne({ "_id": itemid, project:project});
     await fetch(conversionServiceURI + '/caas_api/enableStreamAccess/' + streamingSessionId,{ method: 'put',headers:{'items':JSON.stringify([item.storageID])}});
+    return item.name;
 };
 
 var ONE_HOUR = 60 * 60 * 1000;
@@ -276,6 +277,7 @@ async function _updated(project)
 
 
 exports.getStatus = async () => {
-    let res = await fetch(conversionServiceURI + '/caas_api/status');   
-    return res.text();
+    let res = await fetch(conversionServiceURI + '/caas_api/status/true');   
+    let data = await res.json();  
+    return data;
 }
