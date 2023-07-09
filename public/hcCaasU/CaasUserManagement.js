@@ -451,7 +451,7 @@ export class CaasUserManagementClient {
             * @param  {string} startpath (if zipped assembly)
             */
     processUploadFromToken(itemid, startpath = "") {
-        fetch(this.serveraddress + '/caas_um_api/processToken/' + itemid, { mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}, method: 'PUT', headers: { 'startpath': startpath } });
+        fetch(this.serveraddress + '/caas_um_api/processToken/' + itemid, { mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid, 'startpath': startpath}, method: 'PUT'} );
     }
 
 
