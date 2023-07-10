@@ -29,7 +29,8 @@ exports.process = async (tempid, filename, project,startpath) => {
         converted: false,
         storageID: "NONE",
         filesize: stats.size,
-        uploaded: new Date(),       
+        uploaded: new Date(),   
+        uploadDone: true,    
         project:project
 
     });
@@ -71,6 +72,7 @@ exports.processMultiple = async (infiles, startmodel, project) => {
         storageID: "NONE",
         filesize: size,
         uploaded: new Date(),       
+        uploadDone: true,    
         project:project
 
     });
@@ -110,6 +112,7 @@ exports.getUploadToken = async (name, size, project) => {
             storageID: json.itemid,
             filesize: size,
             uploaded: new Date(),
+            uploadDone: false,    
             project: project
         });
         await item.save();
@@ -141,11 +144,14 @@ exports.getDownloadToken = async (itemid,type, project) => {
 };
 
 exports.processFromToken = async (itemid, project, startpath) => {
-    let item = await files.findOne({ "_id": itemid, project:project});
+    let item = await files.findOne({ "_id": itemid, project:project});    
+    item.uploadDone = true;
+    item.save();
     console.log("processing:" + item.name);
     let api_arg  = {startPath:startpath};
 
     res = await fetch(conversionServiceURI + '/caas_api/reconvert/' + item.storageID, { method: 'put',headers: { 'CS-API-Arg': JSON.stringify(api_arg) } });
+    await _updated(project);
 
 };
 
@@ -165,7 +171,9 @@ exports.getModels = async (project) => {
     let models = await files.find({project:project});
     let res = [];
     for (let i = 0; i < models.length; i++) {
-        res.push({ name: models[i].name, id: models[i]._id.toString(), pending: !models[i].converted, category:models[i].category,uploaded:models[i].uploaded, filesize:models[i].filesize});
+        if (models[i].uploadDone || models[i].uploadDone == undefined) {
+            res.push({ name: models[i].name, id: models[i]._id.toString(), pending: !models[i].converted, category:models[i].category,uploaded:models[i].uploaded, filesize:models[i].filesize});
+        }
     }
     let projectObj = await Projects.findOne({ "_id": project });
     if (projectObj) {
