@@ -65,6 +65,8 @@ exports.getUploadToken = async(req, res, next) => {
         return;
     }
 
+    newStat("uploadToken",req,req.params.name);
+
     let result = await csmanager.getUploadToken(req.params.name,req.params.size,req.session.caasProject);
     res.json(result);
 };
