@@ -122,6 +122,29 @@ exports.getUploadToken = async (name, size, project) => {
         return { token: json.token, itemid: item._id.toString() };   
 };
 
+
+exports.createEmptyModel = async (name, project) => {
+
+        let api_arg = { itemname: name,webhook: config.get('hc-caas-um.serverURI') + '/caas_um_api/webhook' };
+        res = await fetch(conversionServiceURI + '/caas_api/create' + "/" + name, {method: 'put', headers: { 'CS-API-Arg': JSON.stringify(api_arg) } });
+
+        let json = await res.json();
+        const item = new files({
+            name: name,
+            converted: false,
+            storageID: json.itemid,
+            filesize: 0,
+            uploaded: new Date(),
+            uploadDone: false,    
+            project: project
+        });
+        await item.save();
+        await _updated(project);
+        _checkPendingConversions();
+        return { itemid: item._id.toString() };   
+};
+
+
 exports.getDownloadToken = async (itemid,type, project) => {
     let item = await files.findOne({ "_id": itemid, project:project});
     let json;

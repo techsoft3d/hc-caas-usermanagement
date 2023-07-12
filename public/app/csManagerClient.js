@@ -397,7 +397,7 @@ class CsManagerClient {
         let _this = this;
         myDropzone = new Dropzone("div#dropzonearea", {
             headers: { 'CSUM-API-SESSIONID': myUserManagmentClient.getSessionID() },
-            url:  "#", maxFiles: 500, parallelUploads: 10, method: 'put', timeout: 180000, uploadMultiple: false, autoProcessQueue: true,
+            url:  "#", maxFiles: 500, parallelUploads: 10, method: 'put', timeout: 180000, uploadMultiple: false, autoProcessQueue: false,
             addedfile: function (file) {
                 let firstDot = file.name.indexOf(".");
                 let extension = "";

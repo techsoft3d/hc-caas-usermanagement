@@ -465,6 +465,16 @@ export class CaasUserManagementClient {
         return data;
     }
 
+    /**
+               * Retrieve all models associated to currently active project    
+               * @return {Object} List of models
+               */
+    async createEmptyModel(name) {
+        let res = await fetch(this.serveraddress + '/caas_um_api/createEmpty/' + name, { mode: 'cors', headers: { 'CSUM-API-SESSIONID': this.sessionid },method: 'PUT'});
+        let data = await res.json();
+        return data;
+    }
+
 
     /**
             * Retrieve a download token for a file

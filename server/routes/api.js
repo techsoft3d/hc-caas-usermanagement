@@ -11,6 +11,8 @@ router.post('/uploadArray', apiController.postUploadArray);
 
 router.get('/uploadToken/:name/:size', apiController.getUploadToken);
 router.get('/downloadToken/:itemid/:type', apiController.getDownloadToken);
+router.put('/createEmptyModel/:name', apiController.putCreateEmptyModel);
+
 router.put('/processToken/:itemid', apiController.processFromToken);
 router.get('/models', apiController.getModels);
 router.get('/scs/:itemid', apiController.getSCS);
