@@ -299,18 +299,12 @@ class CsManagerClient {
             if ($("#uploadAsAssemblycheck")[0].checked) {
                 $("#assemblyuploadbutton").css('display', "block");
                 myDropzone.options.autoProcessQueue = false;
-                myDropzone.options.uploadMultiple = true;
-                myDropzone.options.parallelUploads = 500;
                 myDropzone.options.paramName = paramNameForSend;
-                myDropzone.options.url = myUserManagmentClient.getUploadArrayURL();
             }
             else {
                 $("#assemblyuploadbutton").css('display', "none");
                 myDropzone.options.autoProcessQueue = true;
-                myDropzone.options.uploadMultiple = false;
-                myDropzone.options.parallelUploads = 3;
                 myDropzone.options.paramName = "file";
-                myDropzone.options.url = myUserManagmentClient.getUploadURL();
             }
         }
         else {
@@ -338,7 +332,7 @@ class CsManagerClient {
         let _this = this;
         myDropzone = new Dropzone("div#dropzonearea", {
             headers: { 'CSUM-API-SESSIONID': myUserManagmentClient.getSessionID() },
-            url: myUserManagmentClient.getUploadURL(), maxFiles: 500, parallelUploads: 10, method: 'post', timeout: 180000, uploadMultiple: false, autoProcessQueue: true,
+            url: myUserManagmentClient.getUploadURL(), maxFiles: 500, parallelUploads: 10, method: 'post', parallelUploads: 3,timeout: 180000, uploadMultiple: false, autoProcessQueue: true,
             addedfile: function (file) {
                 let firstDot = file.name.indexOf(".");
                 let extension = "";
@@ -397,7 +391,7 @@ class CsManagerClient {
         let _this = this;
         myDropzone = new Dropzone("div#dropzonearea", {
             headers: { 'CSUM-API-SESSIONID': myUserManagmentClient.getSessionID() },
-            url:  "#", maxFiles: 500, parallelUploads: 10, method: 'put', timeout: 180000, uploadMultiple: false, autoProcessQueue: false,
+            url:  "#", maxFiles: 500, parallelUploads: 10, method: 'put', timeout: 180000, parallelUploads: 3,uploadMultiple: false, autoProcessQueue: true,
             addedfile: function (file) {
                 let firstDot = file.name.indexOf(".");
                 let extension = "";
