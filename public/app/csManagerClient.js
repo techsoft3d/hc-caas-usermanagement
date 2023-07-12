@@ -199,7 +199,35 @@ class CsManagerClient {
 
   
 
-    uploadAsAssemblyStartClicked() {
+    async uploadAsAssemblyStartClicked() {
+        if (myUserManagmentClient.getUseDirectFetch()) {
+            let files = myDropzone.getAcceptedFiles();
+
+            var selectedRows = this.uploadTable.getSelectedRows();
+            let name;
+            if (selectedRows.length != 0) {
+                name = selectedRows[0].getData().name;
+            }
+            else {
+                name = this.uploadTable.getRows()[0].getData().name;
+            }
+            
+            let totalsize = 0;
+            for (let i = 0; i < files.length; i++) {
+                totalsize += files[i].size;             
+            }
+            let res = await myUserManagmentClient.createEmptyModel(name,totalsize, name);
+
+
+
+           
+            // for (let i = 0; i < files.length; i++) {
+            //     let json = await myUserManagmentClient.getUploadToken(files[i].name, files[i].size);
+            //     files[i].itemid = json.itemid;
+            //     files[i].signedRequest = json.token;
+            // }
+        }
+
         myDropzone.processQueue();
     }
 
@@ -415,10 +443,10 @@ class CsManagerClient {
                     }
                 }
                 else {
-                    let json = await myUserManagmentClient.getUploadToken(file.name, file.size);
+                    // let json = await myUserManagmentClient.getUploadToken(file.name, file.size);
 
-                    file.itemid = json.itemid;
-                    file.signedRequest = json.token;
+                    // file.itemid = json.itemid;
+                    // file.signedRequest = json.token;
 
                     cb();
                 }

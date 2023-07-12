@@ -95,8 +95,12 @@ exports.processMultiple = async (infiles, startmodel, project) => {
 };
 
 
-exports.getUploadToken = async (name, size, project) => {
+exports.getUploadToken = async (name, size, itemid, project) => {
     let api_arg = { webhook: config.get('hc-caas-um.serverURI') + '/caas_um_api/webhook' };
+    if (itemid) {
+        let item = await files.findOne({ "_id": itemid, project:project});
+        api_arg.itemid = item.storageID;
+    }
 
     let res;
     try {
@@ -105,35 +109,39 @@ exports.getUploadToken = async (name, size, project) => {
         console.log(error);
         return { error: "Conversion Service can't be reached" };
     }
-        let json = await res.json();
+    let json = await res.json();
+    if (!itemid) {
         const item = new files({
             name: name,
             converted: false,
             storageID: json.itemid,
             filesize: size,
             uploaded: new Date(),
-            uploadDone: false,    
+            uploadDone: false,
             project: project
         });
         await item.save();
         await _updated(project);
         _checkPendingConversions();
-
-        return { token: json.token, itemid: item._id.toString() };   
+        return { token: json.token, itemid: item._id.toString() };
+    }
+    else {
+        return { token: json.token};
+    }
 };
 
 
-exports.createEmptyModel = async (name, project) => {
+exports.createEmptyModel = async (name, size, startpath, project) => {
 
-        let api_arg = { itemname: name,webhook: config.get('hc-caas-um.serverURI') + '/caas_um_api/webhook' };
-        res = await fetch(conversionServiceURI + '/caas_api/create' + "/" + name, {method: 'put', headers: { 'CS-API-Arg': JSON.stringify(api_arg) } });
+        let api_arg = { itemname: name,webhook: config.get('hc-caas-um.serverURI') + '/caas_um_api/webhook', startPath:startpath };
+        res = await fetch(conversionServiceURI + '/caas_api/create', {method: 'put', headers: { 'CS-API-Arg': JSON.stringify(api_arg) } });
 
         let json = await res.json();
         const item = new files({
             name: name,
             converted: false,
             storageID: json.itemid,
-            filesize: 0,
+            filesize: size,
             uploaded: new Date(),
             uploadDone: false,    
             project: project

@@ -438,8 +438,13 @@ export class CaasUserManagementClient {
             * @param  {integer} size of file
             * @return {Object} Upload Token
             */
-    async getUploadToken(name, size) {
-        let data = await fetch(this.serveraddress + '/caas_um_api/uploadToken/' + name + "/" + size,{ mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid},});
+    async getUploadToken(name, size, itemid = null) {
+        let url = this.serveraddress + '/caas_um_api/uploadToken/' + name + "/" + size;
+        if (itemid) {
+            url += "/" + itemid;
+        }
+    
+        let data = await fetch(url,{ mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid},});
         let json = await data.json();
         return json;
     }
@@ -469,8 +474,8 @@ export class CaasUserManagementClient {
                * Retrieve all models associated to currently active project    
                * @return {Object} List of models
                */
-    async createEmptyModel(name) {
-        let res = await fetch(this.serveraddress + '/caas_um_api/createEmpty/' + name, { mode: 'cors', headers: { 'CSUM-API-SESSIONID': this.sessionid },method: 'PUT'});
+    async createEmptyModel(name,size,startpath) {
+        let res = await fetch(this.serveraddress + '/caas_um_api/createEmptyModel/' + name + "/" + size, { mode: 'cors', headers: { 'CSUM-API-SESSIONID': this.sessionid,'startpath': startpath},method: 'PUT'});
         let data = await res.json();
         return data;
     }
