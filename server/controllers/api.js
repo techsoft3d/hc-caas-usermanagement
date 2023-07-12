@@ -161,7 +161,7 @@ exports.getStreamingSession = async (req, res, next) => {
 exports.enableStreamAccess = async (req, res, next) => {
     let filename = await csmanager.enableStreamAccess(req.params.itemid,req.session.caasProject, req.session.streamingSessionId);
     newStat("streamAccess",req, filename);
-    console.log("Stream Access for " + filename + " ( req.session.streamingSessionId + ");
+    console.log("Stream Access for " + filename + "(" +  req.session.streamingSessionId + ")");
     res.sendStatus(200);
 };
 
