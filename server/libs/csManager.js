@@ -179,7 +179,7 @@ exports.processFromToken = async (itemid, project, startpath) => {
     item.uploadDone = true;
     item.save();
     console.log("processing:" + item.name);
-    let api_arg  = {startPath:startpath};
+    let api_arg  = {startPath:startpath, multiConvert:item.name.indexOf(".zip") == -1 ? true : false};
 
     res = await fetch(conversionServiceURI + '/caas_api/reconvert/' + item.storageID, { method: 'put',headers: { 'CS-API-Arg': JSON.stringify(api_arg) } });
     await _updated(project);

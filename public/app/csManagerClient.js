@@ -448,10 +448,12 @@ class CsManagerClient {
                     }
                 }
                 else {
-                    // let json = await myUserManagmentClient.getUploadToken(file.name, file.size);
+                    if (!$("#uploadAsAssemblycheck")[0].checked) {
+                        let json = await myUserManagmentClient.getUploadToken(file.name, file.size);
 
-                    // file.itemid = json.itemid;
-                    // file.signedRequest = json.token;
+                        file.itemid = json.itemid;
+                        file.signedRequest = json.token;
+                    }
 
                     cb();
                 }
