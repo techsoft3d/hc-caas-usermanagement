@@ -66,7 +66,9 @@ exports.getUploadToken = async(req, res, next) => {
         return;
     }
 
-    newStat("uploadToken",req,req.params.name);
+  if (!req.params.itemid) {
+    newStat("uploadToken", req, req.params.name);
+  }
 
     let result = await csmanager.getUploadToken(req.params.name,req.params.size,req.params.itemid,req.session.caasProject);
     res.json(result);
@@ -177,6 +179,10 @@ exports.getStatus = async (req, res, next) => {
 
 
 exports.putCreateEmptyModel = async(req, res, next) => {    
+
+  
+  newStat("uploadAssembly", req, req.params.name);
+  
   let result = await csmanager.createEmptyModel(req.params.name,req.params.size,req.headers.startpath,req.session.caasProject);
   res.json(result);
 };
