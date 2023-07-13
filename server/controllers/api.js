@@ -11,6 +11,7 @@ let csmanager = require('../libs/csManager');
 // ip2location.open(path.join(__dirname,"./IP2LOCATION-LITE-DB3.BIN"));
 
 
+var startedAt = new Date();
 
 
 function newStat(type,req, value) {
@@ -181,7 +182,10 @@ exports.putCreateEmptyModel = async(req, res, next) => {
 };
 
 
-
+function formatUptime() {
+  let current = new Date() - startedAt;
+  return Math.floor(current / 1000 / 60 / 60) + " hours, " + Math.floor(current / 1000 / 60) + " minutes";
+}
 
 function formatDate(date) {
     return new Date(date).toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
@@ -234,7 +238,7 @@ const makeHTML = (serverData, statsdata) => {
                 ${tableRows}
               </tbody>
             </table>
-            <br>
+            Uptime: ${formatUptime()}<br><br>
             Usage Info<br><br>
             <table>            
             <thead>
