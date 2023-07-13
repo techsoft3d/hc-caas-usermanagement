@@ -189,8 +189,16 @@ exports.putCreateEmptyModel = async(req, res, next) => {
 
 
 function formatUptime() {
-  let current = new Date() - startedAt;
-  return Math.floor(current / 1000 / 60 / 60) + " hours, " + Math.floor(current / 1000 / 60) + " minutes";
+  let current = new Date();
+
+  let diffInMilliseconds = current - startedAt;
+  let diffInHours = diffInMilliseconds / (1000 * 60 * 60);
+
+  let hours = Math.floor(diffInHours);
+  let minutes = Math.floor((diffInHours - hours) * 60);
+
+  return `${hours} Hours ${minutes} Minutes`;
+
 }
 
 function formatDate(date) {
