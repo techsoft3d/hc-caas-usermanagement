@@ -152,6 +152,7 @@ function handleInitialConfiguration() {
         "demoMode": false,
         "assignDemoHub": false,
         "usePolling": false,
+        "caasAccessPassword": "",
         "port" : 3000,
         "demoProject": ""    
   };

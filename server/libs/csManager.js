@@ -40,7 +40,7 @@ exports.process = async (tempid, filename, project,startpath) => {
     let form = new FormData();
     form.append('file', fs.createReadStream("./upload/" + tempid + "/" + filename));
 
-    let api_arg  = {webhook:config.get('hc-caas-um.serverURI') + '/caas_um_api/webhook', startPath:startpath};
+    let api_arg  = {webhook:config.get('hc-caas-um.serverURI') + '/caas_um_api/webhook', startPath:startpath, accessPassword:config.get('hc-caas-um.caasAccessPassword')};
         
     res = await fetch(conversionServiceURI + '/caas_api/upload', { method: 'POST', body: form,headers: {'CS-API-Arg': JSON.stringify(api_arg)}});
     const data = await res.json();
@@ -79,7 +79,7 @@ exports.processMultiple = async (infiles, startmodel, project) => {
     await item.save();
     const modelid = item._id.toString();
 
-    let api_arg  = {webhook:config.get('hc-caas-um.serverURI') + '/caas_um_api/webhook', rootFile:startmodel};    
+    let api_arg  = {webhook:config.get('hc-caas-um.serverURI') + '/caas_um_api/webhook', rootFile:startmodel,accessPassword:config.get('hc-caas-um.caasAccessPassword')};    
         
     res = await fetch(conversionServiceURI + '/caas_api/uploadArray', { method: 'POST', body: form,headers: {'CS-API-Arg': JSON.stringify(api_arg)}});
     const data = await res.json();
@@ -96,7 +96,7 @@ exports.processMultiple = async (infiles, startmodel, project) => {
 
 
 exports.getUploadToken = async (name, size, itemid, project) => {
-    let api_arg = { webhook: config.get('hc-caas-um.serverURI') + '/caas_um_api/webhook' };
+    let api_arg = { webhook: config.get('hc-caas-um.serverURI') + '/caas_um_api/webhook',accessPassword:config.get('hc-caas-um.caasAccessPassword') };
     if (itemid) {
         let item = await files.findOne({ "_id": itemid, project:project});
         api_arg.itemid = item.storageID;
@@ -133,7 +133,7 @@ exports.getUploadToken = async (name, size, itemid, project) => {
 
 exports.createEmptyModel = async (name, size, startpath, project) => {
 
-        let api_arg = { itemname: name,webhook: config.get('hc-caas-um.serverURI') + '/caas_um_api/webhook', startPath:startpath };
+        let api_arg = { itemname: name,webhook: config.get('hc-caas-um.serverURI') + '/caas_um_api/webhook', startPath:startpath, accessPassword:config.get('hc-caas-um.caasAccessPassword') };
         res = await fetch(conversionServiceURI + '/caas_api/create', {method: 'put', headers: { 'CS-API-Arg': JSON.stringify(api_arg) } });
 
         let json = await res.json();
@@ -157,7 +157,8 @@ exports.getDownloadToken = async (itemid,type, project) => {
     let item = await files.findOne({ "_id": itemid, project:project});
     let json;
     try {
-        let res = await fetch(conversionServiceURI + '/caas_api/downloadToken' + "/" +  item.storageID + "/" + type);     
+        let api_arg = { accessPassword:config.get('hc-caas-um.caasAccessPassword') };
+        let res = await fetch(conversionServiceURI + '/caas_api/downloadToken' + "/" +  item.storageID + "/" + type, {headers: { 'CS-API-Arg': JSON.stringify(api_arg) } });     
         json = await res.json();  
     
         if (!json.error)
@@ -179,7 +180,7 @@ exports.processFromToken = async (itemid, project, startpath) => {
     item.uploadDone = true;
     item.save();
     console.log("processing:" + item.name);
-    let api_arg  = {startPath:startpath, multiConvert:item.name.indexOf(".zip") == -1 ? true : false};
+    let api_arg  = {startPath:startpath, multiConvert:item.name.indexOf(".zip") == -1 ? true : false,accessPassword:config.get('hc-caas-um.caasAccessPassword')};
 
     res = await fetch(conversionServiceURI + '/caas_api/reconvert/' + item.storageID, { method: 'put',headers: { 'CS-API-Arg': JSON.stringify(api_arg) } });
     await _updated(project);
@@ -192,7 +193,7 @@ exports.generateCustomImage = async (itemid, project, startpath) => {
 
     await item.save();
     console.log("processing custom image:" + item.name);
-    let api_arg = { customImageCode: "let rmatrix = Communicator.Matrix.xAxisRotation(-90);await hwv.model.setNodeMatrix(hwv.model.getRootNode(), rmatrix);await hwv.view.fitWorld();" };
+    let api_arg = { accessPassword:config.get('hc-caas-um.caasAccessPassword'), customImageCode: "let rmatrix = Communicator.Matrix.xAxisRotation(-90);await hwv.model.setNodeMatrix(hwv.model.getRootNode(), rmatrix);await hwv.view.fitWorld();" };
     res = await fetch(conversionServiceURI + '/caas_api/customImage/' + item.storageID, { method: 'put', headers: { 'CS-API-Arg': JSON.stringify(api_arg) } });
     _updated(project);
 };
@@ -220,7 +221,8 @@ exports.getModels = async (project) => {
 
 exports.getSCS = async (itemid,project) => {
     let item = await files.findOne({ "_id": itemid, project:project});
-    let res = await fetch(conversionServiceURI + '/caas_api/file/' + item.storageID + "/scs");
+    let api_arg = { accessPassword:config.get('hc-caas-um.caasAccessPassword') };
+    let res = await fetch(conversionServiceURI + '/caas_api/file/' + item.storageID + "/scs", {headers: { 'CS-API-Arg': JSON.stringify(api_arg) } });
     return await res.arrayBuffer();
 };
 
@@ -236,7 +238,8 @@ exports.deleteModel = async (itemid, project) => {
         await files.deleteOne({ "_id": itemid });
         let items = await files.find({ "storageID": item.storageID });
         if (items.length == 0) {
-            res = await fetch(conversionServiceURI + '/caas_api/delete/' + item.storageID, { method: 'put'});
+            let api_arg = { accessPassword:config.get('hc-caas-um.caasAccessPassword') };
+            res = await fetch(conversionServiceURI + '/caas_api/delete/' + item.storageID, { method: 'put',headers: { 'CS-API-Arg': JSON.stringify(api_arg) }});
         }
         if (project) {
             _updated(project);
@@ -246,7 +249,8 @@ exports.deleteModel = async (itemid, project) => {
 
 exports.getPNG = async (itemid, project) => {
     let item = await files.findOne({ "_id": itemid, project:project});
-    let res = await fetch(conversionServiceURI + '/caas_api/file/' + item.storageID + "/png");
+    let api_arg = { accessPassword:config.get('hc-caas-um.caasAccessPassword') };
+    let res = await fetch(conversionServiceURI + '/caas_api/file/' + item.storageID + "/png",{headers: { 'CS-API-Arg': JSON.stringify(api_arg)}});
     return await res.arrayBuffer();
 };
 
@@ -258,7 +262,8 @@ exports.updateConversionStatus =  async (storageId, convertedFiles) => {
 
 
 exports.getStreamingSession =  async (geo) => {
-    let res = await fetch(conversionServiceURI + '/caas_api/streamingSession',{headers: {'CS-API-Arg': JSON.stringify({geo:geo ? geo.timezone : ""})}});
+    let api_arg = { accessPassword:config.get('hc-caas-um.caasAccessPassword'),geo:geo ? geo.timezone : "" };
+    let res = await fetch(conversionServiceURI + '/caas_api/streamingSession',{headers: {'CS-API-Arg': JSON.stringify(api_arg)}});
     let data = await res.json();
     return data;
 };
@@ -267,7 +272,8 @@ exports.getStreamingSession =  async (geo) => {
 
 exports.enableStreamAccess =  async (itemid, project, streamingSessionId) => {
     let item = await files.findOne({ "_id": itemid, project:project});
-    await fetch(conversionServiceURI + '/caas_api/enableStreamAccess/' + streamingSessionId,{ method: 'put',headers:{'items':JSON.stringify([item.storageID])}});
+    let api_arg = { accessPassword:config.get('hc-caas-um.caasAccessPassword') };
+    await fetch(conversionServiceURI + '/caas_api/enableStreamAccess/' + streamingSessionId,{ method: 'put',headers:{'CS-API-Arg': JSON.stringify(api_arg),'items':JSON.stringify([item.storageID])}});
     return item.name;
 };
 
@@ -284,7 +290,8 @@ async function _checkPendingConversions() {
         else {
             if (notConverted[i].storageID != "NONE") {
                 try {
-                    res = await fetch(conversionServiceURI + '/caas_api/data' + "/" + notConverted[i].storageID);
+                    let api_arg = { accessPassword:config.get('hc-caas-um.caasAccessPassword') };
+                    res = await fetch(conversionServiceURI + '/caas_api/data' + "/" + notConverted[i].storageID,{headers: {'CS-API-Arg': JSON.stringify(api_arg)}});
                 } catch (error) {
                     console.log("fetch error");
                 } 
@@ -316,7 +323,8 @@ async function _updated(project)
 
 
 exports.getStatus = async () => {
-    let res = await fetch(conversionServiceURI + '/caas_api/status/true');   
+    let api_arg = { accessPassword:config.get('hc-caas-um.caasAccessPassword') };
+    let res = await fetch(conversionServiceURI + '/caas_api/status/true',{headers: {'CS-API-Arg': JSON.stringify(api_arg)}});   
     let data = await res.json();  
     return data;
 }

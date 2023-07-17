@@ -23,9 +23,6 @@ class CsManagerClient {
             }
         });
 
-
-
-
         if (myUserManagmentClient.getUseDirectFetch()) {
             csManagerClient.setupDropzoneForDirectFetch();
         }
@@ -81,6 +78,7 @@ class CsManagerClient {
     constructor() {
         this._updatedTime = undefined;
         this._modelHash = [];
+        this._firstLoad = true;
     }
 
     async chooseZipContent(file, cb) {
@@ -197,10 +195,6 @@ class CsManagerClient {
         myModal.toggle();
     }
 
-  
-
-  
-
     hideUploadWindow() {
         $("#filedroparea").css("display", "none");
     }
@@ -267,8 +261,17 @@ class CsManagerClient {
         }
     }
 
-    async loadModel(modelid) {
-        hwv.model.clear();
+    async loadModel(modelid, clear = true) {
+        if (this._firstLoad) {
+            this._firstLoad = false;
+        }
+        else
+        {
+            if (clear) {
+                await hwv.model.clear();           
+            }
+        }
+
         if (this._modelHash[modelid].name.indexOf(".dwg")) {
             hwv.view.setAmbientOcclusionEnabled(false);
         }
