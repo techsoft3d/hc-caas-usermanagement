@@ -209,12 +209,13 @@ function formatDate(date) {
 // Generate the HTML page
 const makeHTML = (serverData, statsdata) => {
     const tableRows = serverData.map(row => {
+      const statusClass = row.status === 'Offline' ? 'status-offline' : '';
       return `
           <tr>
             <td>${row.servername}</td>
             <td>${row.serveraddress}</td>
             <td>${row.type}</td>
-            <td>${row.status}</td>
+            <td class="${statusClass}">${row.status}</td>
             <td>${row.lastAccess}</td>
           </tr>
         `;
@@ -236,6 +237,11 @@ const makeHTML = (serverData, statsdata) => {
         <html>
           <head>
             <title>Server Status</title>
+            <style>
+            .status-offline {
+              background: red;
+            }
+            </style>
           </head>
           <body>
             <table>
