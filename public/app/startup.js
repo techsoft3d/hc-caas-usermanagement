@@ -1,6 +1,6 @@
-const serveraddress = "http://" + window.location.host;
+//const serveraddress = "http://" + window.location.host;
 
-//const serveraddress = "https://caas.techsoft3d.com:443";
+const serveraddress = "https://caastesting.techsoft3d.com:443";
 //const serveraddress = "http://127.0.0.1:3000";
 
 var myAdmin;

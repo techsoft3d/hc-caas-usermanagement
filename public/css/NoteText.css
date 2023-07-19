@@ -7,6 +7,7 @@
   border-radius: 5px;
   border: 1px solid black;
   pointer-events: auto;
+  box-sizing : border-box;
 }
 
 .noteTextElement:after,
@@ -47,6 +48,7 @@
   width: 20px;
   height: 20px;
   border: 1px solid black;
+  box-sizing : border-box;
 }
 
 .noteTextElement .noteButton.color.blue {
