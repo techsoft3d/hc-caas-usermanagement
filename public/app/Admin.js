@@ -72,7 +72,7 @@ class Admin {
 
         let res = await myUserManagmentClient.register({firstName: $("#register_firstname").val(), lastName: $("#register_lastname").val(), email: $("#register_email").val(), password: $("#register_password").val()});
         if (res == "SUCCESS") {
-            CsManagerClient.msready();
+           this.handleLogin();
         }
         else {
             $.notify("Error: " + res, { style:"notifyerror",autoHideDelay: 3000, position: "bottom center" });
