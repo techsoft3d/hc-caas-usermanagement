@@ -67,6 +67,7 @@ exports.start = async function (app_in, mongoose_in, options = { createSession: 
     global.caas_um_publicip = config.get('hc-caas-um.publicURL');
   }
 
+  console.log("Public CAAS_UM IP: " + global.caas_um_publicip);
 
   let versioninfo = require('../package.json');
   process.env.caas_um_version = versioninfo.version;
@@ -90,6 +91,14 @@ exports.start = async function (app_in, mongoose_in, options = { createSession: 
 
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(bodyParser.json());
+
+  if (config.get('hc-caas-um.serveSite')) {
+    console.log("Serving CAAS_UM Website");
+    app.use(express.static(path.join(__dirname, '/../public')));
+    app.get('/', function(req, res){
+      res.sendFile(__dirname + '/../public/index.html');
+    });
+  }
 
 
   const fileStorage = multer.diskStorage({
@@ -181,6 +190,7 @@ function handleInitialConfiguration() {
         "assignDemoHub": false,
         "usePolling": false,
         "caasAccessPassword": "",
+        "serveSite":false,
         "port" : 3000,
         "demoProject": ""    
   };

@@ -2,7 +2,8 @@
     "hc-caas-um": {
       "mongodbURI": "mongodb://127.0.0.1:27017/caas_demo_app",
       "useStreaming": true,
-      "useDirectFetch": true      
+      "useDirectFetch": true,
+      "serveSite":true
     }
   }
   
