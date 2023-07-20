@@ -56,7 +56,7 @@ To integrate CaaS User Management into your own server application as a node mod
   "hc-caas-um": {
     "mongodbURI": "mongodb://127.0.0.1:27017/caas_demo_app",
     "conversionServiceURI": "http://localhost:3001",
-    "serverURI": "http://localhost:3000",
+    "publicURL": "http://localhost:3000",
     "useDirectFetch": false,
     "useStreaming": false,
     "demoMode": false,

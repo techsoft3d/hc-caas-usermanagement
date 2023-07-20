@@ -40,7 +40,7 @@ exports.process = async (tempid, filename, project,startpath) => {
     let form = new FormData();
     form.append('file', fs.createReadStream("./upload/" + tempid + "/" + filename));
 
-    let api_arg  = {webhook:config.get('hc-caas-um.serverURI') + '/caas_um_api/webhook', startPath:startpath, accessPassword:config.get('hc-caas-um.caasAccessPassword')};
+    let api_arg  = {webhook: global.caas_um_publicip + '/caas_um_api/webhook', startPath:startpath, accessPassword:config.get('hc-caas-um.caasAccessPassword')};
         
     res = await fetch(conversionServiceURI + '/caas_api/upload', { method: 'POST', body: form,headers: {'CS-API-Arg': JSON.stringify(api_arg)}});
     const data = await res.json();
@@ -79,7 +79,7 @@ exports.processMultiple = async (infiles, startmodel, project) => {
     await item.save();
     const modelid = item._id.toString();
 
-    let api_arg  = {webhook:config.get('hc-caas-um.serverURI') + '/caas_um_api/webhook', rootFile:startmodel,accessPassword:config.get('hc-caas-um.caasAccessPassword')};    
+    let api_arg  = {webhook:global.caas_um_publicip + '/caas_um_api/webhook', rootFile:startmodel,accessPassword:config.get('hc-caas-um.caasAccessPassword')};    
         
     res = await fetch(conversionServiceURI + '/caas_api/uploadArray', { method: 'POST', body: form,headers: {'CS-API-Arg': JSON.stringify(api_arg)}});
     const data = await res.json();
@@ -96,7 +96,7 @@ exports.processMultiple = async (infiles, startmodel, project) => {
 
 
 exports.getUploadToken = async (name, size, itemid, project) => {
-    let api_arg = { webhook: config.get('hc-caas-um.serverURI') + '/caas_um_api/webhook',accessPassword:config.get('hc-caas-um.caasAccessPassword') };
+    let api_arg = { webhook: global.caas_um_publicip + '/caas_um_api/webhook',accessPassword:config.get('hc-caas-um.caasAccessPassword') };
     if (itemid) {
         let item = await files.findOne({ "_id": itemid, project:project});
         api_arg.itemid = item.storageID;
@@ -133,7 +133,7 @@ exports.getUploadToken = async (name, size, itemid, project) => {
 
 exports.createEmptyModel = async (name, size, startpath, project) => {
 
-        let api_arg = { itemname: name,webhook: config.get('hc-caas-um.serverURI') + '/caas_um_api/webhook', startPath:startpath, accessPassword:config.get('hc-caas-um.caasAccessPassword') };
+        let api_arg = { itemname: name,webhook: global.caas_um_publicip + '/caas_um_api/webhook', startPath:startpath, accessPassword:config.get('hc-caas-um.caasAccessPassword') };
         res = await fetch(conversionServiceURI + '/caas_api/create', {method: 'put', headers: { 'CS-API-Arg': JSON.stringify(api_arg) } });
 
         let json = await res.json();
@@ -272,9 +272,14 @@ exports.getStreamingSession =  async (geo) => {
 
 exports.enableStreamAccess =  async (itemid, project, streamingSessionId) => {
     let item = await files.findOne({ "_id": itemid, project:project});
-    let api_arg = { accessPassword:config.get('hc-caas-um.caasAccessPassword') };
-    await fetch(conversionServiceURI + '/caas_api/enableStreamAccess/' + streamingSessionId,{ method: 'put',headers:{'CS-API-Arg': JSON.stringify(api_arg),'items':JSON.stringify([item.storageID])}});
-    return item.name;
+    if (item && item.storageID) {
+        let api_arg = { accessPassword:config.get('hc-caas-um.caasAccessPassword') };
+        await fetch(conversionServiceURI + '/caas_api/enableStreamAccess/' + streamingSessionId,{ method: 'put',headers:{'CS-API-Arg': JSON.stringify(api_arg),'items':JSON.stringify([item.storageID])}});
+        return item.name;
+    }
+    else {
+        return "";
+    }
 };
 
 var ONE_HOUR = 60 * 60 * 1000;

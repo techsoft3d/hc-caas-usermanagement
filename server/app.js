@@ -22,6 +22,19 @@ process.on('uncaughtException', function (err) {
   console.log(err);
 });
 
+function getPublicIP() {
+  return new Promise((resolve, reject) => {
+    var http = require('http');
+
+    http.get({ 'host': 'api.ipify.org', 'port': 80, 'path': '/' }, function (resp) {
+      resp.on('data', function (ip) {
+        resolve(ip);
+      });
+    });
+  });
+}
+
+
 
 exports.getDatabaseObjects = function () {
   return { files: require('./models/Files'), hubs: require('./models/Hubs'), projects: require('./models/Projects'), users: require('./models/Users') };
@@ -40,6 +53,20 @@ exports.start = async function (app_in, mongoose_in, options = { createSession: 
   }
 
   handleInitialConfiguration();
+
+  if (config.get('hc-caas-um.publicURL') == "") {
+    global.caas_um_publicip = "http://" + (await getPublicIP()).toString();
+    if (config.get('hc-caas-um.publicPort') != "") {
+      global.caas_um_publicip += ":" + config.get('hc-caas-um.publicPort');
+    }
+    else {
+      global.caas_um_publicip += ":" + config.get('hc-caas-um.port');
+    }    
+  }
+  else {
+    global.caas_um_publicip = config.get('hc-caas-um.publicURL');
+  }
+
 
   let versioninfo = require('../package.json');
   process.env.caas_um_version = versioninfo.version;
@@ -146,7 +173,8 @@ function handleInitialConfiguration() {
   let configs = {
         "mongodbURI": "mongodb://127.0.0.1:27017/caas_demo_app",
         "conversionServiceURI": "http://localhost:3001",
-        "serverURI": "http://localhost:3000",
+        "publicURL": "http://localhost:3000",
+        "publicPort": "",
         "useDirectFetch": false,
         "useStreaming": false,
         "demoMode": false,
