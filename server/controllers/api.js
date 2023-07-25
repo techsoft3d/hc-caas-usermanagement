@@ -145,6 +145,13 @@ exports.getStreamingSession = async (req, res, next) => {
 
     let geo = geoip.lookup(ip);
     let s = await csmanager.getStreamingSession(geo);
+
+    if (ip == "::1" && global.caas_um_publicip.indexOf(s.serverurl) != -1) {
+      s.serverurl = "localhost";
+    }
+    else if (s.serverurl.indexOf(ip) > -1) {
+      s.serverurl = "localhost"
+    }
     if (!s.ERROR) {
 
         setTimeout(async () => {
