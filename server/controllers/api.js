@@ -147,6 +147,7 @@ exports.getStreamingSession = async (req, res, next) => {
     else if (s.serverurl.indexOf(ip) > -1) {
       s.serverurl = "localhost"
     }
+    
     if (!s.ERROR) {
 
         setTimeout(async () => {

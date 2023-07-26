@@ -268,6 +268,7 @@ exports.getStreamingSession =  async (geo) => {
     }
     let res = await fetch(conversionServiceURI + '/caas_api/streamingSession',{headers: {'CS-API-Arg': JSON.stringify(api_arg)}});
     let data = await res.json();
+    data.ssrEnabled = config.get('hc-caas-um.ssrEnabled');
     return data;
 };
 

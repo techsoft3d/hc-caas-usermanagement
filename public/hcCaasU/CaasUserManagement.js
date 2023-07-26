@@ -559,7 +559,7 @@ export class CaasUserManagementClient {
                     containerId: container,
                     endpointUri: (this.serveraddress.indexOf("https") != -1 ? 'wss://' : "ws://") + data.serverurl + ":" + data.port + '?token=' + data.sessionid,
                     model: "_empty",
-                    rendererType: Communicator.RendererType.Client
+                    rendererType: data.ssrEnabled ? Communicator.RendererType.Server : Communicator.RendererType.Client
                 });
                 this.streamingServerURL = data.serverurl;
             }
