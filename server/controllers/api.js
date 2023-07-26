@@ -138,15 +138,10 @@ exports.getStreamingSession = async (req, res, next) => {
         ip = ip.substr(7)
     }
 
-    // let result = ip2location.getAll(ip);
-    // for (var key in result) {
-    // 	console.log(key + ": " + result[key]);
-    // }
-
     let geo = geoip.lookup(ip);
     let s = await csmanager.getStreamingSession(geo);
-
-    if (ip == "::1" && global.caas_um_publicip.indexOf(s.serverurl) != -1) {
+  
+    if ((ip == "::1" || ip.indexOf("172.17") != -1) && global.caas_um_publicip.indexOf(s.serverurl) != -1) {
       s.serverurl = "localhost";
     }
     else if (s.serverurl.indexOf(ip) > -1) {
