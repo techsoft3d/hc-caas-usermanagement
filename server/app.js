@@ -192,6 +192,7 @@ function handleInitialConfiguration() {
         "caasAccessPassword": "",
         "serveSite":false,
         "port" : 3000,
+        "ssrEnabled": false,
         "demoProject": ""    
   };
 

@@ -261,8 +261,11 @@ exports.updateConversionStatus =  async (storageId, convertedFiles) => {
 };
 
 
-exports.getStreamingSession =  async (geo) => {
+exports.getStreamingSession =  async (geo) => {    
     let api_arg = { accessPassword:config.get('hc-caas-um.caasAccessPassword'),geo:geo ? geo.timezone : "" };
+    if (config.get('hc-caas-um.ssrEnabled')) {
+        api_arg.renderType = "server";
+    }
     let res = await fetch(conversionServiceURI + '/caas_api/streamingSession',{headers: {'CS-API-Arg': JSON.stringify(api_arg)}});
     let data = await res.json();
     return data;
