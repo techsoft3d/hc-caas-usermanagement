@@ -14,6 +14,16 @@ export class CaasUserManagementClient {
         this.serveraddress = serveraddress;
         this.sessionid = localStorage.getItem("CSUM-API-SESSIONID");
         this.streamingServerURL = "";
+        this.useSSR = false;
+    }
+
+
+    setUseSSR(usessr) {
+        this.useSSR = usessr;
+    }
+
+    getUseSSR() {
+        return this.useSSR;
     }
 
     getStreamingServerURL() {
@@ -121,6 +131,7 @@ export class CaasUserManagementClient {
         this.useDirectFetch = data.useDirectFetch;
         this.useStreaming = data.useStreaming;
         this.demoMode = data.demoMode;
+        this.useSSR = data.ssrEnabled;
         return true;
     }
 
@@ -551,7 +562,7 @@ export class CaasUserManagementClient {
         }
         else {
 
-            let res = await fetch(this.serveraddress + '/caas_um_api/streamingSession',{ mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}});
+            let res = await fetch(this.serveraddress + '/caas_um_api/streamingSession',{ mode:'cors', headers: {'CSUM-API-useSSR' : this.useSSR,'CSUM-API-SESSIONID': this.sessionid}});
             let data = await res.json();
 
             if (!data.ERROR) {

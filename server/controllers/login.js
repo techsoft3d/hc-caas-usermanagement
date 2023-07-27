@@ -179,7 +179,7 @@ exports.putLogin = async(req, res, next) => {
 
 exports.configuration = async(req, res, next) => {    
     console.log("configuration");    
-    res.json({useDirectFetch : config.get('hc-caas-um.useDirectFetch'),useStreaming : config.get('hc-caas-um.useStreaming'),demoMode: config.get('hc-caas-um.demoMode')});    
+    res.json({ssrEnabled: config.get('hc-caas-um.ssrEnabled'), useDirectFetch : config.get('hc-caas-um.useDirectFetch'),useStreaming : config.get('hc-caas-um.useStreaming'),demoMode: config.get('hc-caas-um.demoMode')});    
 };
 
 

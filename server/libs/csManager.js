@@ -261,14 +261,15 @@ exports.updateConversionStatus =  async (storageId, convertedFiles) => {
 };
 
 
-exports.getStreamingSession =  async (geo) => {    
+exports.getStreamingSession =  async (geo, ssrEnabled = false) => {    
     let api_arg = { accessPassword:config.get('hc-caas-um.caasAccessPassword'),geo:geo ? geo.timezone : "" };
-    if (config.get('hc-caas-um.ssrEnabled')) {
+
+    if (ssrEnabled) {
         api_arg.renderType = "server";
     }
     let res = await fetch(conversionServiceURI + '/caas_api/streamingSession',{headers: {'CS-API-Arg': JSON.stringify(api_arg)}});
     let data = await res.json();
-    data.ssrEnabled = config.get('hc-caas-um.ssrEnabled');
+    data.ssrEnabled =(ssrEnabled && (data.renderType == "server") || (data.renderType == "mixed"));
     return data;
 };
 
