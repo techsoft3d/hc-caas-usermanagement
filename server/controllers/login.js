@@ -134,14 +134,27 @@ exports.putLogin = async(req, res, next) => {
         return;
     }
 
-    let item = await Users.findOne({ "email":  req.params.email });
+    let generateProject = false;
+    if (req.get('CSUM-API-GENERATEPROJECT') && req.get('CSUM-API-GENERATEPROJECT') == "true") {
+        generateProject = true;
+    }
+
+    let inputemail = req.params.email;
+    let inputpassword = req.params.password;
+    
+    if (!inputemail) {
+        inputemail = config.get('hc-caas-um.demoUser');
+        inputpassword = config.get('hc-caas-um.demoUserPassword');
+    }
+
+    let item = await Users.findOne({ "email":  inputemail });
     if (!item) 
     {        
         res.json({ERROR:"User not found"});
     }
     else 
     {
-        let result = await bcrypt.compare(req.params.password, item.password);
+        let result = await bcrypt.compare(inputpassword, item.password);
         if (result)
         {       
 
@@ -149,7 +162,7 @@ exports.putLogin = async(req, res, next) => {
             if (!req.session) {
                 req.session = {};
             }
-            if (req.params.generateproject) {
+            if (generateProject) {
                 if (!req.session.id) {
                     req.session.id = uuidv4();
                 }

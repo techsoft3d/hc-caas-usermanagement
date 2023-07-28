@@ -186,14 +186,17 @@ function handleInitialConfiguration() {
         "publicPort": "",
         "useDirectFetch": false,
         "useStreaming": false,
-        "demoMode": false,
         "assignDemoHub": false,
         "usePolling": false,
         "caasAccessPassword": "",
         "serveSite":false,
         "port" : 3000,
         "ssrEnabled": false,
-        "demoProject": ""    
+        "demoMode": false,
+        "demoProject": "",
+        "demoUser": "",
+        "demoUserPassword": "",            
+        "demoUserHub": ""           
   };
 
   config.util.setModuleDefaults('hc-caas-um', configs);

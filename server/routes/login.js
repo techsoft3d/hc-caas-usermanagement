@@ -7,7 +7,7 @@ const router = express.Router();
 module.exports = router;
 
 router.post('/register', loginController.postRegister);
-router.put('/login/:email/:password/:generateproject?', loginController.putLogin);
+router.put('/login/:email?/:password?', loginController.putLogin);
 router.put('/logout', loginController.putLogout);
 router.get('/checklogin', loginController.checkLogin);
 router.get('/configuration', loginController.configuration);
