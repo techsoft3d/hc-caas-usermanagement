@@ -142,12 +142,21 @@ exports.putLogin = async(req, res, next) => {
     let inputemail = req.params.email;
     let inputpassword = req.params.password;
     
-    if (!inputemail) {
+    let demoaccount = false;
+    if (!inputemail && config.get('hc-caas-um.demoUser') != "") {
         inputemail = config.get('hc-caas-um.demoUser');
         inputpassword = config.get('hc-caas-um.demoUserPassword');
+        demoaccount = true;
     }
 
     let item = await Users.findOne({ "email":  inputemail });
+
+    if (demoaccount && !item) {
+        let password = await bcrypt.hash(inputpassword,10);
+        item = await Users.create({firstName:"empty", lastName:"empty",email:inputemail,password:password});
+    }
+
+
     if (!item) 
     {        
         res.json({ERROR:"User not found"});
