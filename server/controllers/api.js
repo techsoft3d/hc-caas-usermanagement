@@ -139,7 +139,7 @@ exports.getStreamingSession = async (req, res, next) => {
     }
 
     let geo = geoip.lookup(ip);
-    let s = await csmanager.getStreamingSession(geo, req.get("CSUM-API-useSSR"));
+    let s = await csmanager.getStreamingSession(geo, req.get("CSUM-API-useSSR") && req.get("CSUM-API-useSSR") == "true");
   
     if ((ip == "::1" || ip.indexOf("172.17") != -1) && global.caas_um_publicip.indexOf(s.serverurl) != -1) {
       s.serverurl = "localhost";
