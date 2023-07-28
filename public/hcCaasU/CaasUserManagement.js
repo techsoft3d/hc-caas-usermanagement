@@ -170,7 +170,10 @@ export class CaasUserManagementClient {
             * Logout currently active user        
             */
     async logout() {
+
         await fetch(this.serveraddress + '/caas_um_api/logout/', {  mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}, method: 'PUT' });
+        localStorage.setItem("CSUM-API-SESSIONID", null);
+        this.sessionid = null;
 
     }
 

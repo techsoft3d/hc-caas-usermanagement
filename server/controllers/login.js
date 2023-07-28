@@ -70,7 +70,10 @@ async function copyStarterProject(user,hub)
 
 async function copyStarterFilesIntoProject(projectid)
 {
-    let newproject = null;
+    if (config.get('hc-caas-um.demoProject') == ""){
+        return;
+    }
+
     let project = await Projects.findOne({ "_id": config.get('hc-caas-um.demoProject') });
     if (project) {
              
@@ -154,6 +157,12 @@ exports.putLogin = async(req, res, next) => {
     if (demoaccount && !item) {
         let password = await bcrypt.hash(inputpassword,10);
         item = await Users.create({firstName:"empty", lastName:"empty",email:inputemail,password:password});
+        let hub = new Hubs({
+            name: "demo",
+            users: [{email:inputemail, role:0, accepted:true}],
+        });
+
+        await hub.save();        
     }
 
 
