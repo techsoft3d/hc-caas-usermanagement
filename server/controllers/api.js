@@ -15,13 +15,11 @@ var startedAt = new Date();
 
 
 function newStat(type,req, value) {
-    let item = {
-        from:  req.headers['x-forwarded-for'] || req.connection.remoteAddress
-    }
+   
     const stat = new stats({
         Type: type,
         From:  req.headers['x-forwarded-for'] || req.connection.remoteAddress,
-        Value: value      
+        Value: value ? value : ""
     });
 
     stat.save();
@@ -175,8 +173,8 @@ exports.enableStreamAccess = async (req, res, next) => {
 exports.getStatus = async (req, res, next) => {
     let data1 = await csmanager.getStatus();
     let s = await stats.find();
-
-    res.send(makeHTML(data1,s));
+    let caasInfo  = await csmanager.getCaasInfo();
+    res.send(makeHTML(data1,s,caasInfo.version));
 };
 
 
@@ -210,7 +208,7 @@ function formatDate(date) {
 
 
 // Generate the HTML page
-const makeHTML = (serverData, statsdata) => {
+const makeHTML = (serverData, statsdata, caasVersion) => {
     const tableRows = serverData.map(row => {
       const statusClass = row.status === 'Offline' ? 'status-offline' : '';
       return `
@@ -261,7 +259,9 @@ const makeHTML = (serverData, statsdata) => {
                 ${tableRows}
               </tbody>
             </table>
-            Uptime: ${formatUptime()}<br><br>
+            Uptime: ${formatUptime()}<br>
+            CaaS Version: ${caasVersion}<br>
+            CaasUM Version: ${process.env.caas_um_version}<br><br>
             Usage Info<br><br>
             <table>            
             <thead>

@@ -11,9 +11,13 @@ let conversionServiceURI = "";
 const config = require('config');
 
 
-exports.init = (uri) =>
+exports.init = async (uri) =>
 {
     conversionServiceURI = uri;
+
+    let caasInfo  = await this.getCaasInfo();
+    console.log("Connected to CaaS. Version: " + caasInfo.version);
+    
     _checkPendingConversions();      
 
     if (config.get('hc-caas-um.usePolling') == true ) {
@@ -246,6 +250,13 @@ exports.deleteModel = async (itemid, project) => {
         }
     }
 };
+
+
+exports.getCaasInfo = async () => {
+    let api_arg = { accessPassword:config.get('hc-caas-um.caasAccessPassword') };
+    let res = await fetch(conversionServiceURI + '/caas_api/info',{headers: { 'CS-API-Arg': JSON.stringify(api_arg)}});
+    return await res.json();
+}
 
 exports.getPNG = async (itemid, project) => {
     let item = await files.findOne({ "_id": itemid, project:project});
