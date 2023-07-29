@@ -94,8 +94,8 @@ exports.start = async function (app_in, mongoose_in, options = { createSession: 
 
   if (config.get('hc-caas-um.serveSite')) {
     console.log("Serving CAAS_UM Website");
-    app.use(express.static(path.join(__dirname, '/../public')));
-    app.get('/', function(req, res){
+    app.use("/um_app",express.static(path.join(__dirname, '/../public')));
+    app.get('/um_app', function(req, res){
       res.sendFile(__dirname + '/../public/index.html');
     });
   }

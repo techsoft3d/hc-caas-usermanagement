@@ -147,19 +147,13 @@ export class CaasUserManagementClient {
 
             this.currentUser = data.user;
 
-            if (!data.hub) {
-                this.currentProject = null;
-                this.currentHub = null;
-            }
-            else if (!data.project) {
-
+            if (data.hub) {
                 this.currentHub = data.hub;
-                this.currentProject = null;
             }
-            else {
-                this.currentHub = data.hub;
+            if (data.project) {
                 this.currentProject = data.project;
             }
+            
             return true;
         }
         return false;
