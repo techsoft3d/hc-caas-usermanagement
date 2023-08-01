@@ -4,7 +4,7 @@ export class CaasUserManagementClient {
          * Creates a CaaS User Management Object
          * @param  {string} serveraddress - Address of CaaS User Management Server
          */
-    constructor(serveraddress, useLocalStorage = true) {
+    constructor(serveraddress, useLocalStorageForSessionID = true) {
         this.currentUser = null;
         this.currentProject = null;
         this.currentHub = null;
@@ -12,8 +12,8 @@ export class CaasUserManagementClient {
         this.useDirectFetch = false;
         this.useStreaming = true;
         this.serveraddress = serveraddress;
-        this.useLocalStorage = useLocalStorage;
-        if (useLocalStorage) {
+        this.useLocalStorageForSessionID = useLocalStorageForSessionID;
+        if (useLocalStorageForSessionID) {
             this.sessionid = localStorage.getItem("CSUM-API-SESSIONID");
         }
         else {
@@ -43,6 +43,13 @@ export class CaasUserManagementClient {
     gettUseStreaming() {
         return this.usestreaming;
     }
+
+    setSessionID(sessionid) {
+        this.sessionid = sessionid;
+        if (this.useLocalStorageForSessionID) {
+            localStorage.setItem("CSUM-API-SESSIONID", sessionid);
+        }
+    } 
 
     getSessionID() {
         return this.sessionid;
@@ -173,7 +180,7 @@ export class CaasUserManagementClient {
     async logout() {
 
         await fetch(this.serveraddress + '/caas_um_api/logout/', {  mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}, method: 'PUT' });
-        if (this.useLocalStorage) {
+        if (this.useLocalStorageForSessionID) {
             localStorage.setItem("CSUM-API-SESSIONID", null);
         }
         this.sessionid = null;
@@ -232,7 +239,7 @@ export class CaasUserManagementClient {
         else {
             this.currentUser = response.user;
             this.sessionid = response.sessionid;
-            if (this.useLocalStorage) {
+            if (this.useLocalStorageForSessionID) {
                 localStorage.setItem("CSUM-API-SESSIONID", this.sessionid);
             }
             return response;
