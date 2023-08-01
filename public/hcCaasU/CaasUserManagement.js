@@ -1,10 +1,10 @@
-/** This class provides a wrapper for the CaaS User Management Server REST API*/
+    /** This class provides a wrapper for the CaaS User Management Server REST API*/
 export class CaasUserManagementClient {
     /**
          * Creates a CaaS User Management Object
          * @param  {string} serveraddress - Address of CaaS User Management Server
          */
-    constructor(serveraddress) {
+    constructor(serveraddress, useLocalStorage = true) {
         this.currentUser = null;
         this.currentProject = null;
         this.currentHub = null;
@@ -12,7 +12,14 @@ export class CaasUserManagementClient {
         this.useDirectFetch = false;
         this.useStreaming = true;
         this.serveraddress = serveraddress;
-        this.sessionid = localStorage.getItem("CSUM-API-SESSIONID");
+        this.useLocalStorage = useLocalStorage;
+        if (useLocalStorage) {
+            this.sessionid = localStorage.getItem("CSUM-API-SESSIONID");
+        }
+        else {
+            this.sessionid = null;
+        }
+        
         this.streamingServerURL = "";
         this.useSSR = false;
     }
@@ -166,7 +173,9 @@ export class CaasUserManagementClient {
     async logout() {
 
         await fetch(this.serveraddress + '/caas_um_api/logout/', {  mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}, method: 'PUT' });
-        localStorage.setItem("CSUM-API-SESSIONID", null);
+        if (this.useLocalStorage) {
+            localStorage.setItem("CSUM-API-SESSIONID", null);
+        }
         this.sessionid = null;
 
     }
@@ -223,7 +232,9 @@ export class CaasUserManagementClient {
         else {
             this.currentUser = response.user;
             this.sessionid = response.sessionid;
-            localStorage.setItem("CSUM-API-SESSIONID", this.sessionid);
+            if (this.useLocalStorage) {
+                localStorage.setItem("CSUM-API-SESSIONID", this.sessionid);
+            }
             return response;
         }
     }
