@@ -27,7 +27,7 @@ exports.init = async (uri) =>
 
 exports.process = async (tempid, filename, project,startpath) => {
 
-    let stats = fs.statSync("./upload/" + tempid + "/" + filename);
+    let stats = fs.statSync(config.get('hc-caas-um.uploadDirectory') + "/" +  tempid + "/" + filename);
     const item = new files({
         name: filename,
         converted: false,
@@ -42,14 +42,14 @@ exports.process = async (tempid, filename, project,startpath) => {
     const modelid = item._id.toString();
 
     let form = new FormData();
-    form.append('file', fs.createReadStream("./upload/" + tempid + "/" + filename));
+    form.append('file', fs.createReadStream(config.get('hc-caas-um.uploadDirectory') + "/" + + tempid + "/" + filename));
 
     let api_arg  = {webhook: global.caas_um_publicip + '/caas_um_api/webhook', startPath:startpath, accessPassword:config.get('hc-caas-um.caasAccessPassword')};
         
     res = await fetch(conversionServiceURI + '/caas_api/upload', { method: 'POST', body: form,headers: {'CS-API-Arg': JSON.stringify(api_arg)}});
     const data = await res.json();
 
-    del("./upload/" + tempid);
+    del(config.get('hc-caas-um.uploadDirectory') + "/" + + tempid);
     item.storageID = data.itemid;
     item.save();
     await _updated(project);
@@ -65,8 +65,8 @@ exports.processMultiple = async (infiles, startmodel, project) => {
     let size = 0;
     for (let i = 0; i < infiles.length; i++) {
         let tempid = infiles[i].destination.split("/")[1];
-        form.append('files', fs.createReadStream("./upload/" + tempid + "/" + infiles[i].originalname));
-        let stats = fs.statSync("./upload/" + tempid + "/" + infiles[i].originalname);
+        form.append('files', fs.createReadStream(config.get('hc-caas-um.uploadDirectory') + "/" + + tempid + "/" + infiles[i].originalname));
+        let stats = fs.statSync(config.get('hc-caas-um.uploadDirectory') + "/" + + tempid + "/" + infiles[i].originalname);
         size += stats.size;        
     }
 
@@ -90,7 +90,7 @@ exports.processMultiple = async (infiles, startmodel, project) => {
 
     for (let i = 0; i < infiles.length; i++) {
         let tempid = infiles[i].destination.split("/")[1];
-        del("./upload/" + tempid);
+        del(config.get('hc-caas-um.uploadDirectory') + "/" + + tempid);
     }
     item.storageID = data.itemid;
     item.save();

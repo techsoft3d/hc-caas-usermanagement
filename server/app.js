@@ -104,16 +104,10 @@ exports.start = async function (app_in, mongoose_in, options = { createSession: 
   const fileStorage = multer.diskStorage({
     destination: (req, file, cb) => {
 
-      var uv4 = uuidv4();
-      if (!fs.existsSync("./upload")) {
-        fs.mkdirSync("./upload");
-      }
-
-      var dir = "./upload/" + uv4;
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir);
-      }
-      cb(null, 'upload/' + uv4);
+      let uv4 = uuidv4();
+      let dir = config.get('hc-caas-um.uploadDirectory') + "/" + uv4;   
+      fs.mkdirSync(dir,{ recursive: true });
+      cb(null, dir);
 
     },
     filename: (req, file, cb) => {
@@ -183,6 +177,7 @@ function handleInitialConfiguration() {
         "mongodbURI": "mongodb://127.0.0.1:27017/caas_demo_app",
         "conversionServiceURI": "http://localhost:3001",
         "publicURL": "http://localhost:3000",
+        "uploadDirectory": "./uploads_um",
         "publicPort": "",
         "useDirectFetch": false,
         "useStreaming": false,

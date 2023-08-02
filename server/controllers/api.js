@@ -37,7 +37,7 @@ exports.postUpload = async(req, res, next) => {
 
     let id = req.file.destination.split("/");
     let result = "";
-    result = await csmanager.process(id[1], req.file.originalname,req.session.caasProject,req.headers.startpath);
+    result = await csmanager.process(id[id.length-1], req.file.originalname,req.session.caasProject,req.headers.startpath);
     res.json({ itemid: result });
 };
 
