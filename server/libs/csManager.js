@@ -49,7 +49,7 @@ exports.process = async (tempid, filename, project,startpath) => {
     res = await fetch(conversionServiceURI + '/caas_api/upload', { method: 'POST', body: form,headers: {'CS-API-Arg': JSON.stringify(api_arg)}});
     const data = await res.json();
 
-    del(config.get('hc-caas-um.uploadDirectory') + "/" +  tempid);
+    del(config.get('hc-caas-um.uploadDirectory') + "/" +  tempid, {force: true});
     item.storageID = data.itemid;
     item.save();
     await _updated(project);
@@ -90,7 +90,7 @@ exports.processMultiple = async (infiles, startmodel, project) => {
 
     for (let i = 0; i < infiles.length; i++) {
         let tempid = infiles[i].destination.split("/")[1];
-        del(config.get('hc-caas-um.uploadDirectory') + "/" + tempid);
+        del(config.get('hc-caas-um.uploadDirectory') + "/" + tempid, {force: true});
     }
     item.storageID = data.itemid;
     item.save();

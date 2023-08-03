@@ -190,8 +190,7 @@ function handleInitialConfiguration() {
         "demoMode": false,
         "demoProject": "",
         "demoUser": "",
-        "demoUserPassword": "",            
-        "demoUserHub": ""           
+        "demoUserPassword": ""
   };
 
   config.util.setModuleDefaults('hc-caas-um', configs);
