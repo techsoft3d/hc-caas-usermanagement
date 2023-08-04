@@ -9,13 +9,20 @@ const fetch = require('node-fetch');
 let conversionServiceURI = "";
 
 const config = require('config');
+const caasClient = require('ts3d.hc.caas.api');
 
+const stats = require('../models/Stats');
+
+const startedAt = new Date();
 
 exports.init = async (uri) =>
 {
     conversionServiceURI = uri;
 
-    let caasInfo  = await this.getCaasInfo();
+    caasClient.init(uri,{accessPassword:config.get('hc-caas-um.caasAccessPassword'),
+         webhook:global.caas_um_publicip + '/caas_um_api/webhook'});
+
+    let caasInfo = await caasClient.getInfo();
     console.log("Connected to CaaS. Version: " + caasInfo.version);
     
     _checkPendingConversions();      
@@ -41,13 +48,7 @@ exports.process = async (tempid, filename, project,startpath) => {
     await item.save();
     const modelid = item._id.toString();
 
-    let form = new FormData();
-    form.append('file', fs.createReadStream(config.get('hc-caas-um.uploadDirectory') + "/" + tempid + "/" + filename));
-
-    let api_arg  = {webhook: global.caas_um_publicip + '/caas_um_api/webhook', startPath:startpath, accessPassword:config.get('hc-caas-um.caasAccessPassword')};
-        
-    res = await fetch(conversionServiceURI + '/caas_api/upload', { method: 'POST', body: form,headers: {'CS-API-Arg': JSON.stringify(api_arg)}});
-    const data = await res.json();
+    const data = await caasClient.uploadModelFromFile(config.get('hc-caas-um.uploadDirectory') + "/" +  tempid + "/" + filename, startpath);
 
     del(config.get('hc-caas-um.uploadDirectory') + "/" +  tempid, {force: true});
     item.storageID = data.itemid;
@@ -60,21 +61,19 @@ exports.process = async (tempid, filename, project,startpath) => {
 
 exports.processMultiple = async (infiles, startmodel, project) => {
 
-    let form = new FormData();
-
-    let size = 0;
+    let uploadFiles = [];    
     for (let i = 0; i < infiles.length; i++) {
-        let tempid = infiles[i].destination.split("/")[1];
-        form.append('files', fs.createReadStream(config.get('hc-caas-um.uploadDirectory') + "/" +  tempid + "/" + infiles[i].originalname));
-        let stats = fs.statSync(config.get('hc-caas-um.uploadDirectory') + "/" + tempid + "/" + infiles[i].originalname);
-        size += stats.size;        
+        let tempid = infiles[i].destination.split("/").pop();
+        uploadFiles.push(config.get('hc-caas-um.uploadDirectory') + "/" +  tempid + "/" + infiles[i].originalname);
     }
+
+    const info = await caasClient.uploadModelFromFiles(uploadFiles, startmodel);
 
     const item = new files({
         name: startmodel,
         converted: false,
         storageID: "NONE",
-        filesize: size,
+        filesize: info.totalsize,
         uploaded: new Date(),       
         uploadDone: true,    
         project:project
@@ -83,64 +82,19 @@ exports.processMultiple = async (infiles, startmodel, project) => {
     await item.save();
     const modelid = item._id.toString();
 
-    let api_arg  = {webhook:global.caas_um_publicip + '/caas_um_api/webhook', rootFile:startmodel,accessPassword:config.get('hc-caas-um.caasAccessPassword')};    
-        
-    res = await fetch(conversionServiceURI + '/caas_api/uploadArray', { method: 'POST', body: form,headers: {'CS-API-Arg': JSON.stringify(api_arg)}});
-    const data = await res.json();
-
     for (let i = 0; i < infiles.length; i++) {
         let tempid = infiles[i].destination.split("/")[1];
         del(config.get('hc-caas-um.uploadDirectory') + "/" + tempid, {force: true});
     }
-    item.storageID = data.itemid;
+    item.storageID = info.data.itemid;
     item.save();
     await _updated(project);
     return modelid;    
 };
 
-
-exports.getUploadToken = async (name, size, itemid, project) => {
-    let api_arg = { webhook: global.caas_um_publicip + '/caas_um_api/webhook',accessPassword:config.get('hc-caas-um.caasAccessPassword') };
-    if (itemid) {
-        let item = await files.findOne({ "_id": itemid, project:project});
-        api_arg.itemid = item.storageID;
-    }
-
-    let res;
-    try {
-        res = await fetch(conversionServiceURI + '/caas_api/uploadToken' + "/" + name, { headers: { 'CS-API-Arg': JSON.stringify(api_arg) } });
-    } catch (error) {
-        console.log(error);
-        return { error: "Conversion Service can't be reached" };
-    }
-    let json = await res.json();
-    if (!itemid) {
-        const item = new files({
-            name: name,
-            converted: false,
-            storageID: json.itemid,
-            filesize: size,
-            uploaded: new Date(),
-            uploadDone: false,
-            project: project
-        });
-        await item.save();
-        await _updated(project);
-        _checkPendingConversions();
-        return { token: json.token, itemid: item._id.toString() };
-    }
-    else {
-        return { token: json.token};
-    }
-};
-
-
 exports.createEmptyModel = async (name, size, startpath, project) => {
 
-        let api_arg = { itemname: name,webhook: global.caas_um_publicip + '/caas_um_api/webhook', startPath:startpath, accessPassword:config.get('hc-caas-um.caasAccessPassword') };
-        res = await fetch(conversionServiceURI + '/caas_api/create', {method: 'put', headers: { 'CS-API-Arg': JSON.stringify(api_arg) } });
-
-        let json = await res.json();
+        let json = await caasClient.createEmptyModel(name, {startPath:startpath});
         const item = new files({
             name: name,
             converted: false,
@@ -150,32 +104,50 @@ exports.createEmptyModel = async (name, size, startpath, project) => {
             uploadDone: false,    
             project: project
         });
+    await item.save();
+    await _updated(project);
+    _checkPendingConversions();
+    return { itemid: item._id.toString() };
+};
+
+exports.getUploadToken = async (name, size, itemid, project) => {
+    let existingItemId = undefined;
+    if (itemid) {
+        let item = await files.findOne({ "_id": itemid, project: project });
+        existingItemId = item.storageID;
+    }
+
+    let json = await caasClient.getUploadToken(name, existingItemId);
+
+    if (!itemid) {
+        const item = new files({
+            name: name, converted: false, storageID: json.itemid,
+            filesize: size, uploaded: new Date(), uploadDone: false, project: project
+        });
         await item.save();
         await _updated(project);
         _checkPendingConversions();
-        return { itemid: item._id.toString() };   
+        return { token: json.token, itemid: item._id.toString() };
+    }
+    else {
+        return { token: json.token };
+    }
 };
 
-
-exports.getDownloadToken = async (itemid,type, project) => {
-    let item = await files.findOne({ "_id": itemid, project:project});
-    let json;
+exports.getDownloadToken = async (itemid, type, project) => {
+    let item = await files.findOne({ "_id": itemid, project: project });
     try {
-        let api_arg = { accessPassword:config.get('hc-caas-um.caasAccessPassword') };
-        let res = await fetch(conversionServiceURI + '/caas_api/downloadToken' + "/" +  item.storageID + "/" + type, {headers: { 'CS-API-Arg': JSON.stringify(api_arg) } });     
-        json = await res.json();  
-    
-        if (!json.error)
-        {
-            return {token:json.token};
+        let json = await caasClient.getDownloadToken(item.storageID, type);
+
+        if (!json.error) {
+            return { token: json.token };
         }
-        else
-        {
-            return {error: json.error};
+        else {
+            return { error: json.error };
         }
     } catch (error) {
         console.log(error);
-        return {error: "ERROR"};
+        return { error: "ERROR" };
     }
 };
 
@@ -250,13 +222,6 @@ exports.deleteModel = async (itemid, project) => {
         }
     }
 };
-
-
-exports.getCaasInfo = async () => {
-    let api_arg = { accessPassword:config.get('hc-caas-um.caasAccessPassword') };
-    let res = await fetch(conversionServiceURI + '/caas_api/info',{headers: { 'CS-API-Arg': JSON.stringify(api_arg)}});
-    return await res.json();
-}
 
 exports.getPNG = async (itemid, project) => {
     let item = await files.findOne({ "_id": itemid, project:project});
@@ -342,10 +307,104 @@ async function _updated(project)
 
 }
 
+exports.createStatusPage = async () => {
+    let data1 = await caasClient.getStatus(true);
+    let s = await stats.find();
+    let caasInfo  = await caasClient.getInfo();
+    return(makeHTML(data1,s,caasInfo.version));
 
-exports.getStatus = async () => {
-    let api_arg = { accessPassword:config.get('hc-caas-um.caasAccessPassword') };
-    let res = await fetch(conversionServiceURI + '/caas_api/status/true',{headers: {'CS-API-Arg': JSON.stringify(api_arg)}});   
-    let data = await res.json();  
-    return data;
 }
+
+function formatUptime() {
+    let current = new Date();
+  
+    let diffInMilliseconds = current - startedAt;
+    let diffInHours = diffInMilliseconds / (1000 * 60 * 60);
+  
+    let hours = Math.floor(diffInHours);
+    let minutes = Math.floor((diffInHours - hours) * 60);
+  
+    return `${hours} Hours ${minutes} Minutes`;
+  
+  }
+  
+  function formatDate(date) {
+      return new Date(date).toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+    }
+  
+  
+  // Generate the HTML page
+  const makeHTML = (serverData, statsdata, caasVersion) => {
+      const tableRows = serverData.map(row => {
+        const statusClass = row.status === 'Offline' ? 'status-offline' : '';
+        return `
+            <tr>
+              <td>${row.servername}</td>
+              <td>${row.serveraddress}</td>
+              <td>${row.type}</td>
+              <td class="${statusClass}">${row.status}</td>
+              <td>${row.lastAccess}</td>
+            </tr>
+          `;
+      }).join('');
+  
+      const tableRows2 = statsdata.map(row => {
+          return `
+              <tr>
+                <td>${row.Type}</td>
+                <td>${row.From}</td>
+                <td>${row.Value}</td>
+                <td>${formatDate(row.createdAt)}</td>
+              </tr>
+            `;
+        }).join('');
+    
+      const html = `
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>Server Status</title>
+              <style>
+              .status-offline {
+                background: red;
+              }
+              </style>
+            </head>
+            <body>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Server Name</th>
+                    <th>Server Address</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Last Access</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${tableRows}
+                </tbody>
+              </table>
+              Uptime: ${formatUptime()}<br>
+              CaaS Version: ${caasVersion}<br>
+              CaasUM Version: ${process.env.caas_um_version}<br><br>
+              Usage Info<br><br>
+              <table>            
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th>Address</th>
+                  <th>Info</th>
+                  <th>Time</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${tableRows2}
+              </tbody>
+            </table>
+            </body>
+          </html>
+        `;
+    
+      return html;
+    };

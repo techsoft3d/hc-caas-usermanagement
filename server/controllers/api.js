@@ -10,10 +10,6 @@ let csmanager = require('../libs/csManager');
 // let ip2location = new IP2Location();
 // ip2location.open(path.join(__dirname,"./IP2LOCATION-LITE-DB3.BIN"));
 
-
-var startedAt = new Date();
-
-
 function newStat(type,req, value) {
    
     const stat = new stats({
@@ -171,13 +167,8 @@ exports.enableStreamAccess = async (req, res, next) => {
 
 
 exports.getStatus = async (req, res, next) => {
-    let data1 = await csmanager.getStatus();
-    let s = await stats.find();
-    let caasInfo  = await csmanager.getCaasInfo();
-    res.send(makeHTML(data1,s,caasInfo.version));
+    res.send(await csmanager.createStatusPage());
 };
-
-
 
 exports.putCreateEmptyModel = async(req, res, next) => {    
 
@@ -187,98 +178,3 @@ exports.putCreateEmptyModel = async(req, res, next) => {
   let result = await csmanager.createEmptyModel(req.params.name,req.params.size,req.headers.startpath,req.session.caasProject);
   res.json(result);
 };
-
-
-function formatUptime() {
-  let current = new Date();
-
-  let diffInMilliseconds = current - startedAt;
-  let diffInHours = diffInMilliseconds / (1000 * 60 * 60);
-
-  let hours = Math.floor(diffInHours);
-  let minutes = Math.floor((diffInHours - hours) * 60);
-
-  return `${hours} Hours ${minutes} Minutes`;
-
-}
-
-function formatDate(date) {
-    return new Date(date).toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
-  }
-
-
-// Generate the HTML page
-const makeHTML = (serverData, statsdata, caasVersion) => {
-    const tableRows = serverData.map(row => {
-      const statusClass = row.status === 'Offline' ? 'status-offline' : '';
-      return `
-          <tr>
-            <td>${row.servername}</td>
-            <td>${row.serveraddress}</td>
-            <td>${row.type}</td>
-            <td class="${statusClass}">${row.status}</td>
-            <td>${row.lastAccess}</td>
-          </tr>
-        `;
-    }).join('');
-
-    const tableRows2 = statsdata.map(row => {
-        return `
-            <tr>
-              <td>${row.Type}</td>
-              <td>${row.From}</td>
-              <td>${row.Value}</td>
-              <td>${formatDate(row.createdAt)}</td>
-            </tr>
-          `;
-      }).join('');
-  
-    const html = `
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <title>Server Status</title>
-            <style>
-            .status-offline {
-              background: red;
-            }
-            </style>
-          </head>
-          <body>
-            <table>
-              <thead>
-                <tr>
-                  <th>Server Name</th>
-                  <th>Server Address</th>
-                  <th>Type</th>
-                  <th>Status</th>
-                  <th>Last Access</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${tableRows}
-              </tbody>
-            </table>
-            Uptime: ${formatUptime()}<br>
-            CaaS Version: ${caasVersion}<br>
-            CaasUM Version: ${process.env.caas_um_version}<br><br>
-            Usage Info<br><br>
-            <table>            
-            <thead>
-              <tr>
-                <th>Type</th>
-                <th>Address</th>
-                <th>Info</th>
-                <th>Time</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${tableRows2}
-            </tbody>
-          </table>
-          </body>
-        </html>
-      `;
-  
-    return html;
-  };
