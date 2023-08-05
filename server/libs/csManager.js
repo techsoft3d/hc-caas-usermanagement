@@ -4,8 +4,6 @@ const files = require('../models/Files');
 const Projects = require('../models/Projects');
 
 const FormData = require('form-data');
-const fetch = require('node-fetch');
-
 let conversionServiceURI = "";
 
 const config = require('config');
@@ -156,21 +154,18 @@ exports.processFromToken = async (itemid, project, startpath) => {
     item.uploadDone = true;
     item.save();
     console.log("processing:" + item.name);
-    let api_arg  = {startPath:startpath, multiConvert:item.name.indexOf(".zip") == -1 ? true : false,accessPassword:config.get('hc-caas-um.caasAccessPassword')};
 
-    res = await fetch(conversionServiceURI + '/caas_api/reconvert/' + item.storageID, { method: 'put',headers: { 'CS-API-Arg': JSON.stringify(api_arg) } });
+    let json = await caasClient.reconvertModel(item.storageID, {multiConvert:item.name.indexOf(".zip") == -1 ? true : false});
     await _updated(project);
-
+    return json;
 };
 
 exports.generateCustomImage = async (itemid, project, startpath) => {
 
     let item = await files.findOne({ "_id": itemid, project: project });
-
     await item.save();
+    let json = await caasClient.createCustomImage(item.storageID, {customImageCode: "let rmatrix = Communicator.Matrix.xAxisRotation(-90);await hwv.model.setNodeMatrix(hwv.model.getRootNode(), rmatrix);await hwv.view.fitWorld();"});
     console.log("processing custom image:" + item.name);
-    let api_arg = { accessPassword:config.get('hc-caas-um.caasAccessPassword'), customImageCode: "let rmatrix = Communicator.Matrix.xAxisRotation(-90);await hwv.model.setNodeMatrix(hwv.model.getRootNode(), rmatrix);await hwv.view.fitWorld();" };
-    res = await fetch(conversionServiceURI + '/caas_api/customImage/' + item.storageID, { method: 'put', headers: { 'CS-API-Arg': JSON.stringify(api_arg) } });
     _updated(project);
 };
 
@@ -197,9 +192,7 @@ exports.getModels = async (project) => {
 
 exports.getSCS = async (itemid,project) => {
     let item = await files.findOne({ "_id": itemid, project:project});
-    let api_arg = { accessPassword:config.get('hc-caas-um.caasAccessPassword') };
-    let res = await fetch(conversionServiceURI + '/caas_api/file/' + item.storageID + "/scs", {headers: { 'CS-API-Arg': JSON.stringify(api_arg) } });
-    return await res.arrayBuffer();
+    return await caasClient.getFileByType(item.storageID,"scs"); 
 };
 
 exports.deleteModel = async (itemid, project) => {
@@ -214,8 +207,7 @@ exports.deleteModel = async (itemid, project) => {
         await files.deleteOne({ "_id": itemid });
         let items = await files.find({ "storageID": item.storageID });
         if (items.length == 0) {
-            let api_arg = { accessPassword:config.get('hc-caas-um.caasAccessPassword') };
-            res = await fetch(conversionServiceURI + '/caas_api/delete/' + item.storageID, { method: 'put',headers: { 'CS-API-Arg': JSON.stringify(api_arg) }});
+            return await caasClient.deleteModel(item.storageID); 
         }
         if (project) {
             _updated(project);
@@ -225,26 +217,17 @@ exports.deleteModel = async (itemid, project) => {
 
 exports.getPNG = async (itemid, project) => {
     let item = await files.findOne({ "_id": itemid, project:project});
-    let api_arg = { accessPassword:config.get('hc-caas-um.caasAccessPassword') };
-    let res = await fetch(conversionServiceURI + '/caas_api/file/' + item.storageID + "/png",{headers: { 'CS-API-Arg': JSON.stringify(api_arg)}});
-    return await res.arrayBuffer();
+    return await caasClient.getFileByType(item.storageID,"png"); 
 };
 
 exports.updateConversionStatus =  async (storageId, convertedFiles) => {
     let item = await files.findOne({ "storageID": storageId});
-
     _checkPendingConversions();
 };
 
 
 exports.getStreamingSession =  async (geo, ssrEnabled = false) => {    
-    let api_arg = { accessPassword:config.get('hc-caas-um.caasAccessPassword'),geo:geo ? geo.timezone : "" };
-
-    if (ssrEnabled) {
-        api_arg.renderType = "server";
-    }
-    let res = await fetch(conversionServiceURI + '/caas_api/streamingSession',{headers: {'CS-API-Arg': JSON.stringify(api_arg)}});
-    let data = await res.json();
+    let data =  await caasClient.getStreamingSession(geo ? geo.timezone : "",ssrEnabled ? "server" : undefined ); 
     data.ssrEnabled =(ssrEnabled && (data.renderType == "server") || (data.renderType == "mixed"));
     return data;
 };
@@ -254,8 +237,7 @@ exports.getStreamingSession =  async (geo, ssrEnabled = false) => {
 exports.enableStreamAccess =  async (itemid, project, streamingSessionId) => {
     let item = await files.findOne({ "_id": itemid, project:project});
     if (item && item.storageID) {
-        let api_arg = { accessPassword:config.get('hc-caas-um.caasAccessPassword') };
-        await fetch(conversionServiceURI + '/caas_api/enableStreamAccess/' + streamingSessionId,{ method: 'put',headers:{'CS-API-Arg': JSON.stringify(api_arg),'items':JSON.stringify([item.storageID])}});
+        await caasClient.enableStreamAccess(streamingSessionId,[item.storageID]); 
         return item.name;
     }
     else {
@@ -275,12 +257,9 @@ async function _checkPendingConversions() {
         }
         else {
             if (notConverted[i].storageID != "NONE") {
-                try {
-                    let api_arg = { accessPassword:config.get('hc-caas-um.caasAccessPassword') };
-                    res = await fetch(conversionServiceURI + '/caas_api/data' + "/" + notConverted[i].storageID,{headers: {'CS-API-Arg': JSON.stringify(api_arg)}});
-                } catch (error) {
-                    console.log("fetch error");
-                } 
+
+                let res = await caasClient.getModelData(notConverted[i].storageID);
+                if (res.ERROR) { console.log(res.ERROR); } 
                 const data = await res.json();
                 if (data.error ==undefined) {
                     if (data.conversionState == "SUCCESS") {
