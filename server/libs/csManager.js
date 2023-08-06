@@ -258,9 +258,9 @@ async function _checkPendingConversions() {
         else {
             if (notConverted[i].storageID != "NONE") {
 
-                let res = await caasClient.getModelData(notConverted[i].storageID);
-                if (res.ERROR) { console.log(res.ERROR); } 
-                const data = await res.json();
+                const data = await caasClient.getModelData(notConverted[i].storageID);
+                if (data.ERROR) { console.log(data.ERROR); } 
+            
                 if (data.error ==undefined) {
                     if (data.conversionState == "SUCCESS") {
                         notConverted[i].converted = true;
