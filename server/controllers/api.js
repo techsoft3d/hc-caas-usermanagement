@@ -83,7 +83,12 @@ exports.processFromToken = async(req, res, next) => {
 
 exports.getSCS = async(req, res, next) => {
     let result = await csmanager.getSCS(req.params.itemid,req.session.caasProject);
-    res.send(Buffer.from(result));
+    if (result.ERROR) {
+        res.json(result);
+    }
+    else {
+        res.send(Buffer.from(result));
+    }
 };
 
 
