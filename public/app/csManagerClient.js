@@ -1,5 +1,6 @@
 var csManagerClient = null;
 var myDropzone;
+var checkForNewModelsPending = false;
 
 function paramNameForSend() {
     return "files";
@@ -22,99 +23,12 @@ class CsManagerClient {
             }
         });
 
-
-        //        if (!myUserManagmentClient.getUseDirectFetch()) {
-
-        let directFetch = myUserManagmentClient.getUseDirectFetch();
-        if (directFetch) {
-            $("#uploadAsAssemblycheck").prop("disabled", true);
-
+        if (myUserManagmentClient.getUseDirectFetch()) {
+            csManagerClient.setupDropzoneForDirectFetch();
         }
-        myDropzone = new Dropzone("div#dropzonearea", {
-            url: directFetch ? "#" : myUserManagmentClient.getUploadURL(), maxFiles: 500, withCredentials: true,parallelUploads: 10, method: directFetch ? 'put':'post', timeout: 180000, uploadMultiple: false, autoProcessQueue: true,
-            addedfile: function (file) {
-
-                let firstDot = file.name.indexOf(".");
-                let extension = "";
-                if (firstDot != -1) {
-                    extension = file.name.substring(firstDot + 1);
-                }
-                _this.uploadTable.addData([{ id: file.upload.uuid, name: file.name, type: extension, progress: 0 }]);
-            },
-            thumbnail: function (file, dataUrl) {
-            },
-            uploadprogress: function (file, progress, bytesSent) {
-                _this.uploadTable.updateData([{ id: file.upload.uuid, progress: progress }]);
-            },
-            accept: async function (file, cb) {               
-
-                if (file.name.indexOf(".zip") != -1) {
-
-                    if (_this._zipViewActive) {
-                        _this.uploadTable.deleteRow(file.upload.uuid);
-                        myDropzone.removeFile(file);
-                    }
-                    else {
-                        await _this.chooseZipContent(file, cb);
-                    }
-                }
-                else {
-                    if (directFetch) {
-                        let json = await myUserManagmentClient.getUploadToken(file.name, file.size);
-    
-                        file.itemid = json.itemid;
-                        file.signedRequest = json.token;                   
-                    }
-                    
-                    cb();
-                }
-            },
-            sending: function (file, xhr) {
-
-                if (directFetch) {
-                    var _send = xhr.send;
-                    //            xhr.setRequestHeader('x-amz-acl', 'public-read');
-                    xhr.send = function () {
-                        _send.call(xhr, file);
-                    };
-                }
-            },
-            processing: function (file) {
-                if (directFetch) {
-                    this.options.url = file.signedRequest;
-                }
-            }          
-        });
-        myDropzone.on("success", async function (file, response) {
-            if (directFetch) {
-                myUserManagmentClient.processUploadFromToken(file.itemid, _this.startPath);
-            }
-            _this.uploadTable.deleteRow(file.upload.uuid);
-            myDropzone.removeFile(file);
-        });
-
-        myDropzone.on("successmultiple", async function (file, response) {
-            _this.uploadTable.clearData();
-        });
-
-        myDropzone.on("sending", async function (file, response, request) {
-
-            response.setRequestHeader('startpath', _this.startPath);
-
-        });
-
-        myDropzone.on("sendingmultiple", async function (file, response, request) {
-            var selectedRows = _this.uploadTable.getSelectedRows();
-            let name;
-            if (selectedRows.length != 0) {
-                name = selectedRows[0].getData().name;
-            }
-            else {
-                name = _this.uploadTable.getRows()[0].getData().name;
-            }
-
-            response.setRequestHeader('startmodel', name);
-        });
+        else {
+            csManagerClient.setupDropzone();
+        }
       
         csManagerClient.uploadTable = new Tabulator("#uploadtable", {
             layout: "fitColumns",
@@ -164,6 +78,7 @@ class CsManagerClient {
     constructor() {
         this._updatedTime = undefined;
         this._modelHash = [];
+        this._firstLoad = true;
     }
 
     async chooseZipContent(file, cb) {
@@ -280,37 +195,18 @@ class CsManagerClient {
         myModal.toggle();
     }
 
-    uploadAsAssemblyClicked() {
-        if ($("#uploadAsAssemblycheck")[0].checked) {
-            $("#assemblyuploadbutton").css('display', "block");
-            myDropzone.options.autoProcessQueue = false;
-            myDropzone.options.uploadMultiple = true;
-            myDropzone.options.parallelUploads = 500;
-            myDropzone.options.paramName = paramNameForSend;
-            myDropzone.options.url = myUserManagmentClient.getUploadArrayURL();
-        }
-        else {
-            $("#assemblyuploadbutton").css('display', "none");
-            myDropzone.options.autoProcessQueue = true;
-            myDropzone.options.uploadMultiple = false;
-            myDropzone.options.parallelUploads = 10;
-            myDropzone.options.paramName = "file";
-            myDropzone.options.url = myUserManagmentClient.getUploadURL();
-        }
-
-    }
-
-    uploadAsAssemblyStartClicked() {
-        myDropzone.processQueue();
-    }
-
-
     hideUploadWindow() {
         $("#filedroparea").css("display", "none");
     }
 
     async _checkForNewModels() {
+
+        if (checkForNewModelsPending) {
+            return;
+        }
+        checkForNewModelsPending = true;
         let data = await myUserManagmentClient.getModels();
+        checkForNewModelsPending = false;
 
         let newtime = Date.parse(data.updated);
         if (this._updatedTime == undefined || this._updatedTime != newtime) {
@@ -365,8 +261,17 @@ class CsManagerClient {
         }
     }
 
-    async loadModel(modelid) {
-        hwv.model.clear();
+    async loadModel(modelid, clear = true) {
+        if (this._firstLoad) {
+            this._firstLoad = false;
+        }
+        else
+        {
+            if (clear) {
+                await hwv.model.clear();           
+            }
+        }
+
         if (this._modelHash[modelid].name.indexOf(".dwg")) {
             hwv.view.setAmbientOcclusionEnabled(false);
         }
@@ -387,5 +292,222 @@ class CsManagerClient {
             await myUserManagmentClient.enableStreamAccess(modelid);
             await hwv.model.loadSubtreeFromModel(hwv.model.getRootNode(), this._modelHash[modelid].name);
         }
+    }
+
+    uploadAsAssemblyClicked() {
+        if (myUserManagmentClient.getUseDirectFetch()) {
+            if ($("#uploadAsAssemblycheck")[0].checked) {
+                $("#assemblyuploadbutton").css('display', "block");
+                myDropzone.options.autoProcessQueue = false;
+                myDropzone.options.parallelUploads = 500;
+                myDropzone.options.paramName = paramNameForSend;
+            }
+            else {
+                $("#assemblyuploadbutton").css('display', "none");
+                myDropzone.options.autoProcessQueue = true;
+                myDropzone.options.parallelUploads = 3;
+                myDropzone.options.paramName = "file";
+            }
+        }
+        else {
+            if ($("#uploadAsAssemblycheck")[0].checked) {
+                $("#assemblyuploadbutton").css('display', "block");
+                myDropzone.options.autoProcessQueue = false;
+                myDropzone.options.uploadMultiple = true;
+                myDropzone.options.parallelUploads = 500;
+                myDropzone.options.paramName = paramNameForSend;
+                myDropzone.options.url = myUserManagmentClient.getUploadArrayURL();
+            }
+            else {
+                $("#assemblyuploadbutton").css('display', "none");
+                myDropzone.options.autoProcessQueue = true;
+                myDropzone.options.uploadMultiple = false;
+                myDropzone.options.parallelUploads = 3;
+                myDropzone.options.paramName = "file";
+                myDropzone.options.url = myUserManagmentClient.getUploadURL();
+            }
+        }
+
+    }
+
+    async uploadAsAssemblyStartClicked() {
+        if (myUserManagmentClient.getUseDirectFetch()) {
+            let files = myDropzone.getAcceptedFiles();
+
+            var selectedRows = this.uploadTable.getSelectedRows();
+            let name;
+            if (selectedRows.length != 0) {
+                name = selectedRows[0].getData().name;
+            }
+            else {
+                name = this.uploadTable.getRows()[0].getData().name;
+            }
+            
+            let totalsize = 0;
+            for (let i = 0; i < files.length; i++) {
+                totalsize += files[i].size;             
+            }
+            this.startPath = name;
+
+            let res = await myUserManagmentClient.createEmptyModel(name,totalsize, name);
+            this._assemblyID = res.itemid;
+    
+           
+            for (let i = 0; i < files.length; i++) {
+                let json = await myUserManagmentClient.getUploadToken(files[i].name, files[i].size,  this._assemblyID);
+                files[i].itemid = json.itemid;
+                files[i].signedRequest = json.token;
+            }
+        }
+
+        myDropzone.processQueue();
+    }
+
+
+    async setupDropzone() {
+        let _this = this;
+        myDropzone = new Dropzone("div#dropzonearea", {
+            headers: { 'CSUM-API-SESSIONID': myUserManagmentClient.getSessionID() },
+            url: myUserManagmentClient.getUploadURL(), maxFiles: 500, parallelUploads: 10, method: 'post', parallelUploads: 3,timeout: 180000, uploadMultiple: false, autoProcessQueue: true,
+            addedfile: function (file) {
+                let firstDot = file.name.indexOf(".");
+                let extension = "";
+                if (firstDot != -1) {
+                    extension = file.name.substring(firstDot + 1);
+                }
+                _this.uploadTable.addData([{ id: file.upload.uuid, name: file.name, type: extension, progress: 0 }]);
+            },
+            uploadprogress: function (file, progress, bytesSent) {
+                _this.uploadTable.updateData([{ id: file.upload.uuid, progress: progress }]);
+            },
+            accept: async function (file, cb) {
+                if (file.name.indexOf(".zip") != -1) {
+
+                    if (_this._zipViewActive) {
+                        _this.uploadTable.deleteRow(file.upload.uuid);
+                        myDropzone.removeFile(file);
+                    }
+                    else {
+                        await _this.chooseZipContent(file, cb);
+                    }
+                }
+                else {
+                    cb();
+                }
+            },
+        });
+        myDropzone.on("success", async function (file, response) {
+            _this.uploadTable.deleteRow(file.upload.uuid);
+            myDropzone.removeFile(file);
+        });
+
+        myDropzone.on("successmultiple", async function (file, response) {
+            _this.uploadTable.clearData();
+        });
+
+        myDropzone.on("sending", async function (file, response, request) {
+            response.setRequestHeader('startpath', _this.startPath);
+        });
+
+        myDropzone.on("sendingmultiple", async function (file, response, request) {
+            var selectedRows = _this.uploadTable.getSelectedRows();
+            let name;
+            if (selectedRows.length != 0) {
+                name = selectedRows[0].getData().name;
+            }
+            else {
+                name = _this.uploadTable.getRows()[0].getData().name;
+            }
+            response.setRequestHeader('startmodel', name);
+        });
+    }
+
+
+    async setupDropzoneForDirectFetch() {
+        let _this = this;
+        myDropzone = new Dropzone("div#dropzonearea", {
+            headers: { 'CSUM-API-SESSIONID': myUserManagmentClient.getSessionID() },
+            url:  "#", maxFiles: 500, parallelUploads: 10, method: 'put', timeout: 180000, parallelUploads: 3,uploadMultiple: false, autoProcessQueue: true,
+            addedfile: function (file) {
+                let firstDot = file.name.indexOf(".");
+                let extension = "";
+                if (firstDot != -1) {
+                    extension = file.name.substring(firstDot + 1);
+                }
+                _this.uploadTable.addData([{ id: file.upload.uuid, name: file.name, type: extension, progress: 0 }]);
+            },
+            uploadprogress: function (file, progress, bytesSent) {
+                _this.uploadTable.updateData([{ id: file.upload.uuid, progress: progress }]);
+            },
+            accept: async function (file, cb) {
+                if (file.name.indexOf(".zip") != -1) {
+
+                    if (_this._zipViewActive) {
+                        _this.uploadTable.deleteRow(file.upload.uuid);
+                        myDropzone.removeFile(file);
+                    }
+                    else {
+                        await _this.chooseZipContent(file, cb);
+                    }
+                }
+                else {
+                    if (!$("#uploadAsAssemblycheck")[0].checked) {
+                        let json = await myUserManagmentClient.getUploadToken(file.name, file.size);
+
+                        file.itemid = json.itemid;
+                        file.signedRequest = json.token;
+                    }
+
+                    cb();
+                }
+            },
+            sending: function (file, xhr) {
+
+                var _send = xhr.send;
+                //            xhr.setRequestHeader('x-amz-acl', 'public-read');
+                xhr.send = function () {
+                    _send.call(xhr, file);
+                };
+            },
+            processing: function (file) {
+                this.options.url = file.signedRequest;
+            }
+        });
+        myDropzone.on("success", async function (file, response) {
+            if (!$("#uploadAsAssemblycheck")[0].checked) {
+                myUserManagmentClient.processUploadFromToken(file.itemid, _this.startPath);
+            }
+            else {
+                let files = myDropzone.getAcceptedFiles();
+                if (files.length == 1) {
+                    myUserManagmentClient.processUploadFromToken( _this._assemblyID, _this.startPath);
+                }
+            }
+            _this.uploadTable.deleteRow(file.upload.uuid);
+            myDropzone.removeFile(file);
+        });
+
+        myDropzone.on("successmultiple", async function (file, response) {
+            _this.uploadTable.clearData();
+        });
+
+        myDropzone.on("sending", async function (file, response, request) {
+
+            response.setRequestHeader('startpath', _this.startPath);
+
+        });
+
+        myDropzone.on("sendingmultiple", async function (file, response, request) {
+            var selectedRows = _this.uploadTable.getSelectedRows();
+            let name;
+            if (selectedRows.length != 0) {
+                name = selectedRows[0].getData().name;
+            }
+            else {
+                name = _this.uploadTable.getRows()[0].getData().name;
+            }
+
+            response.setRequestHeader('startmodel', name);
+        });
     }
 }

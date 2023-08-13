@@ -4,13 +4,35 @@ const Hubs = require('../models/Hubs');
 const files = require('../models/Files');
 const bcrypt = require('bcrypt');
 const csmanager = require('../libs/csManager');
+const sessionManager = require('../libs/sessionManager');
 let mongoose = require('mongoose'); 
 const config = require('config');
+const { v4: uuidv4 } = require('uuid');
 
 //var nodemailer = require('nodemailer');
 
 
 const fs = require('fs');
+
+
+const millisecondsInAnHour = 60 * 60 * 1000;
+const millisecondsInDay = 24 * 60 * 60 * 1000;
+
+setInterval(async function () {    
+    console.log("Purging expired Projects");
+    let projects= await Projects.find({ "hub": null});
+    let rightnow = new Date();
+    for (let i=0;i<projects.length;i++) {
+        if (rightnow - projects[i].updatedAt > millisecondsInDay) {
+            console.log("deleting project:" + projects[i].name);
+            let models = await files.find({ project: projects[i].id });
+            for (let i = 0; i < models.length; i++) {
+                await csmanager.deleteModel(models[i]._id.toString());
+            }
+            await Projects.deleteOne({ "_id": projects[i].id });
+        }
+    }
+}, millisecondsInAnHour);
 
 
 async function copyStarterProject(user,hub)
@@ -48,7 +70,10 @@ async function copyStarterProject(user,hub)
 
 async function copyStarterFilesIntoProject(projectid)
 {
-    let newproject = null;
+    if (config.get('hc-caas-um.demoProject') == ""){
+        return;
+    }
+
     let project = await Projects.findOne({ "_id": config.get('hc-caas-um.demoProject') });
     if (project) {
              
@@ -86,7 +111,7 @@ exports.postRegister = async(req, res, next) => {
 
         let user = await Users.create(data);
 
-        req.session.caasUser = user;
+//        req.session.caasUser = user;
 
         if (config.get('hc-caas-um.assignDemoHub') == true && config.get('hc-caas-um.demoProject') != "")
         {
@@ -97,7 +122,7 @@ exports.postRegister = async(req, res, next) => {
             await addOneProjectUser(project.id,user.email,0);
             
         }
-        res.json({user:req.session.caasUser.email});
+        res.json({user:user.email});
     }
     else 
         res.json({ERROR:"User already exists"});
@@ -112,20 +137,53 @@ exports.putLogin = async(req, res, next) => {
         return;
     }
 
-    let item = await Users.findOne({ "email":  req.params.email });
+    let generateProject = false;
+    if (req.get('CSUM-API-GENERATEPROJECT') && req.get('CSUM-API-GENERATEPROJECT') == "true") {
+        generateProject = true;
+    }
+
+    let inputemail = req.params.email;
+    let inputpassword = req.params.password;
+    
+    let demoaccount = false;
+    if (!inputemail && config.get('hc-caas-um.demoUser') != "") {
+        inputemail = config.get('hc-caas-um.demoUser');
+        inputpassword = config.get('hc-caas-um.demoUserPassword');
+        demoaccount = true;
+    }
+
+    let item = await Users.findOne({ "email":  inputemail });
+
+    if (demoaccount && !item) {
+        let password = await bcrypt.hash(inputpassword,10);
+        item = await Users.create({firstName:"empty", lastName:"empty",email:inputemail,password:password});
+        let hub = new Hubs({
+            name: "demo",
+            users: [{email:inputemail, role:0, accepted:true}],
+        });
+
+        await hub.save();        
+    }
+
+
     if (!item) 
     {        
         res.json({ERROR:"User not found"});
     }
     else 
     {
-        let result = await bcrypt.compare(req.params.password, item.password);
+        let result = await bcrypt.compare(inputpassword, item.password);
         if (result)
         {       
 
             let sessionProject = null;
-            if (config.get('hc-caas-um.createSessionProject') == true) {
-                
+            if (!req.session) {
+                req.session = {};
+            }
+            if (generateProject) {
+                if (!req.session.id) {
+                    req.session.id = uuidv4();
+                }
                 sessionProject = await Projects.findOne({ "users.email": item.email, "name": req.session.id });
                 if (!sessionProject) {
                     sessionProject = new Projects({
@@ -135,11 +193,14 @@ exports.putLogin = async(req, res, next) => {
                     });
                     await sessionProject.save();
                     await copyStarterFilesIntoProject(sessionProject.id);
-                }
-
+                }              
             }
+            
             req.session.caasUser = item; 
-            res.json({succeeded:true, user:{email:req.session.caasUser.email}, sessionProject:sessionProject.id});
+
+            let sessionid = await sessionManager.createSession(req);
+
+            res.json({succeeded:true, sessionid: sessionid, user:{email:req.session.caasUser.email}, sessionProject:sessionProject ? sessionProject.id : null});
         }
         else
             res.json({ERROR:"Wrong password"});
@@ -149,7 +210,7 @@ exports.putLogin = async(req, res, next) => {
 
 exports.configuration = async(req, res, next) => {    
     console.log("configuration");    
-    res.json({useDirectFetch : config.get('hc-caas-um.useDirectFetch'),useStreaming : config.get('hc-caas-um.useStreaming'),demoMode: config.get('hc-caas-um.demoMode')});    
+    res.json({ssrEnabled: config.get('hc-caas-um.ssrEnabled'), useDirectFetch : config.get('hc-caas-um.useDirectFetch'),useStreaming : config.get('hc-caas-um.useStreaming'),demoMode: config.get('hc-caas-um.demoMode')});    
 };
 
 
@@ -170,6 +231,9 @@ exports.checkLogin = async (req, res, next) => {
                 }
             }
         }
+    }
+    if (!req.session || !req.session.caasUser) {
+        await sessionManager.attachSession(req);
     }
 
     if (req.session && req.session.caasUser) {
@@ -200,7 +264,10 @@ exports.checkLogin = async (req, res, next) => {
 
 exports.putLogout = async (req, res, next) => {
     console.log("logout");
-    req.session.destroy();
+    if (req.session) {
+        req.session.destroy();
+    }
+    sessionManager.deleteSession(req);
     res.json({ succeeded: true });
 };
 
@@ -274,10 +341,18 @@ exports.putProject = async(req, res, next) => {
         if (item) {
             req.session.caasProject = item;
             res.json({id:req.params.projectid, name:item.name});
+            
+            if (item.hub == null) {
+                console.log("updating session project")
+                item.updatedAt = new Date();
+                item.save();
+            }
+            sessionManager.updateSession(req);
             return;
         }
     }
-        req.session.caasProject = null;
+    req.session.caasProject = null;
+    sessionManager.updateSession(req);
     res.json({ ERROR: "Not authorized." });
 };
 
@@ -689,6 +764,7 @@ exports.putHub = async (req, res, next) => {
             req.session.caasHub = null;
             res.sendStatus(200);
         }
+        sessionManager.updateSession(req);
     }
     else {
         res.json({ ERROR: "Not authorized." });

@@ -1,6 +1,27 @@
 const config = require('config');
+const sessionManager = require('../libs/sessionManager');
+const geoip = require('geoip-lite');
+const path = require('path');
+const stats = require('../models/Stats');
 
 let csmanager = require('../libs/csManager');
+
+// const {IP2Location} = require("ip2location-nodejs");
+// let ip2location = new IP2Location();
+// ip2location.open(path.join(__dirname,"./IP2LOCATION-LITE-DB3.BIN"));
+
+function newStat(type,req, value) {
+   
+    const stat = new stats({
+        Type: type,
+        From:  req.headers['x-forwarded-for'] || req.connection.remoteAddress,
+        Value: value ? value : ""
+    });
+
+    stat.save();
+}
+
+
 
 exports.postUpload = async(req, res, next) => {
     if (config.get('hc-caas-um.demoMode')) {
@@ -8,9 +29,11 @@ exports.postUpload = async(req, res, next) => {
         return;
     }
 
+    newStat("upload",req,req.file.originalname);
+
     let id = req.file.destination.split("/");
     let result = "";
-    result = await csmanager.process(id[1], req.file.originalname,req.session.caasProject,req.headers.startpath);
+    result = await csmanager.process(id[id.length-1], req.file.originalname,req.session.caasProject,req.headers.startpath);
     res.json({ itemid: result });
 };
 
@@ -21,6 +44,8 @@ exports.postUploadArray = async(req, res, next) => {
         return;
     }
 
+    newStat("uploadArray",req,req.headers.startmodel);
+    
     let startmodel = req.headers.startmodel;
     
      result = await csmanager.processMultiple(req.files,startmodel,req.session.caasProject);
@@ -35,7 +60,11 @@ exports.getUploadToken = async(req, res, next) => {
         return;
     }
 
-    let result = await csmanager.getUploadToken(req.params.name,req.params.size,req.session.caasProject);
+  if (!req.params.itemid) {
+    newStat("uploadToken", req, req.params.name);
+  }
+
+    let result = await csmanager.getUploadToken(req.params.name,req.params.size,req.params.itemid,req.session.caasProject);
     res.json(result);
 };
 
@@ -54,13 +83,23 @@ exports.processFromToken = async(req, res, next) => {
 
 exports.getSCS = async(req, res, next) => {
     let result = await csmanager.getSCS(req.params.itemid,req.session.caasProject);
-    res.send(Buffer.from(result));
+    if (result.ERROR) {
+        res.json(result);
+    }
+    else {
+        res.send(Buffer.from(result));
+    }
 };
 
 
 exports.getPNG = async(req, res, next) => {
     let result = await csmanager.getPNG(req.params.itemid,req.session.caasProject);
-    res.send(Buffer.from(result));
+    if (result.ERROR) {
+        res.json(result);
+    }
+    else {
+        res.send(Buffer.from(result));
+    }
 };
 
 exports.getModels = async (req, res, next) => {
@@ -96,19 +135,56 @@ exports.generateCustomImage = async (req, res, next) => {
 };
 
 exports.getStreamingSession = async (req, res, next) => {
-    let s = await csmanager.getStreamingSession();
-    setTimeout(() => {
-    req.session.streamingSessionId = s.sessionid.slice();
-    req.session.save();
-    console.log(req.session.id.toString(), req.session.streamingSessionId);
-    }, 300);
+    let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    // If IP address is from localhost it will be ::1 when working locally
+    // Convert it into a valid IPv4 or IPv6 format
+    if (ip.substr(0, 7) == "::ffff:") {
+        ip = ip.substr(7)
+    }
+
+    let geo = geoip.lookup(ip);
+    let s = await csmanager.getStreamingSession(geo, req.get("CSUM-API-useSSR") && req.get("CSUM-API-useSSR") == "true");
+  
+    if ((ip == "::1" || ip.indexOf("172.17") != -1) && global.caas_um_publicip.indexOf(s.serverurl) != -1) {
+      s.serverurl = "localhost";
+    }
+    else if (s.serverurl.indexOf(ip) > -1) {
+      s.serverurl = "localhost"
+    }
+    
+    if (!s.ERROR) {
+
+        setTimeout(async () => {
+            req.session.streamingSessionId = s.sessionid.slice();
+            if (req.session.save) {
+                req.session.save();
+            }
+            await sessionManager.updateStreaming(req);
+            console.log(req.session.streamingSessionId);
+        }, 300);
+    }
     res.json(s);
 };
 
 
 
 exports.enableStreamAccess = async (req, res, next) => {
-    let s = await csmanager.enableStreamAccess(req.params.itemid,req.session.caasProject, req.session.streamingSessionId);
-    console.log("Access:" + req.session.id.toString() + " "  + req.session.streamingSessionId);
+    let filename = await csmanager.enableStreamAccess(req.params.itemid,req.session.caasProject, req.session.streamingSessionId);
+    newStat("streamAccess",req, filename);
+    console.log("Stream Access for " + filename + "(" +  req.session.streamingSessionId + ")");
     res.sendStatus(200);
+};
+
+
+exports.getStatus = async (req, res, next) => {
+    res.send(await csmanager.createStatusPage());
+};
+
+exports.putCreateEmptyModel = async(req, res, next) => {    
+
+  
+  newStat("uploadAssembly", req, req.params.name);
+  
+  let result = await csmanager.createEmptyModel(req.params.name,req.params.size,req.headers.startpath,req.session.caasProject);
+  res.json(result);
 };

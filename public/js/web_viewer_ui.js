@@ -3233,7 +3233,7 @@ e.PulseManager = m
                 k.id = "modelBrowserLabel";
                 k.innerHTML = "";
                 c.appendChild(k);
-                //k = this._createDiv("contextMenuButton", ["ui-modeltree-icon", "menu"]);   GH2023
+                 //k = this._createDiv("contextMenuButton", ["ui-modeltree-icon", "menu"]);   GH2023
                 c.appendChild(k);
                 d.appendChild(a);
                 this._content = this._createDiv("modelTreeContainer", ["ui-modelbrowser-content", "desktop-ui-window-content"]);
@@ -5479,7 +5479,6 @@ return __assign.apply(this, arguments)
                         if (b.length > 100) {           //gh2023
                             return;
                         }
-
                         for (var d = 0; d < b.length; d++) {
                             var c = b[d].getSelection().getNodeId();
                             if (null !== c) {

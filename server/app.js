@@ -11,7 +11,6 @@ const { v4: uuidv4 } = require('uuid');
 
 const bodyParser = require('body-parser');
 
-const middleware = require('./middleware');
 
 process.env.ALLOW_CONFIG_MUTATIONS = "true";
 process.env.SUPPRESS_NO_CONFIG_WARNING = 'y';
@@ -23,15 +22,56 @@ process.on('uncaughtException', function (err) {
   console.log(err);
 });
 
+function getPublicIP() {
+  return new Promise((resolve, reject) => {
+    var http = require('http');
+
+    http.get({ 'host': 'api.ipify.org', 'port': 80, 'path': '/' }, function (resp) {
+      resp.on('data', function (ip) {
+        resolve(ip);
+      });
+    });
+  });
+}
+
+
 
 exports.getDatabaseObjects = function () {
   return { files: require('./models/Files'), hubs: require('./models/Hubs'), projects: require('./models/Projects'), users: require('./models/Users') };
 };
 
 
-exports.start = async function (app, mongoose_in, options = { createSession: true, sessionSecret: "caasSession83736" }) {
+exports.start = async function (app_in, mongoose_in, options = { createSession: true, sessionSecret: "caasSession83736" }) {
+  let app;
+
+  if (!app_in) {
+    app = express();
+
+  }
+  else {
+    app = app_in;
+  }
 
   handleInitialConfiguration();
+
+  if (config.get('hc-caas-um.publicURL') == "") {
+    global.caas_um_publicip = "http://" + (await getPublicIP()).toString();
+    if (config.get('hc-caas-um.publicPort') != "") {
+      global.caas_um_publicip += ":" + config.get('hc-caas-um.publicPort');
+    }
+    else {
+      global.caas_um_publicip += ":" + config.get('hc-caas-um.port');
+    }    
+  }
+  else {
+    global.caas_um_publicip = config.get('hc-caas-um.publicURL');
+  }
+
+  console.log("Public CAAS_UM IP: " + global.caas_um_publicip);
+
+  let versioninfo = require('../package.json');
+  process.env.caas_um_version = versioninfo.version;
+  console.log("Initializing CaaS User Management. Version: " + process.env.caas_um_version);
 
   if (mongoose_in == undefined || !mongoose_in) {
     let mongoose = require('mongoose');
@@ -45,27 +85,29 @@ exports.start = async function (app, mongoose_in, options = { createSession: tru
   const loginRoutes = require('./routes/login');
 
   let csmanager = require('./libs/csManager');
-  app.use(cors({ credentials: true, origin: true }));
+  app.use(cors());
   app.use(express.json({ limit: '25mb' }));
   app.use(express.urlencoded({ limit: '25mb', extended: false }));
 
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(bodyParser.json());
 
+  if (config.get('hc-caas-um.serveSite')) {
+    console.log("Serving CAAS_UM Website");
+    app.use("/um_app",express.static(path.join(__dirname, '/../public')));
+    app.get('/um_app', function(req, res){
+      res.sendFile(__dirname + '/../public/index.html');
+    });
+  }
+
 
   const fileStorage = multer.diskStorage({
     destination: (req, file, cb) => {
 
-      var uv4 = uuidv4();
-      if (!fs.existsSync("./upload")) {
-        fs.mkdirSync("./upload");
-      }
-
-      var dir = "./upload/" + uv4;
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir);
-      }
-      cb(null, 'upload/' + uv4);
+      let uv4 = uuidv4();
+      let dir = config.get('hc-caas-um.uploadDirectory') + "/" + uv4;   
+      fs.mkdirSync(dir,{ recursive: true });
+      cb(null, dir);
 
     },
     filename: (req, file, cb) => {
@@ -114,12 +156,15 @@ exports.start = async function (app, mongoose_in, options = { createSession: tru
     }));
   }
   
+  const middleware = require('./middleware');
 
   app.use("/caas_um_api", loginRoutes);
   app.use(middleware.requireLogin);
   app.use("/caas_um_api", apiRoutes);
 
-
+  if (!app_in) {
+    app.listen(config.get('hc-caas-um.port'));
+  }
   csmanager.init(config.get('hc-caas-um.conversionServiceURI'));
   return global.tm_con;
 };
@@ -131,13 +176,21 @@ function handleInitialConfiguration() {
   let configs = {
         "mongodbURI": "mongodb://127.0.0.1:27017/caas_demo_app",
         "conversionServiceURI": "http://localhost:3001",
-        "serverURI": "http://localhost:3000",
+        "publicURL": "http://localhost:3000",
+        "uploadDirectory": "./uploads_um",
+        "publicPort": "",
         "useDirectFetch": false,
         "useStreaming": false,
-        "demoMode": false,
         "assignDemoHub": false,
-        "createSessionProject": false,
-        "demoProject": ""    
+        "usePolling": false,
+        "caasAccessPassword": "",
+        "serveSite":false,
+        "port" : 3000,
+        "ssrEnabled": false,
+        "demoMode": false,
+        "demoProject": "",
+        "demoUser": "",
+        "demoUserPassword": ""
   };
 
   config.util.setModuleDefaults('hc-caas-um', configs);

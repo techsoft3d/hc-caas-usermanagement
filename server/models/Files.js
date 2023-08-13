@@ -15,6 +15,11 @@ const FilesSchema = new Schema({
     type: Boolean,
     required: true
   },
+
+  uploadDone: {
+    type: Boolean,
+    required: false
+  },
  
   filesize: { 
     type:Number,
