@@ -18,21 +18,25 @@ const fs = require('fs');
 const millisecondsInAnHour = 60 * 60 * 1000;
 const millisecondsInDay = 24 * 60 * 60 * 1000;
 
-setInterval(async function () {    
-    console.log("Purging expired Projects");
-    let projects= await Projects.find({ "hub": null});
-    let rightnow = new Date();
-    for (let i=0;i<projects.length;i++) {
-        if (rightnow - projects[i].updatedAt > millisecondsInDay) {
-            console.log("deleting project:" + projects[i].name);
-            let models = await files.find({ project: projects[i].id });
-            for (let i = 0; i < models.length; i++) {
-                await csmanager.deleteModel(models[i]._id.toString());
+
+if (config.get('hc-caas-um.demoUser') != "") {
+    setInterval(async function () {
+        console.log("Purging expired Projects");
+        let projects = await Projects.find({ "hub": null });
+        let rightnow = new Date();
+        for (let i = 0; i < projects.length; i++) {
+            if (rightnow - projects[i].updatedAt > millisecondsInDay) {
+                console.log("deleting project:" + projects[i].name);
+                let models = await files.find({ project: projects[i].id });
+                for (let i = 0; i < models.length; i++) {
+                    await csmanager.deleteModel(models[i]._id.toString());
+                }
+                await Projects.deleteOne({ "_id": projects[i].id });
             }
-            await Projects.deleteOne({ "_id": projects[i].id });
         }
-    }
-}, millisecondsInAnHour);
+        sessionManager.purgeSessions();
+    }, millisecondsInAnHour);
+}
 
 
 async function copyStarterProject(user,hub)
@@ -110,8 +114,6 @@ exports.postRegister = async(req, res, next) => {
         data.password = await bcrypt.hash(data.password,10);
 
         let user = await Users.create(data);
-
-//        req.session.caasUser = user;
 
         if (config.get('hc-caas-um.assignDemoHub') == true && config.get('hc-caas-um.demoProject') != "")
         {
@@ -244,7 +246,6 @@ exports.checkLogin = async (req, res, next) => {
         if (!item) {
             req.session.destroy();
             res.json({ succeeded: false });
-
         }
         else {
 

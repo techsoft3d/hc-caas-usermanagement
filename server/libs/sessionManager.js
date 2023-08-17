@@ -1,4 +1,6 @@
 const { v4: uuidv4 } = require('uuid');
+const Projects = require('../models/Projects');
+const config = require('config');
 
 
 let sessions = [];
@@ -68,3 +70,19 @@ exports.updateStreaming = async (req) => {
     }
 };
 
+exports.purgeSessions = async () => {
+
+    for (let i in sessions) {
+        let session = sessions[i];
+        if (session.user.email != config.get('hc-caas-um.demoUser')) {
+            continue;
+        }
+        if (session.project) {
+            let project = await Projects.findOne({ "_id": session.project._id });
+            if (project) {
+                continue;
+            }
+        }
+        delete sessions[i];    
+    }
+};
