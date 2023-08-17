@@ -319,7 +319,8 @@ export class CaasUserManagementClient {
             * @param  {string} role - User Role ("User" "Admin", "Owner")
             */
     async addHubUser(hubid, email, role) {
-        await fetch(this.serveraddress + '/caas_um_api/addHubUser/' + hubid + "/" + email + "/" + role, { mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid},method: 'PUT' });
+        let response = await fetch(this.serveraddress + '/caas_um_api/addHubUser/' + hubid + "/" + email + "/" + role, { mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid},method: 'PUT' });
+        return await response.json();
     }
 
     /**
@@ -358,7 +359,6 @@ export class CaasUserManagementClient {
             */
     async acceptHub(hubid, email) {
         await fetch(this.serveraddress + '/caas_um_api/acceptHub/' + hubid + "/" + email, { mode:'cors', headers: {'CSUM-API-SESSIONID': this.sessionid}, method: 'PUT' });
-        this.refreshHubTable();
     }
 
 

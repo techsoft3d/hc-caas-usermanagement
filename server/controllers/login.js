@@ -546,36 +546,31 @@ exports.updateProjectUser = async (req, res, next) => {
 async function addOneHubUser(hubid, email, role,accepted) {
     let item = await Hubs.findOne({ "_id": hubid });
     let hubusers = item.users;
-    let a = [];
     let alreadyAdded = false;
     for (let i = 0; i < hubusers.length; i++) {
         if (hubusers[i].email == email) {
-            alreadyAdded = true;
-            break;
+            return {ERROR:"User already added"};
         }
     }
-    if (!alreadyAdded) {
-        let user = await Users.findOne({ "email": email });
-        if (user) {
-            hubusers.push({ email: user.email, role: role, accepted: accepted });
-        }
-        else {
-            //TODO: Implement email invite for new users
-            // let user = await Users.create({
-            //     firstName: "empty",
-            //     lastName: "empty",
-            //     email: req.params.userid,
-            //     password: "empty",
-            //     status: "NotJoined",        
-            // });
-
-            // hubusers.push({email:req.params.userid, role:req.params.role, accepted:false});
-        }
+    let user = await Users.findOne({ "email": email });
+    if (user) {
+        hubusers.push({ email: user.email, role: role, accepted: accepted });
     }
+    else {
+        return {ERROR:"User not found."};
+        //TODO: Implement email invite for new users
+        // let user = await Users.create({
+        //     firstName: "empty",
+        //     lastName: "empty",
+        //     email: req.params.userid,
+        //     password: "empty",
+        //     status: "NotJoined",        
+        // });
 
-
+        // hubusers.push({email:req.params.userid, role:req.params.role, accepted:false});
+    }
     await item.save();
-
+    return {SUCCESS:"User added."};
 }
 
 exports.addHubUser = async (req, res, next) => {
@@ -587,8 +582,8 @@ exports.addHubUser = async (req, res, next) => {
             role = 1;
         }
 
-        await addOneHubUser(req.params.hubid, req.params.userid, role, false);
-        res.sendStatus(200);
+        let result = await addOneHubUser(req.params.hubid, req.params.userid, role, false);
+        res.json(result);
     }
     else
     {
