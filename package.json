@@ -33,7 +33,7 @@
     "mongodb": "^4.4.1",
     "mongoose": "^6.2.5",
     "multer": "^1.4.4",
-    "ts3d.hc.caas.api": "^0.6.0",
+    "ts3d.hc.caas.api": "^0.7.12",
     "uuid": "^8.3.2"
   }
 }

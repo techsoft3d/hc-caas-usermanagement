@@ -18,6 +18,7 @@ exports.init = async (uri) =>
     conversionServiceURI = uri;
 
     caasClient.init(uri,{accessPassword:config.get('hc-caas-um.caasAccessPassword'),
+    accessKey:config.get('hc-caas-um.caasAccessKey'),
          webhook:global.caas_um_publicip + '/caas_um_api/webhook'});
 
     let caasInfo = await caasClient.getInfo();
