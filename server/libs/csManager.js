@@ -229,7 +229,7 @@ exports.updateConversionStatus =  async (storageId, convertedFiles) => {
 
 exports.getStreamingSession =  async (geo, ssrEnabled = false) => {    
     let data =  await caasClient.getStreamingSession(geo ? geo.timezone : "",ssrEnabled ? "server" : undefined ); 
-    data.ssrEnabled =(ssrEnabled && (data.renderType == "server") || (data.renderType == "mixed"));
+    data.ssrEnabled = (ssrEnabled && ((data.renderType == "server") || (data.renderType == "mixed")));
     return data;
 };
 
