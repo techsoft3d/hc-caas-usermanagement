@@ -1,6 +1,6 @@
 {
   "name": "ts3d.hc.caas.usermanagement",
-  "version": "0.6.53",
+  "version": "0.6.56",
   "description": "",
   "main": "./server/app.js",
   "scripts": {
@@ -33,7 +33,7 @@
     "mongodb": "^4.4.1",
     "mongoose": "^6.2.5",
     "multer": "^1.4.4",
-    "ts3d.hc.caas.api": "^0.7.12",
+    "ts3d.hc.caas.api": "^0.7.17",
     "uuid": "^8.3.2"
   }
 }
