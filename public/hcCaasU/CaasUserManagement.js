@@ -573,7 +573,7 @@ export class CaasUserManagementClient {
             * Initializes Webviewer
             * @param  {string} container - Div of Webviewer Container  
             */
-    async initializeWebviewer(container) {
+    async initializeWebviewer(container,data_in = null) {
 
         let viewer;
         if (!this.useStreaming) {
@@ -584,15 +584,20 @@ export class CaasUserManagementClient {
             });
         }
         else {
-
-            let res = await fetch(this.serveraddress + '/caas_um_api/streamingSession',{ mode:'cors', headers: {'CSUM-API-useSSR' : this.useSSR,'CSUM-API-SESSIONID': this.sessionid}});
-            let data = await res.json();
-
+            let data;
+            if (data_in) {
+                data = data_in;
+            }
+            else
+            {
+                let res = await fetch(this.serveraddress + '/caas_um_api/streamingSession',{ mode:'cors', headers: {'CSUM-API-useSSR' : this.useSSR,'CSUM-API-SESSIONID': this.sessionid}});
+                data = await res.json();
+            }
             if (!data.ERROR) {
                 viewer = new Communicator.WebViewer({
                     containerId: container,
                     endpointUri: (this.serveraddress.indexOf("https") != -1 ? 'wss://' : "ws://") + data.serverurl + ":" + data.port + '?token=' + data.sessionid,
-                    model: "_empty",
+                    model: (data.model ? data.model : "_empty"),
                     rendererType: data.ssrEnabled ? Communicator.RendererType.Server : Communicator.RendererType.Client
                 });
                 this.streamingServerURL = data.serverurl;
