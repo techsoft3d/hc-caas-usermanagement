@@ -10,7 +10,7 @@
     "start-session": "node app_session.js --max-old-space-size=1000000"
   },
   "author": "Guido Hoffmann",
-  "license": "",
+  "license": "MIT",
   "devDependencies": {
     "nodemon": "^3.0.1",
     "webpack-cli": "^5.0.1"
