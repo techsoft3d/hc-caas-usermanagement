@@ -116,7 +116,7 @@ exports.getUploadToken = async (name, size, itemid, project) => {
         existingItemId = item.storageID;
     }
 
-    let json = await caasClient.getUploadToken(name, existingItemId);
+    let json = await caasClient.getUploadToken(name, existingItemId, size);
 
     if (!itemid) {
         const item = new files({
