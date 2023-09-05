@@ -156,7 +156,7 @@ exports.processFromToken = async (itemid, project, startpath) => {
     item.save();
     console.log("processing:" + item.name);
 
-    let json = await caasClient.reconvertModel(item.storageID, {multiConvert:item.name.indexOf(".zip") == -1 ? true : false});
+    let json = await caasClient.reconvertModel(item.storageID, {startPath: startpath, multiConvert:item.name.indexOf(".zip") == -1 ? true : false});
     await _updated(project);
     return json;
 };
