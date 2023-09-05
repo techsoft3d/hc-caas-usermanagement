@@ -29,7 +29,7 @@ if (config.get('hc-caas-um.demoUser') != "") {
                 console.log("deleting project:" + projects[i].name);
                 let models = await files.find({ project: projects[i].id });
                 for (let i = 0; i < models.length; i++) {
-                    await csmanager.deleteModel(models[i]._id.toString());
+                    await csmanager.deleteModel(models[i]._id.toString(),undefined, false);
                 }
                 await Projects.deleteOne({ "_id": projects[i].id });
             }

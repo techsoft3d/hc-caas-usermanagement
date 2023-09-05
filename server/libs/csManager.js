@@ -196,7 +196,7 @@ exports.getSCS = async (itemid,project) => {
     return await caasClient.getFileByType(item.storageID,"scs"); 
 };
 
-exports.deleteModel = async (itemid, project) => {
+exports.deleteModel = async (itemid, project, purgeFromCaaS = true) => {
     let item;
     if (project) {
         item = await files.findOne({ "_id": itemid, project:project });
@@ -207,7 +207,7 @@ exports.deleteModel = async (itemid, project) => {
     if (item) {
         await files.deleteOne({ "_id": itemid });
         let items = await files.find({ "storageID": item.storageID });
-        if (items.length == 0) {
+        if (items.length == 0 && purgeFromCaaS) {
             return await caasClient.deleteModel(item.storageID); 
         }
         if (project) {
