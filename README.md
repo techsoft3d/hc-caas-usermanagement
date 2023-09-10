@@ -1,5 +1,9 @@
 # CaaS User Management (beta)
 
+## Version (0.6.68)
+* Various improvements and bugfixes
+* Requires CaaS version 0.11.89 or later
+
 ## Version (0.6.50)
 * Version update for CaaS Server Depolyment Release
 * Various improvements and bugfixes

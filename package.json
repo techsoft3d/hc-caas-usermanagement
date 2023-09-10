@@ -1,6 +1,6 @@
 {
   "name": "ts3d.hc.caas.usermanagement",
-  "version": "0.6.67",
+  "version": "0.6.68",
   "description": "",
   "main": "./server/app.js",
   "scripts": {
