@@ -18,6 +18,7 @@ exports.init = async (uri) =>
     conversionServiceURI = uri;
 
     caasClient.init(uri,{accessPassword:config.get('hc-caas-um.caasAccessPassword'),
+    accessKey:config.get('hc-caas-um.caasAccessKey'),
          webhook:global.caas_um_publicip + '/caas_um_api/webhook'});
 
     let caasInfo = await caasClient.getInfo();
@@ -115,7 +116,7 @@ exports.getUploadToken = async (name, size, itemid, project) => {
         existingItemId = item.storageID;
     }
 
-    let json = await caasClient.getUploadToken(name, existingItemId);
+    let json = await caasClient.getUploadToken(name, size, {storageid:existingItemId});
 
     if (!itemid) {
         const item = new files({
@@ -155,7 +156,7 @@ exports.processFromToken = async (itemid, project, startpath) => {
     item.save();
     console.log("processing:" + item.name);
 
-    let json = await caasClient.reconvertModel(item.storageID, {multiConvert:item.name.indexOf(".zip") == -1 ? true : false});
+    let json = await caasClient.reconvertModel(item.storageID, {startPath: startpath, multiConvert:item.name.indexOf(".zip") == -1 ? true : false});
     await _updated(project);
     return json;
 };
@@ -195,7 +196,7 @@ exports.getSCS = async (itemid,project) => {
     return await caasClient.getFileByType(item.storageID,"scs"); 
 };
 
-exports.deleteModel = async (itemid, project) => {
+exports.deleteModel = async (itemid, project, purgeFromCaaS = true) => {
     let item;
     if (project) {
         item = await files.findOne({ "_id": itemid, project:project });
@@ -206,7 +207,7 @@ exports.deleteModel = async (itemid, project) => {
     if (item) {
         await files.deleteOne({ "_id": itemid });
         let items = await files.find({ "storageID": item.storageID });
-        if (items.length == 0) {
+        if (items.length == 0 && purgeFromCaaS) {
             return await caasClient.deleteModel(item.storageID); 
         }
         if (project) {
@@ -227,8 +228,8 @@ exports.updateConversionStatus =  async (storageId, convertedFiles) => {
 
 
 exports.getStreamingSession =  async (geo, ssrEnabled = false) => {    
-    let data =  await caasClient.getStreamingSession(geo ? geo.timezone : "",ssrEnabled ? "server" : undefined ); 
-    data.ssrEnabled =(ssrEnabled && (data.renderType == "server") || (data.renderType == "mixed"));
+    let data =  await caasClient.getStreamingSession({geo: geo ? geo.timezone : "",renderType: ssrEnabled ? "server" : undefined}); 
+    data.ssrEnabled = (ssrEnabled && ((data.renderType == "server") || (data.renderType == "mixed")));
     return data;
 };
 
@@ -261,7 +262,7 @@ async function _checkPendingConversions() {
                 const data = await caasClient.getModelData(notConverted[i].storageID);
                 if (data.ERROR) { console.log(data.ERROR); } 
             
-                if (data.error ==undefined) {
+                if (data.ERROR ==undefined) {
                     if (data.conversionState == "SUCCESS") {
                         notConverted[i].converted = true;
                         notConverted[i].save();

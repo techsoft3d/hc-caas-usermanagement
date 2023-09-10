@@ -15,7 +15,7 @@ function newStat(type,req, value) {
     const stat = new stats({
         Type: type,
         From:  req.headers['x-forwarded-for'] || req.connection.remoteAddress,
-        Value: value ? value : ""
+        Value: value ? value : "empty"
     });
 
     stat.save();

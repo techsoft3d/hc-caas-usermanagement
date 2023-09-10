@@ -64,7 +64,10 @@ class AdminHub {
             }
         }
         if (!isUser) {
-            await myUserManagmentClient.addHubUser(this.editHub.id, email, role);
+            let res = await myUserManagmentClient.addHubUser(this.editHub.id, email, role);
+            if (res.ERROR) {
+                $.notify("Error: " + res.ERROR, { style:"notifyerror",autoHideDelay: 3000, position: "bottom center" });
+            }
         }
         else {
             await myUserManagmentClient.updateHubUser(this.editHub.id, email, role);

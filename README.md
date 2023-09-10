@@ -1,5 +1,14 @@
 # CaaS User Management (beta)
 
+## Version (0.6.68)
+* Various improvements and bugfixes
+* Requires CaaS version 0.11.89 or later
+
+## Version (0.6.50)
+* Version update for CaaS Server Depolyment Release
+* Various improvements and bugfixes
+* Requires CaaS version 0.9.5 or later
+
 ## Version Update (0.3.8) 
 * Direct S3 Upload Support (single file and zip upload only)
 * Requires CaaS Version 0.9.12 or later

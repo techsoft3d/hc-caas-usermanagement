@@ -18,21 +18,25 @@ const fs = require('fs');
 const millisecondsInAnHour = 60 * 60 * 1000;
 const millisecondsInDay = 24 * 60 * 60 * 1000;
 
-setInterval(async function () {    
-    console.log("Purging expired Projects");
-    let projects= await Projects.find({ "hub": null});
-    let rightnow = new Date();
-    for (let i=0;i<projects.length;i++) {
-        if (rightnow - projects[i].updatedAt > millisecondsInDay) {
-            console.log("deleting project:" + projects[i].name);
-            let models = await files.find({ project: projects[i].id });
-            for (let i = 0; i < models.length; i++) {
-                await csmanager.deleteModel(models[i]._id.toString());
+
+if (config.get('hc-caas-um.demoUser') != "") {
+    setInterval(async function () {
+        console.log("Purging expired Projects");
+        let projects = await Projects.find({ "hub": null });
+        let rightnow = new Date();
+        for (let i = 0; i < projects.length; i++) {
+            if (rightnow - projects[i].updatedAt > millisecondsInDay) {
+                console.log("deleting project:" + projects[i].name);
+                let models = await files.find({ project: projects[i].id });
+                for (let i = 0; i < models.length; i++) {
+                    await csmanager.deleteModel(models[i]._id.toString(),undefined, false);
+                }
+                await Projects.deleteOne({ "_id": projects[i].id });
             }
-            await Projects.deleteOne({ "_id": projects[i].id });
         }
-    }
-}, millisecondsInAnHour);
+        sessionManager.purgeSessions();
+    }, millisecondsInAnHour);
+}
 
 
 async function copyStarterProject(user,hub)
@@ -110,8 +114,6 @@ exports.postRegister = async(req, res, next) => {
         data.password = await bcrypt.hash(data.password,10);
 
         let user = await Users.create(data);
-
-//        req.session.caasUser = user;
 
         if (config.get('hc-caas-um.assignDemoHub') == true && config.get('hc-caas-um.demoProject') != "")
         {
@@ -244,7 +246,6 @@ exports.checkLogin = async (req, res, next) => {
         if (!item) {
             req.session.destroy();
             res.json({ succeeded: false });
-
         }
         else {
 
@@ -545,36 +546,31 @@ exports.updateProjectUser = async (req, res, next) => {
 async function addOneHubUser(hubid, email, role,accepted) {
     let item = await Hubs.findOne({ "_id": hubid });
     let hubusers = item.users;
-    let a = [];
     let alreadyAdded = false;
     for (let i = 0; i < hubusers.length; i++) {
         if (hubusers[i].email == email) {
-            alreadyAdded = true;
-            break;
+            return {ERROR:"User already added"};
         }
     }
-    if (!alreadyAdded) {
-        let user = await Users.findOne({ "email": email });
-        if (user) {
-            hubusers.push({ email: user.email, role: role, accepted: accepted });
-        }
-        else {
-            //TODO: Implement email invite for new users
-            // let user = await Users.create({
-            //     firstName: "empty",
-            //     lastName: "empty",
-            //     email: req.params.userid,
-            //     password: "empty",
-            //     status: "NotJoined",        
-            // });
-
-            // hubusers.push({email:req.params.userid, role:req.params.role, accepted:false});
-        }
+    let user = await Users.findOne({ "email": email });
+    if (user) {
+        hubusers.push({ email: user.email, role: role, accepted: accepted });
     }
+    else {
+        return {ERROR:"User not found."};
+        //TODO: Implement email invite for new users
+        // let user = await Users.create({
+        //     firstName: "empty",
+        //     lastName: "empty",
+        //     email: req.params.userid,
+        //     password: "empty",
+        //     status: "NotJoined",        
+        // });
 
-
+        // hubusers.push({email:req.params.userid, role:req.params.role, accepted:false});
+    }
     await item.save();
-
+    return {SUCCESS:"User added."};
 }
 
 exports.addHubUser = async (req, res, next) => {
@@ -586,8 +582,8 @@ exports.addHubUser = async (req, res, next) => {
             role = 1;
         }
 
-        await addOneHubUser(req.params.hubid, req.params.userid, role, false);
-        res.sendStatus(200);
+        let result = await addOneHubUser(req.params.hubid, req.params.userid, role, false);
+        res.json(result);
     }
     else
     {
