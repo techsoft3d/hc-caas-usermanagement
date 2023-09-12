@@ -3,8 +3,7 @@
       "mongodbURI": "mongodb://127.0.0.1:27017/caas_demo_app",
       "useStreaming": true,
       "useDirectFetch": true,
-      "serveSite":true,
-      "publicURL": "",
+      "serveSite":true,   
       "caasAccessPassword": "123",
       "caasAccessKey" : "64e5ee2c8b05df649aedd717"
     }

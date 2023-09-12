@@ -50,7 +50,7 @@ exports.process = async (tempid, filename, project,startpath) => {
     const data = await caasClient.uploadModelFromFile(config.get('hc-caas-um.uploadDirectory') + "/" +  tempid + "/" + filename, startpath);
 
     del(config.get('hc-caas-um.uploadDirectory') + "/" +  tempid, {force: true});
-    item.storageID = data.itemid;
+    item.storageID = data.storageID;
     item.save();
     await _updated(project);
 
@@ -85,7 +85,7 @@ exports.processMultiple = async (infiles, startmodel, project) => {
         let tempid = infiles[i].destination.split("/")[1];
         del(config.get('hc-caas-um.uploadDirectory') + "/" + tempid, {force: true});
     }
-    item.storageID = info.data.itemid;
+    item.storageID = info.data.storageID;
     item.save();
     await _updated(project);
     return modelid;    
@@ -97,7 +97,7 @@ exports.createEmptyModel = async (name, size, startpath, project) => {
         const item = new files({
             name: name,
             converted: false,
-            storageID: json.itemid,
+            storageID: json.storageID,
             filesize: size,
             uploaded: new Date(),
             uploadDone: false,    
@@ -120,7 +120,7 @@ exports.getUploadToken = async (name, size, itemid, project) => {
 
     if (!itemid) {
         const item = new files({
-            name: name, converted: false, storageID: json.itemid,
+            name: name, converted: false, storageID: json.storageID,
             filesize: size, uploaded: new Date(), uploadDone: false, project: project
         });
         await item.save();
