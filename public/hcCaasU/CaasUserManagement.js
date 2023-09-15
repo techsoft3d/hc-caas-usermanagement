@@ -596,7 +596,7 @@ export class CaasUserManagementClient {
             if (!data.ERROR) {
                 viewer = new Communicator.WebViewer({
                     containerId: container,
-                    endpointUri: (this.serveraddress.indexOf("https") != -1 ? 'wss://' : "ws://") + data.serverurl + ":" + data.port + '?token=' + data.sessionid,
+                    endpointUri: data.endpointUri,
                     model: (data.model ? data.model : "_empty"),
                     rendererType: data.ssrEnabled ? Communicator.RendererType.Server : Communicator.RendererType.Client
                 });
