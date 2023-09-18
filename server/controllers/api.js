@@ -12,9 +12,13 @@ let csmanager = require('../libs/csManager');
 
 function newStat(type,req, value) {
    
+    let from =  req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    if (!from) {
+        from = "empty";
+    }
     const stat = new stats({
         Type: type,
-        From:  req.headers['x-forwarded-for'] || req.connection.remoteAddress,
+        From:  from,
         Value: value ? value : "empty"
     });
 
